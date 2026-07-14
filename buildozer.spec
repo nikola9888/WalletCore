@@ -18,6 +18,8 @@ requirements = python3,kivy,matplotlib,reportlab
 
 orientation = portrait
 
+android.permissions = WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
+
 fullscreen = 0
 
 
