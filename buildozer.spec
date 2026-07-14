@@ -4,7 +4,7 @@ title = WalletCore
 
 package.name = walletcore
 
-package.domain = org.walletcore
+package.domain = com.develop4world
 
 source.dir = .
 
