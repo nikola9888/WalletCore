@@ -1,3 +1,5 @@
 kivy
 matplotlib
 reportlab
+requests
+pillow
