@@ -14,7 +14,7 @@ version = 1.0.0
 
 icon.filename = assets/icon.png
 
-requirements = python3,kivy,matplotlib
+requirements = python3,kivy,matplotlib,reportlab
 
 orientation = portrait
 
