@@ -38,11 +38,3 @@ android.enable_androidx = True
 
 android.copy_libs = 1
 
-
-[buildozer]
-
-log_level = 2
-
-warn_on_root = 1
-
-exclude_dirs = .git,.github,__pycache__,.buildozer
