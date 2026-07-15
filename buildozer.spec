@@ -18,9 +18,12 @@ orientation = portrait
 
 fullscreen = 0
 
+
 requirements = python3,kivy
 
+
 android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
+
 
 android.api = 35
 
@@ -30,6 +33,7 @@ android.ndk = 27c
 
 android.archs = arm64-v8a,armeabi-v7a
 
+
 android.allow_backup = True
 
 android.private_storage = True
@@ -38,3 +42,10 @@ android.enable_androidx = True
 
 android.copy_libs = 1
 
+
+
+[buildozer]
+
+log_level = 2
+
+warn_on_root = 1
