@@ -75,11 +75,16 @@ jobs:
         rm -rf .buildozer
         rm -rf bin
 
+    - name: Accept Android licenses
+      run: |
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses || true
 
     - name: Build APK
+      env:
+        ACCEPT_ANDROID_SDK_LICENSES: "y"
       run: |
-        buildozer -v android debug
-
+        yes | buildozer -v android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
