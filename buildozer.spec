@@ -31,8 +31,6 @@ android.permissions = INTERNET
 
 android.api = 35
 
-android.sdk = 35
-
 android.minapi = 24
 
 
