@@ -13,150 +13,85 @@ jobs:
 
     steps:
 
-    # ==========================
-    # DOWNLOAD PROJECT
-    # ==========================
-
     - name: Checkout
       uses: actions/checkout@v4
 
 
-
-    # ==========================
-    # PYTHON
-    # ==========================
-
-    - name: Setup Python 3.11
+    - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.11"
 
 
-
-    # ==========================
-    # SYSTEM DEPENDENCIES
-    # ==========================
-
-    - name: Install dependencies
+    - name: Install Java 17
       run: |
 
         sudo apt update
 
-        sudo apt install -y \
-          git \
-          zip \
-          unzip \
-          openjdk-17-jdk \
-          autoconf \
-          libtool \
-          pkg-config \
-          zlib1g-dev \
-          libncurses5-dev \
-          libncursesw5-dev \
-          cmake
-
-
-
-    # ==========================
-    # FORCE JAVA 17
-    # ==========================
-
-    - name: Configure Java 17
-      run: |
+        sudo apt install -y openjdk-17-jdk
 
         echo "JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64" >> $GITHUB_ENV
-
-        echo "/usr/lib/jvm/temurin-17-jdk-amd64/bin" >> $GITHUB_PATH
 
         java -version
 
 
 
-    # ==========================
-    # ANDROID SDK
-    # ==========================
-
-    - name: Setup Android SDK
+    - name: Setup Android
       uses: android-actions/setup-android@v3
 
 
 
-    # ==========================
-    # ACCEPT LICENSES
-    # ==========================
-
-    - name: Accept Android licenses
+    - name: Accept licenses
       run: |
 
-        yes | sdkmanager --licenses || true
+        yes | sdkmanager --licenses
 
 
 
-    # ==========================
-    # INSTALL ANDROID PACKAGES
-    # ==========================
-
-    - name: Install Android packages
+    - name: Install SDK
       run: |
 
         sdkmanager \
-          "platform-tools" \
-          "platforms;android-35" \
-          "build-tools;35.0.0" \
-          "ndk;27.3.13750724"
+        "platform-tools" \
+        "platforms;android-35" \
+        "build-tools;35.0.0" \
+        "ndk;27.3.13750724"
 
 
 
-    # ==========================
-    # PYTHON BUILD TOOLS
-    # ==========================
-
-    - name: Install Buildozer
+    - name: Install build tools
       run: |
 
-        python -m pip install --upgrade pip
+        pip install --upgrade pip
 
         pip install \
-          buildozer==1.6.0 \
-          cython==0.29.36 \
-          python-for-android \
-          appdirs \
-          virtualenv
+        buildozer==1.6.0 \
+        cython==0.29.36 \
+        python-for-android \
+        appdirs
 
 
 
-    # ==========================
-    # CLEAN OLD CACHE
-    # ==========================
-
-    - name: Clean Buildozer
+    - name: Clear cache
       run: |
+
+        rm -rf ~/.buildozer
 
         rm -rf .buildozer
 
-        rm -rf bin
 
 
-
-    # ==========================
-    # BUILD APK
-    # ==========================
-
-    - name: Build WalletCore APK
+    - name: Build APK
       run: |
 
         buildozer android debug
 
 
 
-    # ==========================
-    # UPLOAD APK
-    # ==========================
-
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
 
-        name: WalletCore-debug-apk
+        name: WalletCore APK
 
         path: bin/*.apk
