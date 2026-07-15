@@ -49,25 +49,14 @@ jobs:
 
 
 
-    - name: Locate Android SDK
+    - name: Setup Android SDK
       run: |
 
         echo "ANDROID_HOME=$ANDROID_HOME"
 
-        find $ANDROID_HOME -name sdkmanager || true
-
-
-
-    - name: Setup Android SDK
-      run: |
-
         SDKMANAGER=$(find $ANDROID_HOME -name sdkmanager | head -n 1)
 
-        echo "Using sdkmanager:"
-        echo $SDKMANAGER
-
-
-        chmod +x $SDKMANAGER
+        echo "SDKMANAGER=$SDKMANAGER"
 
 
         yes | $SDKMANAGER --licenses || true
@@ -80,7 +69,7 @@ jobs:
 
 
 
-    - name: Configure Buildozer
+    - name: Setup Buildozer paths
       run: |
 
         mkdir -p ~/.buildozer/android/platform
@@ -90,7 +79,17 @@ jobs:
 
 
 
-    - name: Build WalletCore APK
+    - name: Install Android NDK
+      run: |
+
+        SDKMANAGER=$(find $ANDROID_HOME -name sdkmanager | head -n 1)
+
+        $SDKMANAGER \
+          "ndk;27.3.13750724"
+
+
+
+    - name: Build WalletCore
       run: |
 
         buildozer android clean
