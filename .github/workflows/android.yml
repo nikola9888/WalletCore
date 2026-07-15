@@ -27,21 +27,17 @@ jobs:
             git \
             zip \
             unzip \
-            openjdk-17-jdk \
-            wget
+            openjdk-17-jdk
 
 
-      - name: Setup Android SDK
+      - name: Install Android SDK
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls $ANDROID_HOME/cmdline-tools
-
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-            "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0"
+          "platform-tools" \
+          "platforms;android-35" \
+          "build-tools;35.0.0"
 
 
       - name: Install Buildozer
@@ -50,15 +46,16 @@ jobs:
           python -m pip install buildozer cython==0.29.36
 
 
-      - name: Configure Android
+      - name: Link Android SDK for Buildozer
         run: |
-          echo "ANDROIDSDK=$ANDROID_HOME" >> $GITHUB_ENV
-          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          echo "ANDROIDAPI=35" >> $GITHUB_ENV
-          echo "ANDROIDMINAPI=24" >> $GITHUB_ENV
+          mkdir -p ~/.buildozer/android/platform
+
+          ln -s $ANDROID_HOME ~/.buildozer/android/platform/android-sdk
 
 
       - name: Build APK
+        env:
+          ANDROIDSDK: ${{ env.ANDROID_HOME }}
         run: |
           buildozer android debug
 
