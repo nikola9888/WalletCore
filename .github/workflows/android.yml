@@ -31,10 +31,14 @@ jobs:
             wget
 
 
-      - name: Install Android SDK packages
+      - name: Setup Android SDK
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager \
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls $ANDROID_HOME/cmdline-tools
+
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
             "platform-tools" \
             "platforms;android-35" \
             "build-tools;35.0.0"
@@ -46,12 +50,12 @@ jobs:
           python -m pip install buildozer cython==0.29.36
 
 
-      - name: Configure Android paths
+      - name: Configure Android
         run: |
           echo "ANDROIDSDK=$ANDROID_HOME" >> $GITHUB_ENV
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           echo "ANDROIDAPI=35" >> $GITHUB_ENV
-          echo "ANDROIDNDK=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
+          echo "ANDROIDMINAPI=24" >> $GITHUB_ENV
 
 
       - name: Build APK
