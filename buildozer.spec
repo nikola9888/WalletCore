@@ -19,7 +19,8 @@ requirements = python3,kivy
 
 android.permissions = INTERNET
 
-p4a.branch = 2023.09.16
+# p4a branch
+p4a.branch = master
 
 android.api = 35
 
