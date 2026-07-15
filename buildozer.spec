@@ -14,7 +14,7 @@ version = 1.0.0
 
 icon.filename = assets/icon.png
 
-requirements = python3,kivy,matplotlib,reportlab
+requirements = python3,kivy,reportlab
 
 orientation = portrait
 
@@ -26,3 +26,7 @@ fullscreen = 0
 [buildozer]
 
 log_level = 2
+
+android.api = 35
+android.minapi = 24
+android.ndk = 25b
