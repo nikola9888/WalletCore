@@ -197,34 +197,3 @@ android.allow_backup = True
 #icon.filename = %(source.dir)s/assets/icon.png
 
 
-[buildozer]
-
-# (int) Log level (0 = error only, 1 = info, 2 = debug)
-log_level = 2
-
-# (bool) Warn users if a newer version of buildozer is available
-warn_on_root = 1
-
-
-# Android build settings
-
-android.accept_sdk_license = True
-
-android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
-
-android.archs = arm64-v8a,armeabi-v7a
-
-# Use AndroidX
-android.enable_androidx = True
-
-
-# Gradle
-android.gradle_dependencies =
-
-
-# Copy assets
-android.add_src = assets
-
-
-# Keystore (later for Play Store)
-# android.release_artifact = .keystore
