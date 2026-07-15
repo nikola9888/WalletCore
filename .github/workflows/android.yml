@@ -47,6 +47,8 @@ jobs:
 
         pip install buildozer cython==0.29.36
 
+        pip install python-for-android
+
 
 
     - name: Setup Android SDK
@@ -65,7 +67,8 @@ jobs:
         $SDKMANAGER \
           "platform-tools" \
           "platforms;android-35" \
-          "build-tools;35.0.0"
+          "build-tools;35.0.0" \
+          "ndk;27.3.13750724"
 
 
 
@@ -79,20 +82,15 @@ jobs:
 
 
 
-    - name: Install Android NDK
+    - name: Prepare build environment
       run: |
 
-        SDKMANAGER=$(find $ANDROID_HOME -name sdkmanager | head -n 1)
-
-        $SDKMANAGER \
-          "ndk;27.3.13750724"
+        rm -rf .buildozer
 
 
 
-    - name: Build WalletCore
+    - name: Build WalletCore APK
       run: |
-
-        buildozer android clean
 
         buildozer android debug
 
