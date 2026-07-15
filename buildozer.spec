@@ -22,6 +22,8 @@ android.permissions = INTERNET
 android.api = 35
 android.minapi = 24
 
+android.build_tools_version = 35.0.0
+
 android.archs = arm64-v8a
 
 android.enable_androidx = True
