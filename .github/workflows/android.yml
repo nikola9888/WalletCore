@@ -23,9 +23,6 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y \
-            python3-pip \
-            python3-setuptools \
-            python3-wheel \
             build-essential \
             git \
             zip \
@@ -34,11 +31,13 @@ jobs:
             wget
 
 
-      - name: Prepare Android SDK for Buildozer
+      - name: Install Android SDK packages
         run: |
-          mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
-          ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-          ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+          yes | sdkmanager --licenses || true
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
 
 
       - name: Install Buildozer
@@ -47,17 +46,12 @@ jobs:
           python -m pip install buildozer cython==0.29.36
 
 
-      - name: Android licenses
+      - name: Configure Android paths
         run: |
-          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-
-          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" \
-          > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-
-          echo "84831b9409646a918e30573bab4c9c91346d8abd" \
-          >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-
-          yes | sdkmanager --licenses || true
+          echo "ANDROIDSDK=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROIDAPI=35" >> $GITHUB_ENV
+          echo "ANDROIDNDK=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
 
 
       - name: Build APK
