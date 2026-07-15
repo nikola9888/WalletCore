@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
+
   build:
 
     runs-on: ubuntu-22.04
@@ -27,30 +28,43 @@ jobs:
           git
 
 
-    - name: Force Java 17
+    - name: Setup Java 17
       run: |
-        sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-        sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
-
+        echo "JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64" >> $GITHUB_ENV
+        export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64
         java -version
 
 
-    - name: Setup Android environment
+    - name: Setup Android SDK licenses
       run: |
-        echo "ANDROID_NDK_VERSION=25b" >> $GITHUB_ENV
-        echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
-        echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
+
+    - name: Install Android packages
+      run: |
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+        "platform-tools" \
+        "platforms;android-35" \
+        "build-tools;35.0.0" \
+        "ndk;25.2.9519653"
+
+
+    - name: Setup Android NDK
+      run: |
+        echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
+        echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
+        
         ls $ANDROID_HOME/ndk
+
 
     - name: Install Buildozer
       run: |
-        pip install --upgrade pip
-        pip install buildozer==1.6.0
-        pip install cython==0.29.37
+        python3 -m pip install --upgrade pip
+        python3 -m pip install buildozer==1.6.0
+        python3 -m pip install cython==0.29.37
 
 
-    - name: Clean
+    - name: Clean old files
       run: |
         rm -rf ~/.buildozer
         rm -rf .buildozer
@@ -58,14 +72,12 @@ jobs:
 
 
     - name: Build APK
-      env:
-        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
       run: |
         buildozer -v android debug
 
 
-    - name: Upload
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: WalletCore
+        name: WalletCore-debug
         path: bin/*.apk
