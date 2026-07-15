@@ -3,15 +3,12 @@ name: Build WalletCore APK
 on:
   workflow_dispatch:
 
-
 jobs:
-
   build:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
-
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -23,70 +20,55 @@ jobs:
         python-version: "3.11"
 
 
-    - name: Install packages
+    - name: Install system packages
       run: |
         sudo apt update
         sudo apt install -y \
+          build-essential \
           git \
           zip \
           unzip \
-          openjdk-17-jdk \
-          build-essential
+          openjdk-17-jdk
 
 
     - name: Install Buildozer
       run: |
-        pip install --upgrade pip
-        pip install buildozer==1.6.0
+        python -m pip install --upgrade pip
+        pip install buildozer
         pip install cython==0.29.36
 
 
-    - name: Prepare Buildozer Android SDK
+    - name: Setup Android SDK
       run: |
 
-        rm -rf ~/.buildozer/android/platform/android-sdk
+        echo "ANDROID_HOME=$ANDROID_HOME"
 
-        mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
-        mkdir -p ~/.buildozer/android/platform/android-sdk/platform-tools
-        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        yes | sdkmanager --licenses || true
 
-
-        ln -s $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-        ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-
-
-        ln -s $ANDROID_HOME/platform-tools/adb \
-        ~/.buildozer/android/platform/android-sdk/platform-tools/adb
+        sdkmanager \
+          "platform-tools" \
+          "platforms;android-35" \
+          "build-tools;35.0.0"
 
 
-        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" \
-        > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-
-        echo "84831b9409646a918e30573bab4c9c91346d8abd" \
-        >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-
-
-    - name: Install SDK packages
+    - name: Setup Buildozer environment
       run: |
 
-        ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager \
-        "platform-tools" \
-        "platforms;android-35" \
-        "build-tools;35.0.0"
+        mkdir -p ~/.buildozer/android/platform
 
-
-    - name: Clean build
-      run: |
-        rm -rf .buildozer
+        echo "sdk.dir=$ANDROID_HOME" > ~/.buildozer/android/platform/local.properties
 
 
     - name: Build APK
       run: |
+        buildozer android clean
         buildozer android debug
 
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
+
         name: WalletCore-debug-apk
+
         path: bin/*.apk
