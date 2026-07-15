@@ -18,15 +18,17 @@ requirements = python3,kivy,reportlab
 
 orientation = portrait
 
+fullscreen = 0
+
 android.permissions = WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
 
-fullscreen = 0
+android.api = 35
+
+android.minapi = 24
+
+android.ndk = 25b
 
 
 [buildozer]
 
 log_level = 2
-
-android.api = 35
-android.minapi = 24
-android.ndk = 25b
