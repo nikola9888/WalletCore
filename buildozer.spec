@@ -19,6 +19,8 @@ requirements = python3,kivy
 
 android.permissions = INTERNET
 
+p4a.branch = 2023.09.16
+
 android.api = 35
 android.minapi = 24
 
