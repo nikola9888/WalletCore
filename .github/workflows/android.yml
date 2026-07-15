@@ -30,32 +30,43 @@ jobs:
             openjdk-17-jdk
 
 
-      - name: Install Android SDK packages
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-            "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0"
-
-
       - name: Install Buildozer
         run: |
           python -m pip install --upgrade pip
           python -m pip install buildozer cython==0.29.36
 
 
-      - name: Prepare Buildozer SDK
+      - name: Prepare Android SDK
         run: |
           mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
           mkdir -p ~/.buildozer/android/platform/android-sdk/platform-tools
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
 
           ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
           ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
 
           ln -sf $ANDROID_HOME/platform-tools/adb \
           ~/.buildozer/android/platform/android-sdk/platform-tools/adb
+
+
+      - name: Accept Android licenses
+        run: |
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" \
+          > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" \
+          >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+
+          yes | ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager --licenses || true
+
+
+      - name: Install Android packages
+        run: |
+          ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager \
+          "platform-tools" \
+          "platforms;android-35" \
+          "build-tools;35.0.0" \
+          "build-tools;37.0.0"
 
 
       - name: Build APK
