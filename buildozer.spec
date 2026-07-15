@@ -23,9 +23,9 @@ p4a.branch = 2023.09.16
 
 android.api = 35
 
-android.minapi = 24
-
 android.ndk = 25b
+
+android.minapi = 24
 
 android.build_tools_version = 35.0.0
 
