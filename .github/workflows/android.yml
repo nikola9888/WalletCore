@@ -49,6 +49,7 @@ jobs:
       - name: Prepare Buildozer SDK
         run: |
           mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
+          mkdir -p ~/.buildozer/android/platform/android-sdk/platform-tools
 
           ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
           ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
