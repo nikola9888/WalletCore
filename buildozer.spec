@@ -36,7 +36,7 @@ android.sdk = 35
 android.minapi = 24
 
 
-android.ndk = 28c
+android.ndk = 25c
 
 android.archs = arm64-v8a
 
