@@ -30,14 +30,14 @@ jobs:
             openjdk-17-jdk
 
 
-      - name: Install Android SDK
+      - name: Install Android SDK packages
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-          "platform-tools" \
-          "platforms;android-35" \
-          "build-tools;35.0.0"
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
 
 
       - name: Install Buildozer
@@ -46,16 +46,18 @@ jobs:
           python -m pip install buildozer cython==0.29.36
 
 
-      - name: Link Android SDK for Buildozer
+      - name: Prepare Buildozer SDK
         run: |
-          mkdir -p ~/.buildozer/android/platform
+          mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
 
-          ln -s $ANDROID_HOME ~/.buildozer/android/platform/android-sdk
+          ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+          ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+
+          ln -sf $ANDROID_HOME/platform-tools/adb \
+          ~/.buildozer/android/platform/android-sdk/platform-tools/adb
 
 
       - name: Build APK
-        env:
-          ANDROIDSDK: ${{ env.ANDROID_HOME }}
         run: |
           buildozer android debug
 
