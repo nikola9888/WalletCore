@@ -18,26 +18,23 @@ orientation = portrait
 fullscreen = 0
 
 
-requirements = python3,kivy,appdirs
+requirements = python3,kivy
 
 
 android.permissions = INTERNET
 
+
 android.api = 35
+
 android.minapi = 24
 
-android.ndk = 27c
+android.ndk = 27.3.13750724
 
-android.archs = arm64-v8a,armeabi-v7a
+android.archs = arm64-v8a
 
-android.allow_backup = True
 
 android.private_storage = True
 
+android.allow_backup = True
+
 android.enable_androidx = True
-
-
-[buildozer]
-
-log_level = 2
-warn_on_root = 1
