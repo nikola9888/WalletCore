@@ -24,9 +24,8 @@ jobs:
           rm -rf bin
 
       - name: Build APK
-        run: |
-          export BUILDOZER_WARN_ON_ROOT=0
-          buildozer android debug
+          run: |
+            yes | buildozer android debug
 
       - uses: actions/upload-artifact@v4
         with:
