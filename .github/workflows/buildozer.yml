@@ -71,10 +71,10 @@ jobs:
         rm -rf .buildozer
         rm -rf bin
 
-
     - name: Build APK
       run: |
-
+        rm -rf ~/.buildozer
+        rm -rf .buildozer
         buildozer -v android debug
 
 
