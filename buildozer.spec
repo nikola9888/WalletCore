@@ -21,7 +21,7 @@ icon.filename = assets/icon.png
 android.api = 35
 android.minapi = 24
 
-android.ndk = 25b
+android.ndk = 25c
 
 android.archs = arm64-v8a
 
