@@ -17,18 +17,20 @@ fullscreen = 0
 
 requirements = python3,kivy
 
-android.permissions = INTERNET
-
 android.api = 35
-
-android.ndk = 25b
 
 android.minapi = 24
 
+android.ndk = 25b
+
 android.archs = arm64-v8a
 
+android.build_tools_version = 35.0.0
+
 android.enable_androidx = True
+
 android.private_storage = True
+
 android.allow_backup = True
 
 log_level = 2
