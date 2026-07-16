@@ -7,16 +7,18 @@ package.domain = com.develop4world
 
 source.dir = .
 
-source.include_exts = py,png,jpg,jpeg,kv,json,atlas,ttf
+source.include_exts = py,png,jpg,jpeg,kv,json,atlas,ttf,db
 
 version = 1.0.0
 
-requirements = python3,kivy
+requirements = python3,kivy,pillow,requests
 
 orientation = portrait
+
 fullscreen = 0
 
 icon.filename = assets/icon.png
+
 
 android.api = 35
 android.minapi = 24
