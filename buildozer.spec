@@ -18,8 +18,6 @@ fullscreen = 0
 
 icon.filename = assets/icon.png
 
-android.permissions = INTERNET
-
 android.api = 35
 android.minapi = 24
 
@@ -32,10 +30,6 @@ android.enable_androidx = True
 android.private_storage = True
 
 android.allow_backup = True
-
-build_dir = .buildozer
-
-p4a.branch = master
 
 
 [buildozer]
