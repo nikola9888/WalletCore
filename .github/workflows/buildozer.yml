@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: kivy/buildozer:stable
+      image: kivy/buildozer:1.5.0
 
 
     steps:
@@ -18,10 +18,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+   - name: Install dependencies
+      run: |
+        pip install "cython<3"
+
 
     - name: Environment
       run: |
         python3 --version
+        pip --version
         buildozer --version
         java -version
 
