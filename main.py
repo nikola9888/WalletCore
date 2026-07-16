@@ -55,43 +55,28 @@ class WalletCore(App):
     def build(self):
 
         self.load_language()
-        print("BUILD START")
+
         Window.clearcolor = BACKGROUND
- 
+
         sm = ScreenManager(
-            transition=FadeTransition(duration=0.2)
+        transition=FadeTransition(duration=0.2)
         )
 
         sm.add_widget(HomeScreen(name="home"))
-        print("HOME OK")
- 
-        sm.add_widget(SettingsScreen(name="settings"))
-        
+    print("HOME OK")
+
+        # sm.add_widget(SettingsScreen(name="settings"))
+
         sm.add_widget(
             HistoryScreen(name="history")
         )
-        
+
         sm.add_widget(
             AboutScreen(name="about")
         )
-        print("SETTINGS OK")
-        
-        sm.add_widget(ProfileScreen(name="profile"))
+
+        #     sm.add_widget(ProfileScreen(name="profile"))
+
+        print("BUILD DONE")
 
         return sm
-        
-if __name__ == "__main__":
-
-    try:
-        WalletCore().run()
-
-    except Exception:
-
-        os.makedirs("logs", exist_ok=True)
-
-        filename = datetime.now().strftime("logs/crash_%Y-%m-%d_%H-%M-%S.txt")
-
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(traceback.format_exc())
-
-        raise
