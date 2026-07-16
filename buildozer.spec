@@ -20,7 +20,7 @@ requirements = python3,kivy
 android.permissions = INTERNET
 
 # p4a branch
-p4a.source_dir =
+p4a.branch = develop
 
 android.api = 35
 
