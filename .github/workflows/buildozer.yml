@@ -85,6 +85,10 @@ jobs:
         rm -rf .buildozer
         rm -rf bin
 
+    - name: Force Android build tools
+      run: |
+        echo "ANDROID_BUILD_TOOLS_VERSION=35.0.0" >> $GITHUB_ENV
+        ls $ANDROID_HOME/build-tools
 
     - name: Build APK
       run: |
