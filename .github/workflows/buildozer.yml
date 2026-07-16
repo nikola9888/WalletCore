@@ -4,9 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-
   build:
-
     runs-on: ubuntu-22.04
 
     steps:
@@ -14,77 +12,30 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
 
     - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt install -y \
-          python3-pip \
-          python3-setuptools \
-          python3-wheel \
-          openjdk-17-jdk \
-          unzip \
-          zip \
-          git
+        python -m pip install --upgrade pip
+        pip install buildozer cython==0.29.36 virtualenv
 
-
-    - name: Setup Java 17
+    - name: Install Android SDK licenses
       run: |
-        echo "JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64" >> $GITHUB_ENV
-        export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64
-        java -version
-
-
-    - name: Setup Android SDK licenses
-      run: |
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
+        yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
     - name: Install Android packages
       run: |
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+        ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager \
         "platform-tools" \
         "platforms;android-35" \
-        "build-tools;35.0.0" \
-        "ndk;25.2.9519653"
-
-
-    - name: Setup Android NDK
-      run: |
-        echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
-        echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
-        
-        ls $ANDROID_HOME/ndk
-
-    - name: Setup Android NDK
-      run: |
-        echo "ANDROID_NDK=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
-        echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
-        echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
-
-    - name: Install Buildozer
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install buildozer==1.6.0
-        python3 -m pip install cython==0.29.37
-
-
-    - name: Clean old files
-      run: |
-        rm -rf ~/.buildozer
-        rm -rf .buildozer
-        rm -rf bin
-
-    - name: Accept Android licenses
-      run: |
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses || true
+        "build-tools;35.0.0"
 
     - name: Build APK
-      env:
-        ACCEPT_ANDROID_SDK_LICENSES: "y"
       run: |
-        yes | buildozer -v android debug
+        buildozer -v android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
