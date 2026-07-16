@@ -23,7 +23,7 @@ android.api = 35
 
 android.ndk = 25b
 
-p4a.branch = 2024.01.21
+p4a.branch = master
 
 android.minapi = 24
 
