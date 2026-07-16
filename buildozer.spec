@@ -21,13 +21,9 @@ android.permissions = INTERNET
 
 android.api = 35
 
-android.ndk = 25b
-
-p4a.branch = master
+android.ndk = 27.3.13750724
 
 android.minapi = 24
-
-android.build_tools_version = 35.0.0
 
 android.archs = arm64-v8a
 
