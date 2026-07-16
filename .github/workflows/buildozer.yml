@@ -90,6 +90,14 @@ jobs:
         echo "ANDROID_BUILD_TOOLS_VERSION=35.0.0" >> $GITHUB_ENV
         ls $ANDROID_HOME/build-tools
 
+    - name: Fix Android SDK path
+      run: |
+        mkdir -p ~/.buildozer/android/platform/android-sdk
+        ln -s /usr/local/lib/android/sdk/build-tools ~/.buildozer/android/platform/android-sdk/build-tools
+        ln -s /usr/local/lib/android/sdk/platforms ~/.buildozer/android/platform/android-sdk/platforms
+        ln -s /usr/local/lib/android/sdk/platform-tools ~/.buildozer/android/platform/android-sdk/platform-tools
+        ls ~/.buildozer/android/platform/android-sdk/build-tools
+
     - name: Build APK
       run: |
 
