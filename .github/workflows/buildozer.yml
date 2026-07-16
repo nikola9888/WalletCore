@@ -68,11 +68,6 @@ jobs:
         python3 -m pip install cython==0.29.37
 
 
-    - name: Install p4a
-      run: |
-        python3 -m pip install python-for-android==2024.01.21
-
-
     - name: Clean old files
       run: |
         rm -rf ~/.buildozer
