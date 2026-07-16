@@ -2,6 +2,9 @@ name: Build WalletCore APK
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
@@ -12,17 +15,24 @@ jobs:
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
       ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/25.2.9519653
       JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
+      ACCEPT_EULA: Y
 
     steps:
 
-    - name: Checkout
+    - name: Checkout repository
       uses: actions/checkout@v4
 
 
-    - name: Install dependencies
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+
+
+    - name: Install system dependencies
       run: |
         sudo apt update
-
         sudo apt install -y \
           python3-pip \
           git \
@@ -33,45 +43,54 @@ jobs:
 
     - name: Install Buildozer
       run: |
-        pip3 install --user --upgrade pip
-        pip3 install --user buildozer cython==0.29.36
+        pip install --user --upgrade buildozer
+        pip install --user cython==0.29.36
 
 
-    - name: Accept Android licenses
+    - name: Accept Android SDK licenses
       run: |
-
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
 
     - name: Install Android SDK packages
       run: |
 
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-        "platform-tools" \
-        "platforms;android-35" \
-        "build-tools;35.0.0" \
-        "ndk;25.2.9519653"
+        mkdir -p $ANDROID_HOME/licenses
+
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" \
+        > $ANDROID_HOME/licenses/android-sdk-license
+
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" \
+        >> $ANDROID_HOME/licenses/android-sdk-license
 
 
-    - name: Verify SDK and NDK
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+          "platform-tools" \
+          "platforms;android-35" \
+          "build-tools;35.0.0" \
+          "build-tools;36.0.0" \
+          "ndk;25.2.9519653"
+
+
+    - name: Check Android setup
       run: |
-
         echo "ANDROID_HOME=$ANDROID_HOME"
         echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME"
 
-        ls -la $ANDROID_HOME
+        ls $ANDROID_HOME/build-tools
 
-        echo "Checking NDK..."
+        ls $ANDROID_NDK_HOME
 
-        ls -la $ANDROID_NDK_HOME
 
-        $ANDROID_NDK_HOME/ndk-build --version
+    - name: Clean Buildozer
+      run: |
+        rm -rf ~/.buildozer
+        rm -rf .buildozer
 
 
     - name: Build APK
       run: |
-
-        buildozer -v android debug
+        buildozer android debug
 
 
     - name: Upload APK
