@@ -81,8 +81,12 @@ jobs:
 
         ls $ANDROID_NDK_HOME
 
+    - name: Install p4a
+      run: |
+        pip install --upgrade python-for-android
 
-    - name: Clean Buildozer
+
+    - name: Clear build cache
       run: |
         rm -rf ~/.buildozer
         rm -rf .buildozer
