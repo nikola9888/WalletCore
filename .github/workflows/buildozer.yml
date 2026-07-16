@@ -71,6 +71,17 @@ jobs:
         rm -rf .buildozer
         rm -rf bin
 
+    - name: Fix sdkmanager path for Buildozer
+      run: |
+        mkdir -p /usr/local/lib/android/sdk/tools/bin
+        ln -sf /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager \
+          /usr/local/lib/android/sdk/tools/bin/sdkmanager
+
+        chmod +x /usr/local/lib/android/sdk/tools/bin/sdkmanager
+ 
+        ls -l /usr/local/lib/android/sdk/tools/bin
+
+
     - name: Build APK
       run: |
         rm -rf ~/.buildozer
