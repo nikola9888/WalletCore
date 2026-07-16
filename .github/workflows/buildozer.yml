@@ -32,6 +32,14 @@ jobs:
         rm -rf .buildozer
         rm -rf bin
 
+    - name: Check project files
+      run: |
+        echo "FILES:"
+        find . -maxdepth 3 -type f | sort
+        echo "ICON:"
+        ls -la assets/
+        file assets/icon.png
+
 
     - name: Build APK
       env:
