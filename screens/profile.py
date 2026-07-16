@@ -11,7 +11,7 @@ from components.rounded import RoundedInput
 from kivy.uix.button import Button
 from theme import TEXT, TITLE, CARD
 
-PROFILE_FILE = "data/profile.json"
+PROFILE_FILE = "data/data/profile.json"
 
 class ProfileScreen(Screen):
 
