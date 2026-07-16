@@ -59,7 +59,7 @@ class WalletCore(App):
         Window.clearcolor = BACKGROUND
 
         sm = ScreenManager(
-        transition=FadeTransition(duration=0.2)
+            transition=FadeTransition(duration=0.2)
         )
 
         sm.add_widget(HomeScreen(name="home"))
@@ -75,7 +75,7 @@ class WalletCore(App):
             AboutScreen(name="about")
         )
 
-        #     sm.add_widget(ProfileScreen(name="profile"))
+        # sm.add_widget(ProfileScreen(name="profile"))
 
         print("BUILD DONE")
 
