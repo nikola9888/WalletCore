@@ -3,142 +3,73 @@ name: WalletCore APK
 on:
   workflow_dispatch:
 
-
 jobs:
-
   build:
 
     runs-on: ubuntu-22.04
 
-
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-      JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
       ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/25.2.9519653
+      JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
+      ANDROIDAPI: 35
+      ANDROIDMINAPI: 24
 
 
     steps:
-
 
     - name: Checkout
       uses: actions/checkout@v4
 
 
-
-    - name: Install system packages
-      run: |
-        sudo apt update
-
-        sudo apt install -y \
-          python3-pip \
-          python3-setuptools \
-          python3-wheel \
-          openjdk-17-jdk \
-          git \
-          zip \
-          unzip
-
-
-
     - name: Setup Java
-      run: |
-        java -version
-        javac -version
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
 
 
-
-    - name: Setup Android PATH
-      run: |
-
-        echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
-
-        echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-
-
-
-    - name: Accept Android licenses
+    - name: Install Android SDK packages
       run: |
 
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-
-
-    - name: Install Android SDK
-      run: |
-
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-          "platform-tools" \
-          "platforms;android-35" \
-          "build-tools;35.0.0" \
-          "ndk;25.2.9519653"
+        "platform-tools" \
+        "platforms;android-35" \
+        "build-tools;35.0.0" \
+        "ndk;25.2.9519653"
 
 
-
-    - name: Check Android
+    - name: Install Python tools
       run: |
 
-        echo ANDROID_HOME=$ANDROID_HOME
-
-        ls $ANDROID_HOME/build-tools
-
-        ls $ANDROID_HOME/ndk
-
-
-
-    - name: Install Buildozer
-      run: |
-
-        python3 -m pip install --upgrade pip
+        python -m pip install --upgrade pip
 
         pip install buildozer==1.6.0
-
         pip install cython==0.29.36
 
 
+    - name: Configure Buildozer environment
+      run: |
 
-    - name: Clear Buildozer cache
+        echo "ANDROIDSDK=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "ANDROIDNDK=$ANDROID_NDK_HOME" >> $GITHUB_ENV
+
+        echo "ANDROID_HOME=$ANDROID_HOME"
+        echo "ANDROIDSDK=$ANDROID_HOME"
+
+        ls $ANDROID_HOME/build-tools
+        ls $ANDROID_HOME/platforms
+
+
+    - name: Clean
       run: |
 
         rm -rf ~/.buildozer
-
         rm -rf .buildozer
-
         rm -rf bin
-
-
-
-    - name: Prepare Buildozer SDK
-      run: |
-
-        mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
-
-
-        ln -sf \
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-        ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-
-
-        ln -sf \
-        $ANDROID_HOME/platforms \
-        ~/.buildozer/android/platform/android-sdk/platforms
-
-
-        ln -sf \
-        $ANDROID_HOME/build-tools \
-        ~/.buildozer/android/platform/android-sdk/build-tools
-
-
-        ln -sf \
-        $ANDROID_HOME/platform-tools \
-        ~/.buildozer/android/platform/android-sdk/platform-tools
-
-
-
-        ls ~/.buildozer/android/platform/android-sdk/tools/bin
-
-        ls ~/.buildozer/android/platform/android-sdk/build-tools
-
 
 
     - name: Build APK
@@ -147,10 +78,8 @@ jobs:
         buildozer -v android debug
 
 
-
     - name: Upload APK
       uses: actions/upload-artifact@v4
-
       with:
 
         name: WalletCore-debug
