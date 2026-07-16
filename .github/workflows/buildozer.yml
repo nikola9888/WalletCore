@@ -46,6 +46,9 @@ jobs:
         pip install --user --upgrade buildozer
         pip install --user cython==0.29.36
 
+    - name: Find sdkmanager
+      run: |
+        find $ANDROID_HOME -name sdkmanager
 
     - name: Accept Android SDK licenses
       run: |
@@ -80,11 +83,6 @@ jobs:
         ls $ANDROID_HOME/build-tools
 
         ls $ANDROID_NDK_HOME
-
-    - name: Install p4a
-      run: |
-        pip install --upgrade python-for-android
-
 
     - name: Clear build cache
       run: |
