@@ -3,6 +3,7 @@ name: WalletCore APK
 on:
   workflow_dispatch:
 
+
 jobs:
   build:
 
@@ -11,34 +12,21 @@ jobs:
     container:
       image: kivy/buildozer:latest
 
+
     steps:
 
     - name: Checkout
       uses: actions/checkout@v4
 
 
-    - name: Check environment
+    - name: Environment
       run: |
         python3 --version
         buildozer --version
         java -version
 
 
-    - name: Accept Android licenses
-      run: |
-        yes | sdkmanager --licenses || true
-
-
-    - name: Install Android packages
-      run: |
-        sdkmanager \
-          "platform-tools" \
-          "platforms;android-35" \
-          "build-tools;35.0.0" \
-          "ndk;25.2.9519653"
-
-
-    - name: Clean Buildozer
+    - name: Clean
       run: |
         rm -rf ~/.buildozer
         rm -rf .buildozer
@@ -46,14 +34,16 @@ jobs:
 
 
     - name: Build APK
+      env:
+        P4A_RELEASE_KEYSTORE: ""
       run: |
-        buildozer -v android debug
+        yes | buildozer android debug
 
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
 
-        name: WalletCore-debug-apk
+        name: WalletCore-debug
 
         path: bin/*.apk
