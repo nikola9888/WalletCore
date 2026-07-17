@@ -8,37 +8,24 @@ jobs:
 
     runs-on: ubuntu-22.04
 
+    container:
+      image: kivy/buildozer:latest
+
     steps:
 
     - name: Checkout
       uses: actions/checkout@v4
 
 
-    - name: Install dependencies
+    - name: Prepare permissions
       run: |
-        sudo apt update
-        sudo apt install -y \
-          git zip unzip openjdk-11-jdk \
-          python3-pip python3-setuptools \
-          python3-wheel build-essential \
-          libffi-dev libssl-dev
-
-
-    - name: Install Python tools
-      run: |
-        python3 -m pip install --upgrade pip
-        pip install Cython==0.29.37
-        pip install sh==1.14.3
-        pip install buildozer==1.5.0
+        mkdir -p /home/user/.buildozer
+        chmod -R 777 /home/user
 
 
     - name: Build APK
-      env:
-        ACCEPT_ANDROID_SDK_LICENSE: "yes"
       run: |
-        rm -rf .buildozer
-        rm -rf bin
-        yes | buildozer android debug
+        buildozer android debug
 
 
     - name: Upload APK
