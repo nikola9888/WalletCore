@@ -47,6 +47,13 @@ jobs:
         ls -la assets/
         file assets/icon.png
 
+    - name: Check requirements
+      run: |
+        echo "BUILD SPEC:"
+        grep requirements buildozer.spec
+        echo "REQ TXT:"
+        cat requirements.txt
+
 
     - name: Build APK
       env:
