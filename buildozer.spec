@@ -17,7 +17,7 @@ fullscreen = 0
 
 icon.filename = assets/icon.png
 
-android.api = 35
+android.api = 34
 android.minapi = 24
 android.archs = arm64-v8a
 
