@@ -33,10 +33,10 @@ jobs:
         pip install buildozer==1.5.0
         pip install python-for-android==2024.01.21
 
-
     - name: Build APK
       run: |
-        buildozer android clean
+        rm -rf .buildozer
+        rm -rf bin
         buildozer android debug
 
 
