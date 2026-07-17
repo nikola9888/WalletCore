@@ -22,6 +22,7 @@ icon.filename = assets/icon.png
 
 # Android
 android.api = 34
+android.build_tools_version = 34.0.0
 android.minapi = 24
 
 android.ndk = 25c
