@@ -21,6 +21,7 @@ icon.filename = assets/icon.png
 
 
 # Android
+android.accept_sdk_license = True
 android.api = 34
 android.build_tools_version = 34.0.0
 android.minapi = 24
