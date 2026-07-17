@@ -5,42 +5,18 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Install system packages
-        run: |
-          sudo apt update
-          sudo apt install -y \
-            zip unzip git openjdk-17-jdk \
-            python3-pip python3-setuptools \
-            python3-wheel python3-venv \
-            build-essential autoconf automake \
-            libtool pkg-config zlib1g-dev \
-            libncurses6 libffi-dev libssl-dev
-
-      - name: Install Buildozer
-        run: |
-          python3 -m pip install --upgrade pip
-          pip3 install Cython==0.29.37
-          pip3 install buildozer
-          pip3 install python-for-android
-
-      - name: Accept Android licenses
-        run: |
-          yes | sdkmanager --licenses || true
-
-      - name: Install Build Tools
-        run: |
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-34"
-          sdkmanager "build-tools;34.0.0"
 
       - name: Build APK
-        run: |
-          buildozer android debug
+        uses: ArtemSBulgakov/buildozer-action@v1
+        with:
+          command: buildozer android debug
+
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
