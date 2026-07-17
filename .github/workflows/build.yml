@@ -8,39 +8,39 @@ jobs:
 
     runs-on: ubuntu-22.04
 
-    container:
-      image: ghcr.io/kivy/buildozer:latest
-
     steps:
 
-    - name: Checkout
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
 
-    - name: Setup
+    - name: Install dependencies
       run: |
-        python3 --version
-        buildozer --version
-        java -version
+        sudo apt update
+        sudo apt install -y \
+          openjdk-17-jdk \
+          zip unzip \
+          autoconf automake libtool \
+          pkg-config \
+          zlib1g-dev \
+          libffi-dev \
+          libssl-dev
 
 
-    - name: Clean
+    - name: Install Python tools
       run: |
-        rm -rf .buildozer
-        rm -rf bin
+        python3 -m pip install --upgrade pip
+        pip install cython==0.29.37
+        pip install buildozer==1.5.0
+        pip install python-for-android==2024.01.21
 
-    - name: Files
+
+    - name: Build APK
       run: |
-        ls -la
-        ls -la assets/
+        buildozer android clean
+        buildozer android debug
 
 
-    - name: Build
-      run: |
-        yes | buildozer android debug
-
-
-    - name: Upload
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: WalletCore-debug
