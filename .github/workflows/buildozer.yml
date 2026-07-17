@@ -28,9 +28,9 @@ jobs:
           pip3 install buildozer
           pip3 install python-for-android
 
-    - name: Accept Android licenses
-      run: |
-        yes | sdkmanager --licenses || true
+     - name: Accept Android licenses
+       run: |
+         yes | sdkmanager --licenses || true
 
 
       - name: Build APK
