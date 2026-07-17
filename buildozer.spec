@@ -11,7 +11,7 @@ source.include_exts = py,kv,png,jpg,jpeg,json,db,ttf,atlas
 
 version = 1.0.0
 
-requirements = python3==3.12,kivy,requests
+requirements = python3,kivy,requests
 
 orientation = portrait
 
