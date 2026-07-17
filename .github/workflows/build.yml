@@ -29,12 +29,6 @@ jobs:
         rm -rf .buildozer
         rm -rf bin
 
-
-    - name: Cython
-      run: |
-        pip install "cython<3"
-
-
     - name: Files
       run: |
         ls -la
