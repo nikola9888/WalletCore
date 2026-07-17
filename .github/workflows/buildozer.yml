@@ -55,6 +55,11 @@ jobs:
         cat requirements.txt
 
 
+    - name: Fix python packages
+      run: |
+        pip install "cython<3"
+        pip install pillow==10.4.0
+
     - name: Build APK
       env:
         P4A_RELEASE_KEYSTORE: ""
