@@ -38,7 +38,7 @@ android.allow_backup = True
 
 
 # Python for Android
-p4a.branch = master
+p4a.branch = 2024.1.21
 
 
 [buildozer]
