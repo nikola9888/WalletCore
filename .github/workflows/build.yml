@@ -1,0 +1,53 @@
+name: WalletCore APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    container:
+      image: ghcr.io/kivy/buildozer:latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+
+    - name: Setup
+      run: |
+        python3 --version
+        buildozer --version
+        java -version
+
+
+    - name: Clean
+      run: |
+        rm -rf .buildozer
+        rm -rf bin
+
+
+    - name: Cython
+      run: |
+        pip install "cython<3"
+
+
+    - name: Files
+      run: |
+        ls -la
+        ls -la assets/
+
+
+    - name: Build
+      run: |
+        yes | buildozer android debug
+
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: WalletCore-debug
+        path: bin/*.apk
