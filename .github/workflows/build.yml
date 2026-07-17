@@ -11,16 +11,28 @@ jobs:
     container:
       image: kivy/buildozer:latest
 
+    env:
+      ACCEPT_ANDROID_SDK_LICENSE: "yes"
+      ANDROID_HOME: /opt/android-sdk
+      ANDROID_SDK_ROOT: /opt/android-sdk
+
     steps:
 
     - name: Checkout
       uses: actions/checkout@v4
 
 
-    - name: Prepare permissions
+    - name: Accept Android licenses
       run: |
-        mkdir -p /home/user/.buildozer
-        chmod -R 777 /home/user
+        yes | sdkmanager --licenses || true
+
+
+    - name: Install Android packages
+      run: |
+        sdkmanager \
+        "platform-tools" \
+        "platforms;android-34" \
+        "build-tools;34.0.0"
 
 
     - name: Build APK
