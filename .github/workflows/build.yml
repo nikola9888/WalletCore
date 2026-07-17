@@ -23,6 +23,8 @@ jobs:
     - name: Prepare build
       run: |
         chmod -R 777 .
+        rm -rf .buildozer
+        rm -rf bin
         mkdir -p $HOME/.buildozer
 
 
