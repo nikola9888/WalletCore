@@ -11,7 +11,7 @@ source.include_exts = py,png,jpg,jpeg,kv,json,atlas,ttf,db
 
 version = 1.0.0
 
-requirements = python3,kivy,requests,pillow==10.4.0,pyjnius
+requirements = python3,kivy,request,pyjnius
 
 orientation = portrait
 
