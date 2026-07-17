@@ -13,6 +13,11 @@ version = 1.0.0
 
 requirements = python3,kivy==2.3.1,requests
 
+# Python for Android
+p4a.branch = master
+p4a.python_version = 3.11
+
+
 orientation = portrait
 
 fullscreen = 0
@@ -23,17 +28,24 @@ icon.filename = assets/icon.png
 # Android
 android.api = 33
 android.minapi = 24
+
 android.ndk = 25c
-android.build_tools_version = 33.0.2
 
 android.archs = arm64-v8a
 
 android.enable_androidx = True
+
 android.private_storage = True
+
 android.allow_backup = True
+
+
+# Permissions (dodaj po potrebi)
+# android.permissions = INTERNET
 
 
 [buildozer]
 
 log_level = 2
+
 warn_on_root = 0
