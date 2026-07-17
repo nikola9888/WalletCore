@@ -1,3 +1,2 @@
 kivy
 requests
-pillow<11
