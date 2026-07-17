@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: kivy/buildozer:latest
+      image: kivy/buildozer:1.5.0
 
     env:
       ACCEPT_ANDROID_SDK_LICENSE: "yes"
