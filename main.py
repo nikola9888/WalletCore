@@ -129,20 +129,39 @@ if __name__ == "__main__":
     try:
         WalletCore().run()
 
-    except Exception:
+    except Exception as e:
+
+        error = traceback.format_exc()
 
         print("===================================")
         print("[APP] FATAL ERROR")
-        print(traceback.format_exc())
+        print(error)
         print("===================================")
 
-        os.makedirs("logs", exist_ok=True)
+        # pokušaj da sačuva log u interni folder aplikacije
+        try:
+            app = App.get_running_app()
 
-        filename = datetime.now().strftime(
-            "logs/crash_%Y-%m-%d_%H-%M-%S.txt"
-        )
+            if app:
+                logfile = os.path.join(
+                    app.user_data_dir,
+                    "WalletCore_crash.txt"
+                )
 
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(traceback.format_exc())
+                with open(logfile, "w", encoding="utf-8") as f:
+                    f.write(error)
+
+                print("[APP] Crash log saved:", logfile)
+
+        except Exception:
+            # ako ni ovo ne uspe, pokušaj na SD karticu
+            try:
+                with open("/sdcard/WalletCore_crash.txt", "w", encoding="utf-8") as f:
+                    f.write(error)
+
+                print("[APP] Crash log saved to /sdcard")
+
+            except Exception:
+                print("[APP] Unable to save crash log.")
 
         raise
