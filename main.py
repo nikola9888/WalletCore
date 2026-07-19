@@ -4,10 +4,7 @@ from datetime import datetime
 from kivy.app import App
 
 
-try:
-    LOG_FILE = os.path.join(App().user_data_dir, "walletcore_debug.log")
-except:
-    LOG_FILE = "walletcore_debug.log"
+LOG_FILE = "walletcore_debug.log"
 
 def log(text):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
