@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: kivy/buildozer:2024.01.21
+      image: kivy/buildozer:latest
 
     env:
       ACCEPT_ANDROID_SDK_LICENSE: "yes"
@@ -19,22 +19,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Install build tools
-      run: |
-        pip install pip==23.3.2
-        pip install buildozer==1.6.0
-        pip install Cython==0.29.37
-        pip install sh==1.14.3
-
-    - name: Prepare
+    - name: Build
       run: |
         chmod -R 777 .
-        rm -rf .buildozer
-        rm -rf bin
-
-    - name: Build APK
-      run: |
-        yes | buildozer android debug
+        buildozer android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
