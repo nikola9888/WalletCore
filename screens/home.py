@@ -25,14 +25,14 @@ from translations import translations
 from kivy.app import App
 from theme import BACKGROUND
 from datetime import datetime
-from reportlab.pdfgen import canvas
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import cm
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from datetime import datetime
+#from reportlab.pdfgen import canvas
+#from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+#from reportlab.lib import colors
+#from reportlab.lib.styles import getSampleStyleSheet
+#from reportlab.lib.units import cm
+#from reportlab.pdfbase import pdfmetrics
+#from reportlab.pdfbase.ttfonts import TTFont
+
 
 PROFILE_FILE = "data/profile.json"
 
@@ -708,71 +708,71 @@ class HomeScreen(Screen):
                 card.update_language()
                             
                            
-    def export_pdf(self):
+     #def export_pdf(self):
 
-        import os
-        currency = App.get_running_app().currency
-        os.makedirs("exports", exist_ok=True)
+        #import os
+        #currency = App.get_running_app().currency
+        #os.makedirs("exports", exist_ok=True)
 
-        filename = f"exports/WalletCore_Report_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.pdf"
+        #filename = f"exports/WalletCore_Report_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.pdf"
 
         doc = SimpleDocTemplate(filename)
    
-        styles = getSampleStyleSheet()
+        #styles = getSampleStyleSheet()
 
-        story = []
+        #story = []
 
-        story.append(Paragraph("<b><font size=22>WalletCore</font></b>", styles["Title"]))
-        story.append(Paragraph("Financial Report", styles["Heading2"]))
-        story.append(Paragraph("<br/>", styles["Normal"]))
+        #story.append(Paragraph("<b><font size=22>WalletCore</font></b>", styles["Title"]))
+        #story.append(Paragraph("Financial Report", styles["Heading2"]))
+        #story.append(Paragraph("<br/>", styles["Normal"]))
 
-        story.append(Paragraph(f"<b>Date:</b> {datetime.now().strftime('%d.%m.%Y %H:%M')}", styles["Normal"]))
-        story.append(Paragraph(f"<b>Balance:</b> {self.balance:.2f} {currency}", styles["Normal"]))
-        story.append(Paragraph(f"<b>Income:</b> {self.income:.2f} {currency}", styles["Normal"]))
-        story.append(Paragraph(f"<b>Expenses:</b> {self.expense:.2f} {currency}", styles["Normal"]))
-        story.append(Paragraph("<br/>", styles["Normal"]))
+        #story.append(Paragraph(f"<b>Date:</b> {datetime.now().strftime('%d.%m.%Y %H:%M')}", styles["Normal"]))
+        #story.append(Paragraph(f"<b>Balance:</b> {self.balance:.2f} {currency}", styles["Normal"]))
+        #story.append(Paragraph(f"<b>Income:</b> {self.income:.2f} {currency}", styles["Normal"]))
+        #story.append(Paragraph(f"<b>Expenses:</b> {self.expense:.2f} {currency}", styles["Normal"]))
+        #story.append(Paragraph("<br/>", styles["Normal"]))
 
-        data = [
+        #data = [
             ["Date", "Type", "Category", "Amount"]
         ]
 
-        rows = self.db.get_all()
+        #rows = self.db.get_all()
 
-        for _, amount, ttype, category, note, time in rows:
+        #for _, amount, ttype, category, note, time in rows:
 
-            data.append([
-                str(time),
-                ttype,
-                category,
-                f"{amount:.2f} {currency}"
+            #data.append([
+                #str(time),
+                #ttype,
+                #category,
+                #f"{amount:.2f} {currency}"
             ])
  
-        table = Table(data)
+        #table = Table(data)
 
-        table.setStyle(TableStyle([
-            ("BACKGROUND",(0,0),(-1,0),colors.HexColor("#3B82F6")),
-            ("TEXTCOLOR",(0,0),(-1,0),colors.white),
+        #table.setStyle(TableStyle([
+            #("BACKGROUND",(0,0),(-1,0),colors.HexColor("#3B82F6")),
+            #("TEXTCOLOR",(0,0),(-1,0),colors.white),
 
-            ("GRID",(0,0),(-1,-1),1,colors.grey),
+            #("GRID",(0,0),(-1,-1),1,colors.grey),
 
-            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),
+            #("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),
 
-            ("BOTTOMPADDING",(0,0),(-1,0),10),
+            #("BOTTOMPADDING",(0,0),(-1,0),10),
  
-            ("BACKGROUND",(0,1),(-1,-1),colors.whitesmoke)
+            #("BACKGROUND",(0,1),(-1,-1),colors.whitesmoke)
         ]))
 
-        story.append(table)
+        #story.append(table)
 
-        doc.build(story)
+        #doc.build(story)
 
-        t = translations[App.get_running_app().language]
+        #t = translations[App.get_running_app().language]
 
-        Popup(
+        #Popup(
             title=t["pdf_export"],
             content=Label(
                 text=t["pdf_saved"],
                 font_size="16sp"
             ),
-            size_hint=(0.7, 0.3)
+            #size_hint=(0.7, 0.3)
         ).open()
