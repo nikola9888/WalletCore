@@ -706,11 +706,10 @@ class HomeScreen(Screen):
         for card in self.list_container.children:
             if hasattr(card, "update_language"):
                 card.update_language()
-                            
-                           
-     def export_pdf(self):
-         Popup(
-             title="Info",
-             content=Label(text="PDF export coming soon"),
-             size_hint=(0.7,0.3)
-         ).open()
+                
+    def export_pdf(self):
+        Popup(
+            title="Info",
+            content=Label(text="PDF export coming soon"),
+            size_hint=(0.7,0.3)
+        ).open()
