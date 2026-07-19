@@ -15,7 +15,7 @@ requirements = python3,kivy,requests
 
 # Python for Android
 p4a.branch = master
-p4a.python_version = 3.11
+p4a.python_version = 3.10
 
 
 orientation = portrait
@@ -28,6 +28,8 @@ icon.filename = assets/icon.png
 # Android
 android.api = 33
 android.minapi = 24
+android.build_tools_version = 35.0.0
+android.accept_sdk_license = True
 
 android.ndk = 25c
 
