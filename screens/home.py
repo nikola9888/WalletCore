@@ -25,6 +25,7 @@ from translations import translations
 from kivy.app import App
 from theme import BACKGROUND
 from datetime import datetime
+from kivy.metrics import dp
 #from reportlab.pdfgen import canvas
 #from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 #from reportlab.lib import colors
@@ -131,7 +132,8 @@ class HomeScreen(Screen):
         root = BoxLayout(
             orientation="vertical",
             padding=10,
-            spacing=10
+            spacing=10,
+            size_hint=(1,1)
         )
         
         with root.canvas.before:
@@ -149,7 +151,7 @@ class HomeScreen(Screen):
         # BALANCE
         self.balance_card = BalanceCard()
         self.balance_card.size_hint_y = None
-        self.balance_card.height = 180
+        self.balance_card.height = dp(180)
         root.add_widget(self.balance_card)
 
         # CATEGORY
@@ -160,7 +162,7 @@ class HomeScreen(Screen):
         header = Header()
 
         header.size_hint_y = None
-        header.height = 75
+        header.height = dp(75)
         header.padding = (15, 15, 15, 5)
 
         root.add_widget(
@@ -177,7 +179,7 @@ class HomeScreen(Screen):
             font_size="16sp",
             bold=True,
             size_hint_y=None,
-            height=50
+            height=dp(50)
         )
 
         root.add_widget(self.welcome_label)
@@ -190,7 +192,7 @@ class HomeScreen(Screen):
             spacing=10,
             padding=15,
             size_hint=(1, None),
-            height=380
+            height=dp(380)
         )
 
         self.amount_input = RoundedInput(
@@ -198,7 +200,7 @@ class HomeScreen(Screen):
             multiline=False,
             input_filter="float",
             size_hint_y=None,
-            height=120
+            height=dp(120)
         )
         self.amount_input.write_tab = False
         input_card.add_widget(self.amount_input)
@@ -207,7 +209,7 @@ class HomeScreen(Screen):
             hint_text=translations[self.current_language]["note"],
             multiline=False,
             size_hint_y=None,
-            height=120
+            height=dp(120)
         )
         self.note_input.write_tab = False
         input_card.add_widget(self.note_input)
@@ -219,7 +221,7 @@ class HomeScreen(Screen):
             orientation="horizontal",
             spacing=10,
             size_hint=(0.9, None),
-            height=65
+            height=dp(65)
         )
 
         self.income_btn = ModernButton(
@@ -255,7 +257,7 @@ class HomeScreen(Screen):
             orientation="horizontal",
             spacing=8,
             size_hint=(1, None),
-            height=65
+            height=dp(65)
         )
  
         self.stats_btn = ModernButton(
@@ -295,7 +297,7 @@ class HomeScreen(Screen):
 
         # TRANSACTION LIST
         scroll = ScrollView(
-            size_hint=(0.9, 1.5),
+            size_hint=(1 ,1),
             do_scroll_x=False
         )
 
@@ -310,6 +312,7 @@ class HomeScreen(Screen):
         )
 
         scroll.add_widget(self.list_container)
+        scroll.bar_width = dp(4)
         root.add_widget(scroll)
         
         # load data
@@ -494,7 +497,7 @@ class HomeScreen(Screen):
         title = Label(
             text=" Statistics",
             size_hint_y=None,
-            height=60,
+            height=dp(60),
             font_size=42,
             bold=True
         )
@@ -510,7 +513,7 @@ class HomeScreen(Screen):
             row = BoxLayout(
                 orientation="horizontal",
                 size_hint_y=None,
-                height=45,
+                height=dp(45),
                 spacing=10
             )
 
@@ -539,7 +542,7 @@ class HomeScreen(Screen):
                 max=100,
                 value=percent,
                 size_hint_y=None,
-                height=30
+                height=dp(30)
             )
 
             layout.add_widget(bar)
@@ -626,7 +629,7 @@ class HomeScreen(Screen):
             btn = ModernButton(
                 text=text,
                 size_hint_y=None,
-                height=60
+                height=dp(60)
             )
 
             btn.bind(
