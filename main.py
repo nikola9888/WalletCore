@@ -1,8 +1,13 @@
 import traceback
+import os
 from datetime import datetime
+from kivy.app import App
 
-LOG_FILE = "walletcore_debug.log"
 
+try:
+    LOG_FILE = os.path.join(App().user_data_dir, "walletcore_debug.log")
+except:
+    LOG_FILE = "walletcore_debug.log"
 
 def log(text):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
@@ -191,5 +196,14 @@ class WalletCore(App):
 
 
 if __name__ == "__main__":
+    try:
+        log("APP START")
 
-    WalletCore().run()
+        WalletCore().run()
+
+        log("APP CLOSED")
+
+    except Exception:
+        log("===== CRASH =====")
+        log(traceback.format_exc())
+        raise
