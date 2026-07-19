@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: kivy/buildozer:latest
+      image: kivy/buildozer:2024.01.21
 
     env:
       ACCEPT_ANDROID_SDK_LICENSE: "yes"
@@ -21,7 +21,7 @@ jobs:
 
     - name: Install build tools
       run: |
-        pip install --upgrade pip
+        pip install pip==23.3.2
         pip install buildozer==1.6.0
         pip install Cython==0.29.37
         pip install sh==1.14.3
