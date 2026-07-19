@@ -50,7 +50,7 @@ class BalanceCard(ModernCard):
             text="0.00 RSD",
             color=TEXT,
             bold=True,
-            font_size=52,
+            font_size=42,
             halign="left",
             valign="middle"
         )
