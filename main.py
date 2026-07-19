@@ -2,7 +2,7 @@ import traceback
 import os
 from datetime import datetime
 from kivy.app import App
-
+from kivy.metrics import dp
 
 LOG_FILE = "walletcore_debug.log"
 
@@ -111,6 +111,7 @@ class WalletCore(App):
 
 
             Window.clearcolor = BACKGROUND
+            Window.softinput_mode = "below_target"
 
 
             sm = ScreenManager(
