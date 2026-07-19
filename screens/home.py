@@ -708,71 +708,9 @@ class HomeScreen(Screen):
                 card.update_language()
                             
                            
-     #def export_pdf(self):
-
-        #import os
-        #currency = App.get_running_app().currency
-        #os.makedirs("exports", exist_ok=True)
-
-        #filename = f"exports/WalletCore_Report_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.pdf"
-
-        doc = SimpleDocTemplate(filename)
-   
-        #styles = getSampleStyleSheet()
-
-        #story = []
-
-        #story.append(Paragraph("<b><font size=22>WalletCore</font></b>", styles["Title"]))
-        #story.append(Paragraph("Financial Report", styles["Heading2"]))
-        #story.append(Paragraph("<br/>", styles["Normal"]))
-
-        #story.append(Paragraph(f"<b>Date:</b> {datetime.now().strftime('%d.%m.%Y %H:%M')}", styles["Normal"]))
-        #story.append(Paragraph(f"<b>Balance:</b> {self.balance:.2f} {currency}", styles["Normal"]))
-        #story.append(Paragraph(f"<b>Income:</b> {self.income:.2f} {currency}", styles["Normal"]))
-        #story.append(Paragraph(f"<b>Expenses:</b> {self.expense:.2f} {currency}", styles["Normal"]))
-        #story.append(Paragraph("<br/>", styles["Normal"]))
-
-        #data = [
-            ["Date", "Type", "Category", "Amount"]
-        ]
-
-        #rows = self.db.get_all()
-
-        #for _, amount, ttype, category, note, time in rows:
-
-            #data.append([
-                #str(time),
-                #ttype,
-                #category,
-                #f"{amount:.2f} {currency}"
-            ])
- 
-        #table = Table(data)
-
-        #table.setStyle(TableStyle([
-            #("BACKGROUND",(0,0),(-1,0),colors.HexColor("#3B82F6")),
-            #("TEXTCOLOR",(0,0),(-1,0),colors.white),
-
-            #("GRID",(0,0),(-1,-1),1,colors.grey),
-
-            #("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),
-
-            #("BOTTOMPADDING",(0,0),(-1,0),10),
- 
-            #("BACKGROUND",(0,1),(-1,-1),colors.whitesmoke)
-        ]))
-
-        #story.append(table)
-
-        #doc.build(story)
-
-        #t = translations[App.get_running_app().language]
-
-        #Popup(
-            title=t["pdf_export"],
-            content=Label(
-                text=t["pdf_saved"],
-                font_size="16sp"
-            ),
-            #size_hint=(0.7, 0.3)
-        ).open()
+     def export_pdf(self):
+         Popup(
+             title="Info",
+             content=Label(text="PDF export coming soon"),
+             size_hint=(0.7,0.3)
+         ).open()
