@@ -104,22 +104,24 @@ class CategoryButton(ButtonBehavior, BoxLayout):
             26
         )
 
-
     def select(self):
 
         self.border_color.rgba = PRIMARY
-
-        Animation(
-            size=(self.width+4,self.height+4),
-            duration=0.12
-        ).start(self)
+        self.bg_color.rgba = (
+            0.3,
+            0.6,
+            1,
+            1
+        )
 
 
     def unselect(self):
-
+ 
         self.border_color.rgba = (
             0.20,
             0.22,
             0.25,
             1
         )
+
+        self.bg_color.rgba = CATEGORY_BG[self.category_key]
