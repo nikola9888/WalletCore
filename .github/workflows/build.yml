@@ -19,14 +19,26 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Install tools
+      run: |
+        pip install --upgrade pip
+        pip install buildozer==1.6.0
+        pip install Cython==0.29.37
+        pip install sh
+
     - name: Accept Android licenses
       run: |
         yes | sdkmanager --licenses || true
 
-    - name: Build
+    - name: Prepare
       run: |
         chmod -R 777 .
-        buildozer android debug
+        rm -rf .buildozer
+        rm -rf bin
+
+    - name: Build APK
+      run: |
+        yes | buildozer android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
