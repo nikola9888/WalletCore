@@ -34,7 +34,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from datetime import datetime
 
-PROFILE_FILE = "data/data/profile.json"
+PROFILE_FILE = "data/profile.json"
 
 class PieChart(Widget):
     def __init__(self, data, **kwargs):
