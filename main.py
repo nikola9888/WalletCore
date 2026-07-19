@@ -1,7 +1,6 @@
 import traceback
 from datetime import datetime
 
-
 LOG_FILE = "walletcore_debug.log"
 
 
@@ -43,7 +42,8 @@ from screens.about import AboutScreen
 log("ABOUT OK")
 
 from screens.profile import ProfileScreen
-log("PROFILE OK")
+log("PROFILE IMPORT OK")
+
 
 CURRENCIES = {
     "sr": "RSD",
@@ -55,9 +55,11 @@ CURRENCIES = {
     "ru": "RUB",
 }
 
+
 class WalletCore(App):
 
     language = "sr"
+
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -65,6 +67,7 @@ class WalletCore(App):
         self.store = JsonStore(
             "wallet_settings.json"
         )
+
 
     def load_language(self):
 
@@ -75,11 +78,16 @@ class WalletCore(App):
                 "sr"
             )
 
-            if lang in ["sr", "en", "de", "it", "es", "fr", "ru"]:
+            if lang in CURRENCIES:
                 self.language = lang
             else:
                 self.language = "sr"
-        self.currency = CURRENCIES.get(self.language, "RSD")
+
+        self.currency = CURRENCIES.get(
+            self.language,
+            "RSD"
+        )
+
 
     def save_language(self):
 
@@ -99,41 +107,89 @@ class WalletCore(App):
 
             log("LANGUAGE LOADED")
 
+
             Window.clearcolor = BACKGROUND
 
+
             sm = ScreenManager(
-                transition=FadeTransition(duration=0.2)
+                transition=FadeTransition(
+                    duration=0.2
+                )
             )
 
-            log("SCREENMANAGER CREATED")
 
+            log("ADDING HOME")
 
-            sm.add_widget(HomeScreen(name="home"))
+            sm.add_widget(
+                HomeScreen(name="home")
+            )
+
             log("HOME OK")
 
 
-            sm.add_widget(SettingsScreen(name="settings"))
+
+            log("ADDING SETTINGS")
+
+            sm.add_widget(
+                SettingsScreen(name="settings")
+            )
+
             log("SETTINGS OK")
 
 
-            sm.add_widget(HistoryScreen(name="history"))
+
+            log("ADDING HISTORY")
+
+            sm.add_widget(
+                HistoryScreen(name="history")
+            )
+
             log("HISTORY OK")
 
 
-            sm.add_widget(AboutScreen(name="about"))
+
+            log("ADDING ABOUT")
+
+            sm.add_widget(
+                AboutScreen(name="about")
+            )
+
             log("ABOUT OK")
 
 
-            sm.add_widget(ProfileScreen(name="profile"))
-            log("PROFILE OK")
+
+            log("CREATING PROFILE")
+
+            profile = ProfileScreen(
+                name="profile"
+            )
+
+            log("PROFILE CREATED")
+
+
+            sm.add_widget(profile)
+
+            log("PROFILE ADDED")
 
 
             log("BUILD FINISHED")
+
 
             return sm
 
 
         except Exception:
+
             log("BUILD ERROR")
-            log(traceback.format_exc())
+
+            log(
+                traceback.format_exc()
+            )
+
             raise
+
+
+
+if __name__ == "__main__":
+
+    WalletCore().run()
