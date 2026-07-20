@@ -58,15 +58,13 @@ CURRENCIES = {
 
 class WalletCore(App):
 
-    language = "sr"
+    language = "en"
 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.store = JsonStore(
-            "wallet_settings.json"
-        )
+        self.store = JsonStore("settings.json")
 
 
     def load_language(self):
@@ -75,17 +73,17 @@ class WalletCore(App):
 
             lang = self.store.get("settings").get(
                 "language",
-                "sr"
+                "en"
             )
 
             if lang in CURRENCIES:
                 self.language = lang
             else:
-                self.language = "sr"
+                self.language = "en"
 
         self.currency = CURRENCIES.get(
             self.language,
-            "RSD"
+            "USD"
         )
 
 
