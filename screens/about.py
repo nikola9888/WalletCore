@@ -40,7 +40,7 @@ class AboutScreen(Screen):
                 "E-mail: development4world@gmail.com"
             ),
             color=TEXT,
-            font_size=42
+            font_size=32
         )
 
 
