@@ -17,7 +17,7 @@ class CategoryGrid(GridLayout):
         self.height = 420
 
         self.selected = "food"
-        self.selected_text = " Food"
+        self.selected_text = " food"
 
         self.buttons = []
 
@@ -41,8 +41,8 @@ class CategoryGrid(GridLayout):
                 size_hint_y=None,
                 height=100
             )
-            
-            btn.category_key = key  # 🔥 sigurni mapping
+
+            btn.category_key = key
 
             btn.bind(on_press=self.select_category)
 
@@ -50,7 +50,11 @@ class CategoryGrid(GridLayout):
 
             self.add_widget(btn)
 
-        self.buttons[0].state = "down"
+        # početno izabrana kategorija
+        for btn in self.buttons:
+            btn.unselect()
+
+        self.buttons[0].select()
 
     def select_category(self, button):
 
@@ -62,29 +66,6 @@ class CategoryGrid(GridLayout):
         self.selected = button.category_key
         self.selected_text = button.title
         
-    def update_language(self):
-        t = translations[App.get_running_app().language]
-
-        texts = {
-            "food": + t["food"],
-            "transport": + t["transport"],
-            "shopping":  + t["shopping"],
-            "bills": + t["bills"],
-            "fun": + t["fun"],
-            "health":  + t["health"],
-            "salary":  + t["salary"],
-            "other":  t["other"]
-       }
-
-        for btn in self.buttons:
-            btn.label.text = texts[btn.category_key]
- 
-        # zadržimo izabranu kategoriju
-        for btn in self.buttons:
-            if btn.category_key == self.selected:
-                self.selected_text = btn.title
-                break
-                   
     def update_language(self):
         t = translations[App.get_running_app().language]
 
