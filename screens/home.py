@@ -132,7 +132,7 @@ class HomeScreen(Screen):
         root = BoxLayout(
             orientation="vertical",
             padding=10,
-            spacing=1,
+            spacing=10,
             size_hint=(1,1)
         )
 
