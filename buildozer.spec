@@ -20,7 +20,7 @@ p4a.python_version = 3.10
 
 orientation = portrait
 
-fullscreen = 0
+fullscreen = auto
 
 icon.filename = assets/icon.png
 
