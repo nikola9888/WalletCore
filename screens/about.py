@@ -36,7 +36,8 @@ class AboutScreen(Screen):
                 "Track income, expenses and budgets "
                 "in one simple application.\n\n"
                 "Version 1.0\n\n"
-                "Developed by DEVELOP4WORLD"
+                "Developed by DEVELOPMENT4WORLD"
+                "E-mail: development4world@gmail.com"
             ),
             color=TEXT,
             font_size=22
