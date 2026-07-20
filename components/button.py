@@ -1,7 +1,7 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.image import Image
-from kivy.graphics import Color, RoundedRectangle
+from kivy.graphics import Color, RoundedRectangle, Line
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.animation import Animation
 
@@ -24,11 +24,27 @@ class IconButton(ButtonBehavior, BoxLayout):
         # POZADINA DUGMETA
         with self.canvas.before:
 
-            Color(*PRIMARY)
+            self.bg_color = Color(
+                0.14,
+                0.21,
+                0.33,
+                0.82
+            )
 
             self.bg = RoundedRectangle(
                 radius=[RADIUS]
             )
+
+        with self.canvas.after:
+
+            Color(
+                0.72,
+                0.74,
+                0.77,
+                1
+            )
+
+            self.border = Line(width=1.2)
 
 
         self.bind(
@@ -94,7 +110,13 @@ class IconButton(ButtonBehavior, BoxLayout):
 
         self.bg.pos = self.pos
         self.bg.size = self.size
-
+        self.border.rounded_rectangle = (
+            self.x,
+            self.y,
+            self.width,
+            self.height,
+            RADIUS
+        )
 
 
     @property
