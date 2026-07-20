@@ -4,7 +4,7 @@ from kivy.animation import Animation
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.behaviors import ButtonBehavior
-
+from theme import SILVER
 from theme import CATEGORY_BG, PRIMARY
 
 
@@ -12,7 +12,7 @@ class CategoryButton(ButtonBehavior, BoxLayout):
 
     def __init__(self, category, title, icon, **kwargs):
         super().__init__(**kwargs)
-
+        self.selected = False
         self.category_key = category
         self.title = title
 
@@ -30,7 +30,7 @@ class CategoryButton(ButtonBehavior, BoxLayout):
 
         self.label = Label(
             text=title,
-            color=(0.12,0.16,0.22,1),
+            color=SILVER,
             font_size=28,
             bold=True,
             halign="left",
@@ -49,13 +49,17 @@ class CategoryButton(ButtonBehavior, BoxLayout):
         with self.canvas.before:
 
             # SENKA
-            Color(0,0,0,0.25)
+            Color(0,0,0,0.45)
 
             self.shadow = RoundedRectangle(
                 radius=[26]
             )
 
+            Color(1,1,1,0.08)
 
+            self.glass = RoundedRectangle(
+                radius=[26]
+            )
             # POZADINA KARTICE
             self.bg_color = Color(
                 *CATEGORY_BG[category]
@@ -67,9 +71,7 @@ class CategoryButton(ButtonBehavior, BoxLayout):
 
 
             # IVICA
-            self.border_color = Color(
-                0.20,0.22,0.25,1
-            )
+            self.border_color = Color(1,1,1,0.45)
 
             self.border = Line(
                 rounded_rectangle=(0,0,0,0,26),
@@ -91,7 +93,15 @@ class CategoryButton(ButtonBehavior, BoxLayout):
         )
         self.shadow.size = self.size
 
+        self.glass.pos = (
+            self.x,
+            self.y + self.height * 0.45
+        )
 
+        self.glass.size = (
+            self.width,
+            self.height * 0.55
+        )
         self.rect.pos = self.pos
         self.rect.size = self.size
 
@@ -106,22 +116,31 @@ class CategoryButton(ButtonBehavior, BoxLayout):
 
     def select(self):
 
-        self.border_color.rgba = PRIMARY
-        self.bg_color.rgba = (
-            0.3,
-            0.6,
+        self.selected = True
+
+        self.border_color.rgba = (
+            0.55,
+            0.85,
             1,
-            1
+            0.9
         )
 
-
+        self.bg_color.rgba = (
+            0.12,
+            0.35,
+            0.55,
+            0.75
+        )
+        
     def unselect(self):
- 
+
+        self.selected = False
+
         self.border_color.rgba = (
-            0.20,
-            0.22,
-            0.25,
-            1
+            0.35,
+            0.65,
+            0.95,
+            0.45
         )
 
         self.bg_color.rgba = CATEGORY_BG[self.category_key]
