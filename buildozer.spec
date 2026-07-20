@@ -9,7 +9,7 @@ source.dir = .
 
 source.include_exts = py,png,jpg,jpeg,kv,json,atlas,ttf,db
 
-version = 1.0.1
+version = 1.1.0
 
 requirements = python3,kivy,requests
 
