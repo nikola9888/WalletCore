@@ -81,12 +81,12 @@ class PieChart(Widget):
 
                 start_angle += angle
                 i += 1
-                
+
 class HomeScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         from kivy.graphics import Color, Rectangle
 
         with self.canvas.before:
@@ -101,7 +101,7 @@ class HomeScreen(Screen):
 
             # blagi svetliji sloj gore
             Color(0.05, 0.18, 0.32, 0.35)
- 
+
             self.glow = RoundedRectangle(
                 pos=self.pos,
                 size=self.size,
@@ -132,10 +132,10 @@ class HomeScreen(Screen):
         root = BoxLayout(
             orientation="vertical",
             padding=10,
-            spacing=10,
+            spacing=1,
             size_hint=(1,1)
         )
-        
+
         with root.canvas.before:
             Color(*BACKGROUND)
             self.bg = RoundedRectangle(
@@ -151,7 +151,7 @@ class HomeScreen(Screen):
         # BALANCE
         self.balance_card = BalanceCard()
         self.balance_card.size_hint_y = None
-        self.balance_card.height = dp(180)
+        self.balance_card.height = dp(70)
         root.add_widget(self.balance_card)
 
         # CATEGORY
@@ -162,13 +162,13 @@ class HomeScreen(Screen):
         header = Header()
 
         header.size_hint_y = None
-        header.height = dp(75)
+        header.height = dp(30)
         header.padding = (15, 15, 15, 5)
 
         root.add_widget(
             Widget(
                 size_hint_y=None,
-                height=18
+                height=28
             )
         )
 
@@ -179,11 +179,11 @@ class HomeScreen(Screen):
             font_size="16sp",
             bold=True,
             size_hint_y=None,
-            height=dp(50)
+            height=dp(40)
         )
 
         root.add_widget(self.welcome_label)
-        
+
         # =====================
         # INPUT CARD
         # =====================
@@ -192,7 +192,7 @@ class HomeScreen(Screen):
             spacing=10,
             padding=15,
             size_hint=(1, None),
-            height=dp(380)
+            height=dp(90)
         )
 
         self.amount_input = RoundedInput(
@@ -200,7 +200,7 @@ class HomeScreen(Screen):
             multiline=False,
             input_filter="float",
             size_hint_y=None,
-            height=dp(120)
+            height=dp(40)
         )
         self.amount_input.write_tab = False
         input_card.add_widget(self.amount_input)
@@ -209,7 +209,7 @@ class HomeScreen(Screen):
             hint_text=translations[self.current_language]["note"],
             multiline=False,
             size_hint_y=None,
-            height=dp(120)
+            height=dp(40)
         )
         self.note_input.write_tab = False
         input_card.add_widget(self.note_input)
@@ -221,7 +221,7 @@ class HomeScreen(Screen):
             orientation="horizontal",
             spacing=10,
             size_hint=(0.9, None),
-            height=dp(65)
+            height=dp(28)
         )
 
         self.income_btn = ModernButton(
@@ -237,7 +237,7 @@ class HomeScreen(Screen):
         self.expense_btn.bind(
             on_press=lambda x: self.add_transaction("expense")
         )
-        
+
         row1.add_widget(self.income_btn)
         row1.add_widget(self.expense_btn)
 
@@ -252,14 +252,14 @@ class HomeScreen(Screen):
         root.add_widget(
             Widget(size_hint_y=None, height=5)
         )
-        
+
         row2 = BoxLayout(
             orientation="horizontal",
-            spacing=8,
+            spacing=30,
             size_hint=(1, None),
-            height=dp(65)
+            height=dp(25)
         )
- 
+
         self.stats_btn = ModernButton(
             text=translations[self.current_language]["stats"],
             icon="assets/icons/stats.png"
@@ -279,8 +279,8 @@ class HomeScreen(Screen):
             text=translations[self.current_language]["filter"],
             icon="assets/icons/filter.png"
         )
-        
-        
+
+
         self.stats_btn.bind(on_press=lambda x: self.show_stats())
         self.chart_btn.bind(on_press=lambda x: self.show_chart())
         self.export_btn.bind(
@@ -294,10 +294,15 @@ class HomeScreen(Screen):
         row2.add_widget(self.filter_btn)
 
         root.add_widget(row2)
-
+        root.add_widget(
+            Widget(
+                size_hint_y=None,
+                height=dp(10)
+            )
+        )
         # TRANSACTION LIST
         scroll = ScrollView(
-            size_hint=(1 ,1),
+            size_hint=(1 ,0.8),
             do_scroll_x=False
         )
 
@@ -312,29 +317,29 @@ class HomeScreen(Screen):
         )
 
         scroll.add_widget(self.list_container)
-        scroll.bar_width = dp(4)
+        scroll.bar_width = dp(10)
         root.add_widget(scroll)
-        
+
         # load data
         self.load_transactions()
 
         # FINAL
         self.add_widget(root)
-      
+
     def update_background(self, *args):
 
         self.rect.pos = self.pos
         self.rect.size = self.size
- 
+
         self.glow.pos = self.pos
         self.glow.size = self.size  
-        
+
     def get_welcome(self):
 
         t = translations[App.get_running_app().language]
 
         if os.path.exists(PROFILE_FILE):
- 
+
             with open(PROFILE_FILE, "r", encoding="utf-8") as f:
                 profile = json.load(f)
 
@@ -344,7 +349,7 @@ class HomeScreen(Screen):
                 return f"{t['welcome']}, {name}"
 
         return f"{t['welcome']}!"
-        
+
     # =====================
     # ADD TRANSACTION
     # =====================
@@ -360,7 +365,7 @@ class HomeScreen(Screen):
 
         category = self.category_grid.selected
         note = self.note_input.text
-    
+
         # EDIT POSTOJEĆE TRANSAKCIJE
         if self.editing_transaction is not None:
 
@@ -437,7 +442,7 @@ class HomeScreen(Screen):
         self.balance_card.balance.text = f"{self.balance:,.2f} {currency}".replace(",", ".")
         self.balance_card.income.text = f" {self.income:,.2f} {currency}".replace(",", ".")
         self.balance_card.expense.text = f" {self.expense:,.2f} {currency}".replace(",", ".")
-        
+
     # =====================
     # STATS
     # =====================
@@ -453,11 +458,11 @@ class HomeScreen(Screen):
 
     def show_stats(self):
         print("SHOW_STATS POZVAN")
-        
+
         stats = self.get_stats()
 
         currency = App.get_running_app().currency
- 
+
         text = "\n".join(
             [f"{k}: {v:.2f} {currency}" for k, v in stats.items()]
         )
@@ -480,7 +485,7 @@ class HomeScreen(Screen):
 
         if not stats:
             return
-  
+
         total = sum(stats.values()) or 1
 
         layout = BoxLayout(
@@ -503,7 +508,7 @@ class HomeScreen(Screen):
         )
 
         layout.add_widget(title)
- 
+
 
         for cat, value in stats.items():
 
@@ -558,7 +563,7 @@ class HomeScreen(Screen):
             content=scroll,
             size_hint=(0.9,0.9)
         ).open()
-        
+
     def get_icon(self, category):
         icons = {
             "Food": "assets/icons/food.png",
@@ -571,12 +576,12 @@ class HomeScreen(Screen):
         }
 
         return icons.get(category, "assets/icons/other.png")
-        
+
     def delete_transaction(self, transaction_id):
         print("Deleting:", transaction_id)
         self.db.delete_transaction(transaction_id)
         self.load_transactions()
-        
+
     def edit_transaction(self, transaction_id):
 
         transaction = self.db.get_transaction(transaction_id)
@@ -593,7 +598,7 @@ class HomeScreen(Screen):
 
         self.editing_transaction = transaction_id
         self.editing_type = ttype
-        
+
     def show_filter(self):
 
         layout = BoxLayout(
@@ -629,7 +634,7 @@ class HomeScreen(Screen):
             btn = ModernButton(
                 text=text,
                 size_hint_y=None,
-                height=dp(60)
+                height=dp(45)
             )
 
             btn.bind(
@@ -642,7 +647,7 @@ class HomeScreen(Screen):
             layout.add_widget(btn)
 
         popup.open()
-        
+
     def apply_filter(self, filter_type):
 
         self.list_container.clear_widgets()
@@ -672,7 +677,7 @@ class HomeScreen(Screen):
             )
 
             self.list_container.add_widget(card)
-        
+
     def update_language(self):
         t = translations[App.get_running_app().language]
 
@@ -694,7 +699,7 @@ class HomeScreen(Screen):
 
         if hasattr(self, "chart_btn"):
             self.chart_btn.text = t["chart"]
-           
+
         if hasattr(self, "export_btn"):
             self.export_btn.text = t["export"]
 
@@ -703,13 +708,13 @@ class HomeScreen(Screen):
 
         self.welcome_label.text = self.get_welcome()  
         self.category_grid.update_language() 
-  
+
         self.balance_card.update_language()
-           
+
         for card in self.list_container.children:
             if hasattr(card, "update_language"):
                 card.update_language()
-                
+
     def export_pdf(self):
         Popup(
             title="Info",
