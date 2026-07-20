@@ -1,10 +1,8 @@
 import traceback
-import os
 from datetime import datetime
-from kivy.app import App
-from kivy.metrics import dp
 
 LOG_FILE = "walletcore_debug.log"
+
 
 def log(text):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
@@ -111,7 +109,6 @@ class WalletCore(App):
 
 
             Window.clearcolor = BACKGROUND
-            Window.softinput_mode = "below_target"
 
 
             sm = ScreenManager(
@@ -194,14 +191,5 @@ class WalletCore(App):
 
 
 if __name__ == "__main__":
-    try:
-        log("APP START")
 
-        WalletCore().run()
-
-        log("APP CLOSED")
-
-    except Exception:
-        log("===== CRASH =====")
-        log(traceback.format_exc())
-        raise
+    WalletCore().run()
