@@ -26,14 +26,14 @@ WAVE_WHITE = get_color_from_hex("#BAE6FD")   # skoro bela voda
 WAVE_GLOW = get_color_from_hex("#E0F2FE")    # blagi beli sjaj
 
 # =========================
-# SURFACES / CARDS
+# PREMIUM GLASS CARDS
 # =========================
 
-CARD = get_color_from_hex("#12304A")
-CARD_LIGHT = get_color_from_hex("#184B70")
+CARD = get_color_from_hex("#1B2430")
+CARD_LIGHT = get_color_from_hex("#263445")
 
-SURFACE = get_color_from_hex("#1E5A85")
-SURFACE_2 = get_color_from_hex("#277AA8")
+SURFACE = get_color_from_hex("#303B4A")
+SURFACE_2 = get_color_from_hex("#3A4758")
 
 # =========================
 # PRIMARY COLORS
@@ -74,38 +74,40 @@ SHADOW = get_color_from_hex("#00000066")
 
 
 # =========================
-# CATEGORY COLORS
+# GLASS CATEGORY COLORS
 # =========================
 
 CATEGORY = {
 
-    "food": get_color_from_hex("#FFB703"),        # hrana - zlatna
-    "transport": get_color_from_hex("#3B82F6"),   # prevoz - plava
-    "shopping": get_color_from_hex("#C084FC"),    # kupovina - ljubičasta
-    "bills": get_color_from_hex("#F43F5E"),       # računi - crvena
-    "fun": get_color_from_hex("#34D399"),         # zabava - zelena
-    "health": get_color_from_hex("#22D3EE"),      # zdravlje - cyan
-    "salary": get_color_from_hex("#4ADE80"),      # plata - svetlo zelena
-    "other": get_color_from_hex("#94A3B8"),       # ostalo - siva
+    "food": get_color_from_hex("#F59E0B55"),
+    "transport": get_color_from_hex("#3B82F655"),
+    "shopping": get_color_from_hex("#A855F755"),
+    "bills": get_color_from_hex("#EF444455"),
+    "fun": get_color_from_hex("#22C55E55"),
+    "health": get_color_from_hex("#06B6D455"),
+    "salary": get_color_from_hex("#10B98155"),
+    "other": get_color_from_hex("#94A3B855"),
 
 }
-
 # =========================
-# CATEGORY CARD BACKGROUNDS
+# PREMIUM GLASS CATEGORY CARDS
 # =========================
 
 CATEGORY_BG = {
 
-    "food": get_color_from_hex("#B8C2CC"),
-    "transport": get_color_from_hex("#B8C2CC"),
-    "shopping": get_color_from_hex("#B8C2CC"),
-    "bills": get_color_from_hex("#B8C2CC"),
-    "fun": get_color_from_hex("#B8C2CC"),
-    "health": get_color_from_hex("#B8C2CC"),
-    "salary": get_color_from_hex("#B8C2CC"),
-    "other": get_color_from_hex("#B8C2CC"),
+    "food": get_color_from_hex("#163A5F99"),
+    "transport": get_color_from_hex("#163A5F99"),
+    "shopping": get_color_from_hex("#163A5F99"),
+    "bills": get_color_from_hex("#163A5F99"),
+    "fun": get_color_from_hex("#163A5F99"),
+    "health": get_color_from_hex("#163A5F99"),
+    "salary": get_color_from_hex("#163A5F99"),
+    "other": get_color_from_hex("#163A5F99"),
 
 }
+
+SILVER = get_color_from_hex("#C4CBD6")
+SILVER_MUTED = get_color_from_hex("#9CA8B8")
 # =========================
 # UI SETTINGS
 # =========================
