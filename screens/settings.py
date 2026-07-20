@@ -51,7 +51,7 @@ class SettingsScreen(Screen):
         # LANGUAGE
         self.language_btn = ModernButton(
             text=translations[self.current_language]["language"],
-            icon="assets/icons/lenguage.png",
+            icon="assets/icons/language.png",
             size_hint_y=None,
             height=100
         )
