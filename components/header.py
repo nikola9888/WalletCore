@@ -49,7 +49,7 @@ class Header(BoxLayout):
         self.menu_button = IconButton(
             source="assets/icons/menu.png",
             size_hint=(None, None),
-            size=(60, 60)
+            size=(70, 70)
         )
 
         self.menu_button.bind(
@@ -87,7 +87,7 @@ class Header(BoxLayout):
         self.settings.bind(
             on_release=self.open_settings
         )
-        self.settings.pos_hint = {"center_y": 11.65}
+        self.settings.pos_hint = {"center_y": 9.90}
 
 
         # HISTORY IKONA
