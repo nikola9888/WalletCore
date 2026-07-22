@@ -10,6 +10,7 @@ from components.button import ModernButton
 from components.rounded import RoundedInput
 from kivy.uix.button import Button
 from theme import TEXT, TITLE, CARD
+from translations import translations
 
 PROFILE_FILE = "data/profile.json"
 
@@ -17,7 +18,8 @@ class ProfileScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
+        self.current_language = App.get_running_app().language
+        
         root = BoxLayout(
             orientation="vertical",
             padding=20,
@@ -29,8 +31,8 @@ class ProfileScreen(Screen):
         # TITLE
         # =====================
 
-        title = Label(
-            text="Profile",
+        self.title = Label(
+            text=translations[self.current_language]["profile"],
             color=TEXT,
             font_size=32,
             bold=True,
@@ -38,7 +40,7 @@ class ProfileScreen(Screen):
             height=70
         )
 
-        root.add_widget(title)
+        root.add_widget(self.title)
 
 
         # =====================
@@ -67,27 +69,27 @@ class ProfileScreen(Screen):
         # =====================
 
         self.name_input = RoundedInput(
-            hint_text="Full Name",
+            hint_text=translations[self.current_language]["full_name"],
             size_hint_y=None,
             height=100
         )
 
         self.email_input = RoundedInput(
-            hint_text="Email",
+            hint_text=translations[self.current_language]["email"],
             size_hint_y=None,
             height=100
         )
 
 
         self.country_input = RoundedInput(
-            hint_text="Country",
+            hint_text=translations[self.current_language]["country"],
             size_hint_y=None,
             height=100
         )
 
 
         self.currency_input = RoundedInput(
-            hint_text="Currency",
+            hint_text=translations[self.current_language]["currency"],
             size_hint_y=None,
             height=100
         )
@@ -105,7 +107,7 @@ class ProfileScreen(Screen):
         # =====================
 
         self.save_btn = ModernButton(
-            text="💾 Save",
+            text=translations[self.current_language]["save"],
             size_hint_y=None,
             height=100
         )
@@ -120,7 +122,7 @@ class ProfileScreen(Screen):
         # =====================
 
         self.back_btn = ModernButton(
-            text="⬅ Back",
+            text=translations[self.current_language]["back"],
             size_hint_y=None,
             height=100
         )
@@ -165,9 +167,9 @@ class ProfileScreen(Screen):
     def show_saved(self):
 
         popup = Popup(
-            title="Success",
+            title=translations[App.get_running_app().language]["success"],
             content=Label(
-                text="Profile saved ✓",
+                text=translations[App.get_running_app().language]["profile_saved"],
                 font_size="22sp"
             ),
             size_hint=(0.7,0.3)
@@ -198,3 +200,17 @@ class ProfileScreen(Screen):
     def go_back(self, instance):
 
         self.manager.current = "settings"
+        
+    def update_language(self):
+
+        t = translations[App.get_running_app().language]
+
+        self.title.text = t["profile"]
+
+        self.name_input.hint_text = t["full_name"]
+        self.email_input.hint_text = t["email"]
+        self.country_input.hint_text = t["country"]
+        self.currency_input.hint_text = t["currency"]
+
+        self.save_btn.text = t["save"]
+        self.back_btn.text = t["back"]
