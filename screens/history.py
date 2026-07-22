@@ -5,7 +5,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.app import App
-
+from translations import translations
 from database import Database
 from components.transaction_card import TransactionCard
 from theme import TEXT, TITLE
@@ -18,7 +18,9 @@ class HistoryScreen(Screen):
 
         self.db = Database()
         self.filter_type = "all"
-
+        
+        self.current_language = App.get_running_app().language
+        self.t = translations[self.current_language]
 
         root = BoxLayout(
             orientation="vertical",
@@ -30,7 +32,7 @@ class HistoryScreen(Screen):
         # TITLE
 
         self.title = Label(
-            text="📜 History",
+            text=f" {translations[App.get_running_app().language]['history']}",
             color=TEXT,
             font_size=TITLE,
             bold=True,
@@ -44,7 +46,7 @@ class HistoryScreen(Screen):
         # SEARCH
 
         self.search = TextInput(
-            hint_text="Search...",
+            hint_text=translations[App.get_running_app().language]["search"],
             size_hint_y=None,
             height=60,
             multiline=False
@@ -68,15 +70,15 @@ class HistoryScreen(Screen):
 
 
         self.all_btn = Button(
-            text="All"
+            text=translations[App.get_running_app().language]["all"]
         )
 
         self.income_btn = Button(
-            text="Income"
+            text=translations[App.get_running_app().language]["income"]
         )
 
         self.expense_btn = Button(
-            text="Expense"
+            text=translations[App.get_running_app().language]["expense"]
         )
 
 
@@ -131,18 +133,18 @@ class HistoryScreen(Screen):
 
         # BACK
 
-        back = Button(
-            text="← Back",
+        self.back_btn = Button(
+            text=self.t["back"],
             size_hint_y=None,
             height=60
         )
 
-        back.bind(
+        self.back_btn.bind(
             on_press=self.go_home
         )
 
 
-        root.add_widget(back)
+        root.add_widget(self.back_btn)
 
 
         self.add_widget(root)
@@ -250,3 +252,17 @@ class HistoryScreen(Screen):
     def go_home(self, instance):
 
         self.manager.current="home"
+        
+    def update_language(self):
+
+        self.t = translations[
+            App.get_running_app().language
+        ]
+
+        self.title.text = self.t["history"]
+
+        self.search.hint_text = self.t["search"]
+        self.back_btn.text = self.t["back"]
+        self.all_btn.text = self.t["all"]
+        self.income_btn.text = self.t["income"]
+        self.expense_btn.text = self.t["expense"]
