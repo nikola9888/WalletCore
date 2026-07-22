@@ -4,7 +4,7 @@ from kivy.uix.image import Image
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.graphics import Color, RoundedRectangle
 from kivy.uix.widget import Widget
-
+from kivy.metrics import dp
 from kivy.app import App
 from translations import translations
 from theme import TEXT, TITLE, CARD, RADIUS
@@ -25,10 +25,14 @@ class Header(BoxLayout):
 
         self.orientation = "horizontal"
         self.size_hint_y = None
-        self.height = 75
+        self.height = dp(75)
 
-        self.padding = (20, 8)
-        self.spacing = 15
+        self.padding = (
+            dp(20),
+            dp(8)
+        )
+
+        self.spacing = dp(15)
 
 
         # HEADER POZADINA
@@ -49,7 +53,7 @@ class Header(BoxLayout):
         self.menu_button = IconButton(
             source="assets/icons/menu.png",
             size_hint=(None, None),
-            size=(70, 70)
+            size=(dp(30), dp(30))
         )
 
         self.menu_button.bind(
@@ -76,29 +80,15 @@ class Header(BoxLayout):
         )
 
 
-        # DESNA SETTINGS IKONA
-        self.settings = IconButton(
-            source="assets/icons/settings.png",
-            size_hint=(None, None),
-            size=(80, 80),
-            fit_mode="contain"
-        )
-
-        self.settings.bind(
-            on_release=self.open_settings
-        )
-        self.settings.pos_hint = {"center_y": 9.90}
-
-
         # HISTORY IKONA
         self.history = IconTextButton(
             icon="assets/icons/history.png",
-            text="History"
+            text=translations[self.current_language]["history"]
         )
 
         self.history.bind(
-		    on_release=self.open_history
-		)
+            on_release=self.open_history
+        )
 
 
         # DODAVANJE U HEADER
@@ -106,11 +96,11 @@ class Header(BoxLayout):
         self.add_widget(self.title)
 
         self.add_widget(
-		    Widget(size_hint_x=1)
-		)
+            Widget(size_hint_x=1)
+        )
+
 
         self.add_widget(self.history)
-        self.add_widget(self.settings)
 
     def update_bg(self, *args):
 
@@ -147,6 +137,8 @@ class Header(BoxLayout):
         ]
 
         self.title.text = t["app_name"]
+
+        self.history.label.text = t["history"]
         
 class IconTextButton(ButtonBehavior, BoxLayout):
 
@@ -154,15 +146,15 @@ class IconTextButton(ButtonBehavior, BoxLayout):
         super().__init__(**kwargs)
 
         self.orientation = "horizontal"
-        self.spacing = 8
+        self.spacing = dp( 8)
         self.size_hint = (None, None)
-        self.size = (150, 60)
+        self.size = (dp(70),dp(30))
 
         self.add_widget(
             Image(
                 source=icon,
                 size_hint=(None, None),
-                size=(75,75)
+                size=(dp(30), dp(30))
             )
         )
 
