@@ -1,49 +1,17 @@
 import traceback
+import os
 from datetime import datetime
-
-LOG_FILE = "walletcore_debug.log"
-
-
-def log(text):
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(
-            f"{datetime.now()} : {text}\n"
-        )
-
-
-log("MAIN START")
-
-
 from kivy.app import App
-log("KIVY OK")
-
-from kivy.core.window import Window
-log("WINDOW OK")
-
-from kivy.storage.jsonstore import JsonStore
-log("JSON OK")
-
+from kivy.core.window import WindowBase
 from kivy.uix.screenmanager import ScreenManager, FadeTransition
-log("SCREENMANAGER OK")
-
 from theme import BACKGROUND
-log("THEME OK")
-
 from screens.home import HomeScreen
-log("HOME OK")
-
 from screens.settings import SettingsScreen
-log("SETTINGS OK")
-
+from kivy.utils import get_color_from_hex
+from kivy.storage.jsonstore import JsonStore
 from screens.history import HistoryScreen
-log("HISTORY OK")
-
 from screens.about import AboutScreen
-log("ABOUT OK")
-
 from screens.profile import ProfileScreen
-log("PROFILE IMPORT OK")
-
 
 CURRENCIES = {
     "sr": "RSD",
@@ -55,17 +23,11 @@ CURRENCIES = {
     "ru": "RUB",
 }
 
-
 class WalletCore(App):
 
-    language = "en"
+    language = "sr"
 
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.store = JsonStore("settings.json")
-
+    store = JsonStore("wallet_settings.json")
 
     def load_language(self):
 
@@ -73,19 +35,14 @@ class WalletCore(App):
 
             lang = self.store.get("settings").get(
                 "language",
-                "en"
+                "sr"
             )
 
-            if lang in CURRENCIES:
+            if lang in ["sr", "en", "de", "it", "es", "fr", "ru"]:
                 self.language = lang
             else:
-                self.language = "en"
-
-        self.currency = CURRENCIES.get(
-            self.language,
-            "USD"
-        )
-
+                self.language = "sr"
+        self.currency = CURRENCIES.get(self.language, "RSD")
 
     def save_language(self):
 
@@ -94,100 +51,49 @@ class WalletCore(App):
             language=self.language
         )
 
-
     def build(self):
 
-        try:
+        self.load_language()
 
-            log("BUILD START")
+        print("BUILD START")
 
-            self.load_language()
+        sm = ScreenManager(
+            transition=FadeTransition(duration=0.2)
+        )
+        sm.add_widget(HomeScreen(name="home"))
+        print("HOME OK")
+ 
+        sm.add_widget(SettingsScreen(name="settings"))
+        
+        sm.add_widget(
+            HistoryScreen(name="history")
+        )
+        
+        sm.add_widget(
+            AboutScreen(name="about")
+        )
+        print("SETTINGS OK")
+        
+        sm.add_widget(ProfileScreen(name="profile"))
 
-            log("LANGUAGE LOADED")
-
-
-            Window.clearcolor = BACKGROUND
-
-
-            sm = ScreenManager(
-                transition=FadeTransition(
-                    duration=0.2
-                )
-            )
-
-
-            log("ADDING HOME")
-
-            sm.add_widget(
-                HomeScreen(name="home")
-            )
-
-            log("HOME OK")
-
-
-
-            log("ADDING SETTINGS")
-
-            sm.add_widget(
-                SettingsScreen(name="settings")
-            )
-
-            log("SETTINGS OK")
-
-
-
-            log("ADDING HISTORY")
-
-            sm.add_widget(
-                HistoryScreen(name="history")
-            )
-
-            log("HISTORY OK")
-
-
-
-            log("ADDING ABOUT")
-
-            sm.add_widget(
-                AboutScreen(name="about")
-            )
-
-            log("ABOUT OK")
-
-
-
-            log("CREATING PROFILE")
-
-            profile = ProfileScreen(
-                name="profile"
-            )
-
-            log("PROFILE CREATED")
-
-
-            sm.add_widget(profile)
-
-            log("PROFILE ADDED")
-
-
-            log("BUILD FINISHED")
-
-
-            return sm
-
-
-        except Exception:
-
-            log("BUILD ERROR")
-
-            log(
-                traceback.format_exc()
-            )
-
-            raise
-
-
-
+        return sm
+        
 if __name__ == "__main__":
 
-    WalletCore().run()
+    try:
+        WalletCore().run()
+
+    except BaseException as e:
+
+        import traceback
+
+        print("===== CRASH =====")
+        traceback.print_exc()
+
+        try:
+            with open("/storage/emulated/0/walletcore_error.txt", "w", encoding="utf-8") as f:
+                f.write(traceback.format_exc())
+        except Exception as err:
+            print("LOG WRITE ERROR:", err)
+
+        raise
