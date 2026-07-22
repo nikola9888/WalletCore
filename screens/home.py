@@ -26,13 +26,6 @@ from kivy.app import App
 from theme import BACKGROUND
 from datetime import datetime
 from kivy.metrics import dp
-#from reportlab.pdfgen import canvas
-#from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
-#from reportlab.lib import colors
-#from reportlab.lib.styles import getSampleStyleSheet
-#from reportlab.lib.units import cm
-#from reportlab.pdfbase import pdfmetrics
-#from reportlab.pdfbase.ttfonts import TTFont
 
 
 PROFILE_FILE = "data/profile.json"
@@ -159,11 +152,11 @@ class HomeScreen(Screen):
         root.add_widget(self.category_grid)
 
         # HEADER
-        header = Header()
+        self.header = Header()
 
-        header.size_hint_y = None
-        header.height = dp(30)
-        header.padding = (15, 15, 15, 5)
+        self.header.size_hint_y = None
+        self.header.height = dp(30)
+        self.header.padding = (15, 15, 15, 5)
 
         root.add_widget(
             Widget(
@@ -172,18 +165,14 @@ class HomeScreen(Screen):
             )
         )
 
-        root.add_widget(header)
-        self.welcome_label = Label(
-            text=self.get_welcome(),
-            color=(1,1,1,1),
-            font_size="16sp",
-            bold=True,
-            size_hint_y=None,
-            height=dp(40)
+        root.add_widget(self.header)
+
+        root.add_widget(
+            Widget(
+                size_hint_y=None,
+                height=dp(38)
+            )
         )
-
-        root.add_widget(self.welcome_label)
-
         # =====================
         # INPUT CARD
         # =====================
@@ -432,7 +421,11 @@ class HomeScreen(Screen):
 
         self.balance = self.income - self.expense
         self.update_ui()
-
+        
+    def translate_category(self, category):
+        t = translations[App.get_running_app().language]
+        return t.get(category, category)
+        
     # =====================
     # UI UPDATE
     # =====================
@@ -464,11 +457,13 @@ class HomeScreen(Screen):
         currency = App.get_running_app().currency
 
         text = "\n".join(
-            [f"{k}: {v:.2f} {currency}" for k, v in stats.items()]
+            [f"{self.translate_category(k)}: {v:.2f} {currency}" for k, v in stats.items()]
         )
 
+        t = translations[App.get_running_app().language]
+
         Popup(
-            title="Stats",
+            title=t["stats"],
             content=Label(
                 text=text,
                 font_size="16sp"
@@ -499,8 +494,10 @@ class HomeScreen(Screen):
             minimum_height=layout.setter("height")
         )
 
+        t = translations[App.get_running_app().language]
+
         title = Label(
-            text=" Statistics",
+            text=t["statistics"],
             size_hint_y=None,
             height=dp(60),
             font_size=42,
@@ -524,7 +521,7 @@ class HomeScreen(Screen):
 
 
             category_label = Label(
-                text=cat,
+                text=self.translate_category(cat),
                 font_size=42,
                 bold=True
             )
@@ -559,7 +556,7 @@ class HomeScreen(Screen):
 
 
         Popup(
-            title="Statistics",
+            title=t["statistics"],
             content=scroll,
             size_hint=(0.9,0.9)
         ).open()
@@ -624,7 +621,7 @@ class HomeScreen(Screen):
          ]
 
         popup = Popup(
-            title="Filter",
+            title=t["filter"],
             content=layout,
             size_hint=(0.8, 0.8)
         )
@@ -705,10 +702,10 @@ class HomeScreen(Screen):
 
         if hasattr(self, "filter_btn"):
             self.filter_btn.text = t["filter"]
-
-        self.welcome_label.text = self.get_welcome()  
+        if hasattr(self, "header"):
+            self.header.update_language()
         self.category_grid.update_language() 
-
+      
         self.balance_card.update_language()
 
         for card in self.list_container.children:
@@ -716,8 +713,11 @@ class HomeScreen(Screen):
                 card.update_language()
 
     def export_pdf(self):
+        t = translations[App.get_running_app().language]
+
         Popup(
-            title="Info",
-            content=Label(text="PDF export coming soon"),
+            title=t["info"],
+            content=Label(
+                text=t["pdf_coming_soon"]),
             size_hint=(0.7,0.3)
         ).open()
