@@ -202,8 +202,8 @@ class ProfileScreen(Screen):
         self.manager.current = "settings"
         
     def update_language(self):
-
-        t = translations[App.get_running_app().language]
+        self.current_language = App.get_running_app().language
+        t = translations[self.current_language]
 
         self.title.text = t["profile"]
 
@@ -214,3 +214,7 @@ class ProfileScreen(Screen):
 
         self.save_btn.text = t["save"]
         self.back_btn.text = t["back"]
+        self.name_input.canvas.ask_update()
+        self.email_input.canvas.ask_update()
+        self.country_input.canvas.ask_update()
+        self.currency_input.canvas.ask_update()
