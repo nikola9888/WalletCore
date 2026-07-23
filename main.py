@@ -25,7 +25,7 @@ CURRENCIES = {
 
 class WalletCore(App):
 
-    language = "sr"
+    language = "en"
 
     store = JsonStore("wallet_settings.json")
 
@@ -35,13 +35,13 @@ class WalletCore(App):
 
             lang = self.store.get("settings").get(
                 "language",
-                "sr"
+                "en"
             )
 
             if lang in ["sr", "en", "de", "it", "es", "fr", "ru"]:
                 self.language = lang
             else:
-                self.language = "sr"
+                self.language = "en"
         self.currency = CURRENCIES.get(self.language, "RSD")
 
     def save_language(self):
