@@ -151,6 +151,8 @@ class SettingsScreen(Screen):
 
     def change_language(self, instance):
 
+        t = translations[App.get_running_app().language]
+
         layout = BoxLayout(
             orientation="vertical",
             spacing=20,
@@ -159,7 +161,7 @@ class SettingsScreen(Screen):
 
 
         popup = Popup(
-            title="Choose language",
+            title=t["choose_language"],
             content=layout,
             size_hint=(0.8,0.8)
         )
@@ -193,7 +195,7 @@ class SettingsScreen(Screen):
 
 
         cancel = ModernButton(
-            text="Cancel",
+            text=t["cancel"],
             size_hint_y=None,
             height=70
         )
@@ -228,8 +230,12 @@ class SettingsScreen(Screen):
         home.update_language()
         home.update_ui()
 
-        self.manager.current = "home"
 
+        if self.manager.has_screen("history"):
+            history = self.manager.get_screen("history")
+            history.update_language()
+        self.manager.current = "home"
+        
     def update_language(self):
 
         t = translations[App.get_running_app().language]
@@ -246,6 +252,8 @@ class SettingsScreen(Screen):
         
     def clear_transactions(self, instance):
 
+        t = translations[App.get_running_app().language]
+
         layout = BoxLayout(
             orientation="vertical",
             spacing=15,
@@ -254,19 +262,19 @@ class SettingsScreen(Screen):
    
         layout.add_widget(
             Label(
-                text="Are you sure you want to delete all transactions?",
+                text=t["delete_confirm"],
                 font_size="13sp"
             )
         )
 
         yes = ModernButton(
-            text="Delete All",
+            text=t["delete_all"],
             size_hint_y=None,
             height=70
         )
 
         no = ModernButton(
-            text="Cancel",
+            text=t["cancel"],
             size_hint_y=None,
             height=70
         )
@@ -275,7 +283,7 @@ class SettingsScreen(Screen):
         layout.add_widget(no)
 
         popup = Popup(
-            title="Confirmation",
+            title=t["confirmation"],
             content=layout,
             size_hint=(0.8, 0.4)
         )
@@ -307,6 +315,7 @@ class SettingsScreen(Screen):
         self.manager.current = "profile"
         
     def backup_database(self, instance):
+        t = translations[App.get_running_app().language]
         try:
             import shutil
             import os
@@ -321,8 +330,9 @@ class SettingsScreen(Screen):
             if not os.path.exists(source):
                 print("Baza nije pronađena")
                 Popup(
-                    title="Backup",
-                    content=Label(text="Database not found!"),
+                    title=t["backup_title"],
+                    content=Label(
+                        text=t["database_not_found"]),
                     size_hint=(0.7, 0.3)
                 ).open()
                 return
@@ -333,20 +343,23 @@ class SettingsScreen(Screen):
 
             shutil.copy2(source, filename)
 
+            
             Popup(
-                title="Backup",
-                content=Label(text="Backup OK"),
+                title=t["backup_title"],
+                content=Label(text=t["backup_ok"]),
                 size_hint=(0.7, 0.3)
             ).open()
 
         except Exception as e:
             Popup(
-                title="Greška",
+                title=t["error"],
                 content=Label(text=str(e)),
                 size_hint=(0.8, 0.4)
             ).open()
 
     def restore_database(self, instance):
+
+        t = translations[App.get_running_app().language]
 
         import glob
         import shutil
@@ -359,8 +372,9 @@ class SettingsScreen(Screen):
 
         if not backups:
             Popup(
-                title="Restore",
-                content=Label(text="No backup found."),
+                title=t["restore_title"],
+                content=Label(
+                    text=t["no_backup_found"]),
                 size_hint=(0.7, 0.3)
             ).open()
             return
@@ -373,7 +387,8 @@ class SettingsScreen(Screen):
         home.load_transactions()
 
         Popup(
-            title="Restore",
-            content=Label(text="Database restored successfully!"),
+            title=t["restore_title"],
+            content=Label(
+                text=t["restore_success"]),
             size_hint=(0.7, 0.3)
         ).open()
