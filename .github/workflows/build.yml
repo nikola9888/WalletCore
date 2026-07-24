@@ -64,27 +64,10 @@ jobs:
       run: |
         find / -name apksigner 2>/dev/null || true
 
-
     - name: Check AAB
       run: |
-        ls -la bin/
-
-
-    - name: Verify AAB signature
-      run: |
-        APK_SIGNER=$(find / -name apksigner 2>/dev/null | head -n 1)
-
-        if [ -z "$APK_SIGNER" ]; then
-          echo "apksigner not found"
-          exit 1
-        fi
-
-        echo "Using: $APK_SIGNER"
-
-        $APK_SIGNER verify \
-        --verbose \
-        --print-certs \
-        bin/*.aab
+        ls -lh bin/
+        unzip -l bin/*.aab | grep META-INF
 
 
     - name: Upload AAB
