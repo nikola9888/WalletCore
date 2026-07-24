@@ -36,6 +36,11 @@ jobs:
         rm -rf .buildozer
         rm -rf bin
 
+    - name: Check keystore
+      run: |
+        ls -la
+        ls -la walletcore.keystore
+
     - name: Build AAB
       run: |
         yes | buildozer android release
