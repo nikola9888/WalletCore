@@ -54,9 +54,11 @@ jobs:
         yes | buildozer android release
 
 
-    - name: Check AAB
+    - name: Check AAB signature
       run: |
         ls -la bin/
+        apksigner verify --verbose bin/*.aab || true
+        jarsigner -verify -verbose -certs bin/*.aab || true
 
 
     - name: Upload AAB
