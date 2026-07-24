@@ -43,9 +43,7 @@ jobs:
     - name: Prepare build
       run: |
         chmod -R 777 .
-        rm -rf .buildozer
-        rm -rf bin
-
+     
 
     - name: Build signed AAB
       run: |
