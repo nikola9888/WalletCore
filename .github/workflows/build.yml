@@ -1,4 +1,4 @@
-name: WalletCore APK
+name: WalletCore AAB
 
 on:
   workflow_dispatch:
@@ -19,6 +19,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+
     - name: Install tools
       run: |
         pip install --upgrade pip
@@ -26,24 +27,39 @@ jobs:
         pip install Cython==0.29.37
         pip install sh
 
+
     - name: Accept Android licenses
       run: |
         yes | sdkmanager --licenses || true
 
-    - name: Prepare
+
+    - name: Restore keystore
+      run: |
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > walletcore.keystore
+
+
+    - name: Check files
+      run: |
+        ls -la
+        ls -la walletcore.keystore
+
+
+    - name: Prepare build
       run: |
         chmod -R 777 .
         rm -rf .buildozer
         rm -rf bin
 
-    - name: Check keystore
-      run: |
-        ls -la
-        ls -la walletcore.keystore
 
-    - name: Build AAB
+    - name: Build signed AAB
       run: |
         yes | buildozer android release
+
+
+    - name: Check AAB
+      run: |
+        ls -la bin/
+
 
     - name: Upload AAB
       uses: actions/upload-artifact@v4
