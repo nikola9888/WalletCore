@@ -34,6 +34,7 @@ android.accept_sdk_license = True
 android.ndk = 25c
 
 android.archs = arm64-v8a
+android.release_artifact = aab
 
 android.enable_androidx = True
 
