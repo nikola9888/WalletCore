@@ -36,12 +36,12 @@ jobs:
         rm -rf .buildozer
         rm -rf bin
 
-    - name: Build APK
+    - name: Build AAB
       run: |
-        yes | buildozer android debug
+        yes | buildozer android release
 
-    - name: Upload APK
+    - name: Upload AAB
       uses: actions/upload-artifact@v4
       with:
-        name: WalletCore-debug
-        path: bin/*.apk
+        name: WalletCore-release-aab
+        path: bin/*.aab
