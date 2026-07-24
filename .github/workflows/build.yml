@@ -28,10 +28,6 @@ jobs:
         pip install sh
 
 
-    - name: Accept Android licenses
-      run: |
-        yes | sdkmanager --licenses || true
-
 
     - name: Restore keystore
       run: |
