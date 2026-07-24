@@ -52,7 +52,8 @@ jobs:
 
     - name: Clean build
       run: |
-        buildozer android clean
+        rm -rf .buildozer
+        rm -rf bin
 
     - name: Build signed AAB
       run: |
