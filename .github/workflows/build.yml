@@ -28,7 +28,6 @@ jobs:
         pip install sh
 
 
-
     - name: Restore keystore
       run: |
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > walletcore.keystore
@@ -36,7 +35,10 @@ jobs:
 
     - name: Verify keystore
       run: |
-        keytool -list -keystore walletcore.keystore -storepass WalletCore123!
+        keytool -list \
+        -keystore walletcore.keystore \
+        -storepass WalletCore123!
+
 
     - name: Check files
       run: |
@@ -47,21 +49,38 @@ jobs:
     - name: Prepare build
       run: |
         chmod -R 777 .
-     
+
 
     - name: Build signed AAB
       run: |
         yes | buildozer android release
 
-    - name: Verify bundle signature
-      run: |
-        $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose bin/*.aab
 
-    - name: Check AAB signature
+    - name: Find apksigner
+      run: |
+        find / -name apksigner 2>/dev/null || true
+
+
+    - name: Check AAB
       run: |
         ls -la bin/
-        apksigner verify --verbose bin/*.aab || true
-        jarsigner -verify -verbose -certs bin/*.aab || true
+
+
+    - name: Verify AAB signature
+      run: |
+        APK_SIGNER=$(find / -name apksigner 2>/dev/null | head -n 1)
+
+        if [ -z "$APK_SIGNER" ]; then
+          echo "apksigner not found"
+          exit 1
+        fi
+
+        echo "Using: $APK_SIGNER"
+
+        $APK_SIGNER verify \
+        --verbose \
+        --print-certs \
+        bin/*.aab
 
 
     - name: Upload AAB
