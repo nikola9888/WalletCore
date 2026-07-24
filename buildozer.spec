@@ -36,6 +36,11 @@ android.ndk = 25c
 android.archs = arm64-v8a
 android.release_artifact = aab
 
+android.keystore = walletcore.keystore
+android.keyalias = walletcore
+android.keystore_password = WalletCore123!
+android.keyalias_password = WalletCore123!
+
 android.enable_androidx = True
 
 android.private_storage = True
