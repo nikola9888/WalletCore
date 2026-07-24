@@ -59,6 +59,10 @@ jobs:
       run: |
         yes | buildozer android release
 
+    - name: Verify AAB
+      run: |
+        jarsigner -verify -verbose -certs bin/*.aab
+ 
 
     - name: Find apksigner
       run: |
