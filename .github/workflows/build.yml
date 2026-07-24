@@ -53,6 +53,9 @@ jobs:
       run: |
         yes | buildozer android release
 
+    - name: Verify bundle signature
+      run: |
+        $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose bin/*.aab
 
     - name: Check AAB signature
       run: |
