@@ -34,6 +34,10 @@ jobs:
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > walletcore.keystore
 
 
+    - name: Verify keystore
+      run: |
+        keytool -list -keystore walletcore.keystore -storepass WalletCore123!
+
     - name: Check files
       run: |
         ls -la
