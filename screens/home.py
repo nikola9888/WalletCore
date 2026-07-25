@@ -354,14 +354,14 @@ class HomeScreen(Screen):
 
         layout = BoxLayout(
             orientation="vertical",
-            spacing=10,
-            padding=10
+            spacing=2,
+            padding=3
         )
 
         popup = Popup(
             title="Select currency",
             content=layout,
-            size_hint=(0.7, 0.8)
+            size_hint=(0.4, 0.6)
         )
 
         currencies = [
