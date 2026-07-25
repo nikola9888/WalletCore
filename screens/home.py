@@ -192,7 +192,34 @@ class HomeScreen(Screen):
             height=dp(40)
         )
         self.amount_input.write_tab = False
-        input_card.add_widget(self.amount_input)
+
+        amount_row = BoxLayout(
+            orientation="horizontal",
+            spacing=10,
+            size_hint_y=None,
+            height=dp(40)
+        )
+
+        self.amount_input = RoundedInput(
+            hint_text=translations[self.current_language]["amount"],
+            multiline=False,
+            input_filter="float"
+        )
+
+        self.currency_btn = ModernButton(
+            text=App.get_running_app().currency
+        )
+
+        self.currency_btn.size_hint_x = None
+        self.currency_btn.width = dp(90)
+        self.currency_btn.bind(on_press=lambda x: self.show_currency_picker())
+
+        amount_row.add_widget(self.amount_input)
+        amount_row.add_widget(self.currency_btn)
+
+        input_card.add_widget(amount_row)
+        
+        
 
         self.note_input = RoundedInput(
             hint_text=translations[self.current_language]["note"],
@@ -322,6 +349,58 @@ class HomeScreen(Screen):
 
         self.glow.pos = self.pos
         self.glow.size = self.size  
+        
+    def show_currency_picker(self):
+
+        layout = BoxLayout(
+            orientation="vertical",
+            spacing=10,
+            padding=10
+        )
+
+        popup = Popup(
+            title="Select currency",
+            content=layout,
+            size_hint=(0.7, 0.8)
+        )
+
+        currencies = [
+            "RSD",
+            "EUR",
+            "USD",
+            "CHF",
+            "GBP",
+            "BAM",
+            "MKD",
+            "JPY",
+            "CNY"
+        ]
+
+        for currency in currencies:
+
+            btn = ModernButton(
+                text=currency,
+                size_hint_y=None,
+                height=dp(45)
+            )
+
+            btn.bind(
+                on_press=lambda x, c=currency: (
+                    self.set_currency(c),
+                    popup.dismiss()
+                )
+            )
+
+            layout.add_widget(btn)
+
+        popup.open()
+        
+    def set_currency(self, currency):
+
+        App.get_running_app().currency = currency
+        self.currency_btn.text = currency
+
+        self.update_ui()
 
     def get_welcome(self):
 
