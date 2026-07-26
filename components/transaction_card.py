@@ -28,7 +28,7 @@ class TransactionCard(BoxLayout):
         self.on_edit = on_edit
         self.orientation = "horizontal"
         self.size_hint_y = None
-        self.height = 110
+        self.height = 130
         self.padding = (20, 16)
         self.spacing = 10
         self.transaction_id = transaction_id
@@ -105,6 +105,20 @@ class TransactionCard(BoxLayout):
 
         left.add_widget(self.title_label)
         left.add_widget(subtitle)
+
+        self.hint_label = Label(
+            text=t["double_click_change"],
+            font_size="10sp",
+            color=(0.55, 0.65, 0.75, 1),
+            halign="left",
+            valign="middle"
+        )
+ 
+        self.hint_label.bind(
+            size=lambda i, v: setattr(i, "text_size", i.size)
+        )
+
+        left.add_widget(self.hint_label)
 
         self.amount = amount
         self.sign = sign
@@ -314,3 +328,4 @@ class TransactionCard(BoxLayout):
         self.amount_label.text = (
             f"{self.sign}{self.amount:,.0f} {currency}"
         ).replace(",", ".")
+        self.hint_label.text = t["double_click_change"]
