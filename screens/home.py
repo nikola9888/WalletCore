@@ -335,21 +335,13 @@ class HomeScreen(Screen):
         self.scroll.add_widget(self.list_container)
         self.scroll.bar_width = dp(10)
         root.add_widget(self.scroll)
-        from kivy.clock import Clock
-
-        Clock.schedule_once(
-            lambda dt: setattr(self.scroll, "scroll_y", 0),
-            0.2
-        )
+ 
+        self.load_transactions()
 
         # FINAL
         self.add_widget(root)
 
-        from kivy.clock import Clock
-        Clock.schedule_once(
-            lambda dt: self.load_transactions(),
-            0.1
-        )
+
 
     def update_background(self, *args):
 
@@ -510,10 +502,6 @@ class HomeScreen(Screen):
         self.balance = self.income - self.expense
         self.update_ui()
         
-        Clock.schedule_once(
-            lambda dt: setattr(self.scroll, "scroll_y", 0),
-            0.2
-        )
         
     def translate_category(self, category):
         t = translations[App.get_running_app().language]
