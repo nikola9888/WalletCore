@@ -26,7 +26,7 @@ from kivy.app import App
 from theme import BACKGROUND
 from datetime import datetime
 from kivy.metrics import dp
-
+from kivy.clock import Clock
 
 PROFILE_FILE = "data/profile.json"
 
@@ -317,7 +317,7 @@ class HomeScreen(Screen):
             )
         )
         # TRANSACTION LIST
-        scroll = ScrollView(
+        self.scroll = ScrollView(
             size_hint=(1 ,0.8),
             do_scroll_x=False
         )
@@ -332,15 +332,24 @@ class HomeScreen(Screen):
             minimum_height=self.list_container.setter("height")
         )
 
-        scroll.add_widget(self.list_container)
-        scroll.bar_width = dp(10)
-        root.add_widget(scroll)
+        self.scroll.add_widget(self.list_container)
+        self.scroll.bar_width = dp(10)
+        root.add_widget(self.scroll)
+        from kivy.clock import Clock
 
-        # load data
-        self.load_transactions()
+        Clock.schedule_once(
+            lambda dt: setattr(self.scroll, "scroll_y", 0),
+            0.2
+        )
 
         # FINAL
         self.add_widget(root)
+
+        from kivy.clock import Clock
+        Clock.schedule_once(
+            lambda dt: self.load_transactions(),
+            0.1
+        )
 
     def update_background(self, *args):
 
@@ -501,6 +510,11 @@ class HomeScreen(Screen):
         self.balance = self.income - self.expense
         self.update_ui()
         
+        Clock.schedule_once(
+            lambda dt: setattr(self.scroll, "scroll_y", 0),
+            0.2
+        )
+        
     def translate_category(self, category):
         t = translations[App.get_running_app().language]
         return t.get(category, category)
@@ -629,14 +643,13 @@ class HomeScreen(Screen):
             layout.add_widget(bar)
 
 
-        scroll = ScrollView()
+        chart_scroll = ScrollView()
 
-        scroll.add_widget(layout)
-
+        chart_scroll.add_widget(layout)
 
         Popup(
             title=t["statistics"],
-            content=scroll,
+            content=chart_scroll,
             size_hint=(0.9,0.9)
         ).open()
 
