@@ -10,7 +10,7 @@ source.dir = .
 source.include_exts = py,png,jpg,jpeg,kv,json,atlas,ttf
 
 version = 1.1.1
-android.numeric_version = 102410103
+android.numeric_version = 102410104
 
 requirements = python3,kivy,requests
 
