@@ -7,7 +7,7 @@ package.domain = com.develop4world
 
 source.dir = .
 
-source.include_exts = py,png,jpg,jpeg,kv,json,atlas,ttf,db
+source.include_exts = py,png,jpg,jpeg,kv,json,atlas,ttf
 
 version = 1.1.1
 android.numeric_version = 102410102
