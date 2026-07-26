@@ -1,6 +1,7 @@
 translations = {
 
     "sr": {
+        "double_click_change": "Dva puta kliknite za izmenu",
         "about_description": "Pametan menadžer ličnih finansija.\n\nPratite prihode, troškove i budžete u jednoj jednostavnoj aplikaciji.",
         "version": "Verzija",
         "developed_by": "Razvila kompanija",
@@ -118,6 +119,7 @@ translations = {
 
 
     "en": {
+        "double_click_change": "Double click to edit",
         "about_description": "Smart personal finance manager.\n\nTrack income, expenses and budgets in one simple application.",
         "version": "Version",
         "developed_by": "Developed by",
@@ -235,6 +237,7 @@ translations = {
     },
     
     "de": {
+        "double_click_change": "Doppelklicken zum Bearbeiten",
         "about_description": "Intelligenter persönlicher Finanzmanager.\n\nVerwalten Sie Einnahmen, Ausgaben und Budgets in einer einfachen Anwendung.",
         "version": "Version",
         "developed_by": "Entwickelt von",
@@ -352,6 +355,7 @@ translations = {
 
 
     "it": {
+        "double_click_change": "Doppio clic per modificare",
         "about_description": "Gestore intelligente delle finanze personali.\n\nMonitora entrate, spese e budget in un'unica applicazione.",
         "version": "Versione",
         "developed_by": "Sviluppato da",
@@ -469,6 +473,7 @@ translations = {
 
 
     "es": {
+        "double_click_change": "Doble clic para editar",
         "about_description": "Gestor inteligente de finanzas personales.\n\nControla ingresos, gastos y presupuestos en una sola aplicación.",
         "version": "Versión",
         "developed_by": "Desarrollado por",
@@ -586,6 +591,7 @@ translations = {
     },
     
     "fr": {
+        "double_click_change": "Double-cliquez pour modifier",
         "about_description": "Gestionnaire intelligent de finances personnelles.\n\nSuivez vos revenus, dépenses et budgets dans une seule application.",
         "version": "Version",
         "developed_by": "Développé par",
@@ -703,6 +709,7 @@ translations = {
 
 
     "ru": {
+        "double_click_change": "Дважды нажмите для изменения",
         "about_description": "Умный менеджер личных финансов.\n\nОтслеживайте доходы, расходы и бюджеты в одном приложении.",
         "version": "Версия",
         "developed_by": "Разработано",
