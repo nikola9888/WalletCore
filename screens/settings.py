@@ -8,6 +8,7 @@ from kivy.uix.popup import Popup
 from kivy.app import App
 from translations import translations
 import glob
+from database import Database
 
 class SettingsScreen(Screen):
 
@@ -318,23 +319,24 @@ class SettingsScreen(Screen):
         
     def backup_database(self, instance):
         t = translations[App.get_running_app().language]
+
         try:
+            from datetime import datetime
             import shutil
             import os
-            from datetime import datetime
+
+            db = Database()
+
+            source = db.db_path
 
             os.makedirs("backup", exist_ok=True)
 
-            source = "wallet.db"  # kasnije ćemo staviti pravi naziv
-
-            print("Tražim bazu:", source)
-
             if not os.path.exists(source):
-                print("Baza nije pronađena")
                 Popup(
                     title=t["backup_title"],
-                    content=Label(
-                        text=t["database_not_found"]),
+                    content=
+                    Label(text=t[
+                    "database_not_found"]),
                     size_hint=(0.7, 0.3)
                 ).open()
                 return
@@ -345,7 +347,8 @@ class SettingsScreen(Screen):
 
             shutil.copy2(source, filename)
 
-            
+            db.close()
+
             Popup(
                 title=t["backup_title"],
                 content=Label(text=t["backup_ok"]),
@@ -365,7 +368,6 @@ class SettingsScreen(Screen):
 
         import glob
         import shutil
-        import os
 
         backups = sorted(
             glob.glob("backup/*.db"),
@@ -375,22 +377,28 @@ class SettingsScreen(Screen):
         if not backups:
             Popup(
                 title=t["restore_title"],
-                content=Label(
-                    text=t["no_backup_found"]),
+                content=Label(text=t["no_backup_found"]),
                 size_hint=(0.7, 0.3)
             ).open()
             return
 
         latest = backups[0]
 
-        shutil.copy2(latest, "wallet.db")
+        db = Database()
+        target = db.db_path
+        db.close()
+
+        shutil.copy2(latest, target)
 
         home = self.manager.get_screen("home")
+
+        home.db.close()
+        home.db = Database()
+
         home.load_transactions()
 
         Popup(
             title=t["restore_title"],
-            content=Label(
-                text=t["restore_success"]),
+            content=Label(text=t["restore_success"]),
             size_hint=(0.7, 0.3)
         ).open()
