@@ -1,12 +1,28 @@
+import os
 import sqlite3
-
+from kivy.app import App
+import os
+from kivy.utils import platform
 
 class Database:
 
     def __init__(self):
-        self.db_path = "wallet.db"
-        self.conn = sqlite3.connect(self.db_path)
+
+        folder = App.get_running_app().user_data_dir
+
+        if platform == "android":
+            from android.storage import app_storage_path
+            self.db_path = os.path.join(app_storage_path(), "wallet.db")
+        else:
+            self.db_path = "wallet.db"
+  
+
+        self.conn = sqlite3.connect(
+            self.db_path
+        )
+
         self.cursor = self.conn.cursor()
+
         self.create_table()
 
     def create_table(self):
