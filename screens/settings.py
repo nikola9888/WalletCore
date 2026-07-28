@@ -30,7 +30,7 @@ class SettingsScreen(Screen):
             font_size="32sp",
             bold=True,
             size_hint_y=None,
-            height=90
+            height=100
         )
 
         root.add_widget(self.title)
@@ -41,7 +41,7 @@ class SettingsScreen(Screen):
             text=translations[self.current_language]["profile"],
             icon="assets/icons/profile.png",
             size_hint_y=None,
-            height=100
+            height=110
         )
         
         self.profile_btn.bind(
@@ -54,7 +54,7 @@ class SettingsScreen(Screen):
             text=translations[self.current_language]["language"],
             icon="assets/icons/language.png",
             size_hint_y=None,
-            height=100
+            height=110
         )
 
         self.language_btn.bind(
@@ -67,7 +67,7 @@ class SettingsScreen(Screen):
             text=translations[self.current_language]["backup"],
             icon="assets/icons/backup.png",
             size_hint_y=None,
-            height=100
+            height=110
         )
         
         self.backup_btn.bind(
@@ -79,7 +79,7 @@ class SettingsScreen(Screen):
             text=translations[self.current_language]["restore"],
             icon="assets/icons/restore.png",
             size_hint_y=None,
-            height=100
+            height=110
         )
 
         self.restore_btn.bind(
@@ -92,7 +92,7 @@ class SettingsScreen(Screen):
             text=translations[self.current_language]["clear_transactions"],
             icon="assets/icons/clear.png",
             size_hint_y=None,
-            height=100
+            height=110
         )
         
         self.clear_btn.bind(
@@ -105,7 +105,7 @@ class SettingsScreen(Screen):
             text=translations[self.current_language]["about"],
             icon="assets/icons/about.png",
             size_hint_y=None,
-            height=100
+            height=110
         )
 
         self.about_btn.bind(
@@ -118,7 +118,7 @@ class SettingsScreen(Screen):
             text=translations[self.current_language]["back"],
             icon="assets/icons/back.png",
             size_hint_y= None,
-            height=100
+            height=110
          )
 
         self.back_btn.bind(
