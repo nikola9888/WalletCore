@@ -5,7 +5,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-22.04
 
     container:
@@ -13,84 +12,64 @@ jobs:
 
     env:
       ACCEPT_ANDROID_SDK_LICENSE: "yes"
+      P4A_RELEASE_KEYSTORE: ${{ github.workspace }}/walletcore.keystore
+      P4A_RELEASE_KEYALIAS: walletcore
+      P4A_RELEASE_KEYSTORE_PASSWD: ${{ secrets.KEYSTORE_PASSWORD }}
+      P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.KEY_PASSWORD }}
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Install current Android build tooling
+        run: |
+          python -m pip install "buildozer @ git+https://github.com/kivy/buildozer.git"
+          python -m pip install "cython==0.29.34" legacy-cgi setuptools
+          buildozer --version
 
+      - name: Check signing secrets
+        run: |
+          test -n "$P4A_RELEASE_KEYSTORE_PASSWD"
+          test -n "$P4A_RELEASE_KEYALIAS_PASSWD"
 
-    - name: Install tools
-      run: |
-        pip install --upgrade pip
-        pip install buildozer==1.6.0
-        pip install Cython==0.29.37
-        pip install sh
+      - name: Restore upload keystore
+        run: |
+          printf '%s' "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > walletcore.keystore
+          test -s walletcore.keystore
 
+      - name: Verify upload keystore
+        run: |
+          keytool -list \
+            -keystore walletcore.keystore \
+            -storepass "$P4A_RELEASE_KEYSTORE_PASSWD" \
+            -alias "$P4A_RELEASE_KEYALIAS"
 
-    - name: Restore keystore
-      run: |
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > walletcore.keystore
+      - name: Clean build
+        run: |
+          rm -rf .buildozer
+          rm -rf bin
 
+      - name: Build signed AAB
+        run: |
+          yes | buildozer android release
 
-    - name: Verify keystore
-      run: |
-        keytool -list \
-        -keystore walletcore.keystore \
-        -storepass WalletCore123!
+      - name: Verify AAB signature
+        run: |
+          AAB="$(find bin -maxdepth 1 -type f -name '*.aab' | head -n 1)"
+          test -n "$AAB"
+          echo "AAB: $AAB"
+          jarsigner -verify -verbose -certs "$AAB"
 
+      - name: Check AAB
+        run: |
+          AAB="$(find bin -maxdepth 1 -type f -name '*.aab' | head -n 1)"
+          test -n "$AAB"
+          ls -lh "$AAB"
+          unzip -l "$AAB" | grep 'META-INF/'
 
-    - name: Check files
-      run: |
-        ls -la
-        ls -la walletcore.keystore
-
-
-    - name: Prepare build
-      run: |
-        chmod -R 777 .
-
-    - name: Clean build
-      run: |
-        rm -rf .buildozer
-        rm -rf bin
-
-    - name: Build signed AAB
-      run: |
-        yes | buildozer android release
-
-    - name: Build unsigned AAB
-      run: |
-        yes | buildozer android release
-
-
-    - name: Sign AAB manually
-      run: |
-        jarsigner \
-        -verbose \
-        -sigalg SHA256withRSA \
-        -digestalg SHA-256 \
-        -keystore walletcore.keystore \
-        -storepass WalletCore123! \
-        -keypass WalletCore123! \
-        -signedjar bin/walletcore-signed.aab \
-        bin/walletcore-1.1.2-arm64-v8a-release.aab \
-        walletcore
-
-
-    - name: Verify signed AAB
-      run: |
-        jarsigner -verify -verbose -certs bin/walletcore-signed.aab
-
-
-    - name: Check AAB
-      run: |
-        ls -lh bin/
-        unzip -l bin/walletcore-signed.aab | grep META-INF
-
-
-    - name: Upload AAB
-      uses: actions/upload-artifact@v4
-      with:
-        name: WalletCore-release-aab
-        path: bin/walletcore-signed.aab
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: WalletCore-release-aab
+          path: bin/*.aab
+          if-no-files-found: error
