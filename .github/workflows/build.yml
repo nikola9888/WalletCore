@@ -15,7 +15,8 @@ jobs:
       P4A_RELEASE_KEYSTORE: ${{ github.workspace }}/walletcore.keystore
       P4A_RELEASE_KEYALIAS: walletcore
       P4A_RELEASE_KEYSTORE_PASSWD: ${{ secrets.KEYSTORE_PASSWORD }}
-      P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.KEY_PASSWORD }}
+      # The verified WalletCore keystore uses the same password for the private key.
+      P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.KEYSTORE_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -30,7 +31,6 @@ jobs:
       - name: Check signing secrets
         run: |
           test -n "$P4A_RELEASE_KEYSTORE_PASSWD"
-          test -n "$P4A_RELEASE_KEYALIAS_PASSWD"
 
       - name: Restore upload keystore
         run: |
@@ -43,6 +43,19 @@ jobs:
             -keystore walletcore.keystore \
             -storepass "$P4A_RELEASE_KEYSTORE_PASSWD" \
             -alias "$P4A_RELEASE_KEYALIAS"
+
+      - name: Verify signing key password
+        run: |
+          mkdir -p /tmp/signing-check
+          printf 'WalletCore signing check\n' > /tmp/signing-check/check.txt
+          (cd /tmp/signing-check && zip -q /tmp/walletcore-signing-check.jar check.txt)
+          jarsigner \
+            -keystore walletcore.keystore \
+            -storepass "$P4A_RELEASE_KEYSTORE_PASSWD" \
+            -keypass "$P4A_RELEASE_KEYALIAS_PASSWD" \
+            /tmp/walletcore-signing-check.jar \
+            "$P4A_RELEASE_KEYALIAS"
+          jarsigner -verify /tmp/walletcore-signing-check.jar
 
       - name: Clean build
         run: |
