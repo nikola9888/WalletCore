@@ -30,7 +30,7 @@ android.api = 36
 android.minapi = 24
 android.build_tools_version = 36.0.0
 android.accept_sdk_license = True
-android.ndk = 28c
+android.ndk = 29
 android.archs = arm64-v8a
 android.release_artifact = aab
 
