@@ -6,12 +6,12 @@ from kivy.core.window import WindowBase
 from kivy.uix.screenmanager import ScreenManager, FadeTransition
 from theme import BACKGROUND
 from screens.home import HomeScreen
-from screens.settings import SettingsScreen
 from kivy.utils import get_color_from_hex
 from kivy.storage.jsonstore import JsonStore
 from screens.history import HistoryScreen
 from screens.about import AboutScreen
 from screens.profile import ProfileScreen
+from components.onboarding import install_onboarding
 
 CURRENCIES = {
     "sr": "RSD",
