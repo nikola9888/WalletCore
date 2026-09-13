@@ -80,7 +80,11 @@ class TransactionCard(BoxLayout):
             
         self.bind(pos=self.update_canvas, size=self.update_canvas)
         
-        left = BoxLayout(orientation="vertical")
+        # LEVA STRANA: KATEGORIJA + HINT
+        left = BoxLayout(
+            orientation="vertical",
+            size_hint_x=0.42
+        )
 
         self.title_label = Label(
             text=f"{self.icon}  {t.get(category, category)}",
@@ -94,17 +98,6 @@ class TransactionCard(BoxLayout):
         self.title_label.bind(
             size=lambda i, v: setattr(i, "text_size", i.size)
         )
-        subtitle = Label(
-            text=note if note else " ",
-            font_size="13sp",
-            color=(0.75, 0.75, 0.75, 1),
-            halign="left",
-            valign="middle"
-        )
-        subtitle.bind(size=lambda i, v: setattr(i, "text_size", i.size))
-
-        left.add_widget(self.title_label)
-        left.add_widget(subtitle)
 
         self.hint_label = Label(
             text=t["double_click_change"],
@@ -118,13 +111,28 @@ class TransactionCard(BoxLayout):
             size=lambda i, v: setattr(i, "text_size", i.size)
         )
 
+        left.add_widget(self.title_label)
         left.add_widget(self.hint_label)
+
+        # SREDINA: NOTE
+        self.note_label = Label(
+            text=note if note else " ",
+            font_size="13sp",
+            color=(0.75, 0.75, 0.75, 1),
+            halign="center",
+            valign="middle",
+            size_hint_x=0.33
+        )
+        self.note_label.bind(
+            size=lambda i, v: setattr(i, "text_size", i.size)
+        )
 
         self.amount = amount
         self.sign = sign
 
         currency = App.get_running_app().currency
 
+        # DESNO: IZNOS
         self.amount_label = Label(
             text=f"{sign}{amount:,.0f} {currency}".replace(",", "."),
             color=accent,
@@ -132,7 +140,7 @@ class TransactionCard(BoxLayout):
             bold=True,
             halign="right",
             valign="middle",
-            size_hint_x=0.7
+            size_hint_x=0.25
         )
 
         self.amount_label.bind(
@@ -140,6 +148,7 @@ class TransactionCard(BoxLayout):
         )
 
         self.add_widget(left)
+        self.add_widget(self.note_label)
         self.add_widget(self.amount_label)
 
     def update_canvas(self, *args):
