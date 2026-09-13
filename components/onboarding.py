@@ -5,12 +5,13 @@ from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
+from kivy.graphics import Color, RoundedRectangle, Line
 
 
 STEPS = [
-    "izaberite kategoriju",
-    "unesite zeljenu cifru",
-    "unesite zeljeni opis",
+    ("category_grid", "izaberite kategoriju"),
+    ("amount_input", "unesite zeljenu cifru"),
+    ("note_input", "unesite zeljeni opis"),
 ]
 
 
@@ -41,13 +42,74 @@ def _show_step(screen, index):
         App.get_running_app().store.put("onboarding", completed=True)
         return
 
+    target_name, message = STEPS[index]
+    target = getattr(screen, target_name, None)
+
+    if target is None:
+        Clock.schedule_once(lambda dt: _show_step(screen, index + 1), 0.1)
+        return
+
+    highlight_color = (0.25, 0.85, 1, 0.38)
+    highlight_state = {"rect": None, "line": None}
+
+    def add_highlight(*args):
+        remove_highlight()
+        with target.canvas.after:
+            Color(*highlight_color)
+            highlight_state["rect"] = RoundedRectangle(
+                pos=target.pos,
+                size=target.size,
+                radius=[dp(14)]
+            )
+            Color(0.45, 0.95, 1, 0.9)
+            highlight_state["line"] = Line(
+                rounded_rectangle=(
+                    target.x,
+                    target.y,
+                    target.width,
+                    target.height,
+                    dp(14)
+                ),
+                width=1.6
+            )
+
+    def update_highlight(*args):
+        if highlight_state["rect"] is not None:
+            highlight_state["rect"].pos = target.pos
+            highlight_state["rect"].size = target.size
+        if highlight_state["line"] is not None:
+            highlight_state["line"].rounded_rectangle = (
+                target.x,
+                target.y,
+                target.width,
+                target.height,
+                dp(14)
+            )
+
+    def remove_highlight(*args):
+        if highlight_state["rect"] is not None:
+            try:
+                target.canvas.after.remove(highlight_state["rect"])
+            except Exception:
+                pass
+            highlight_state["rect"] = None
+        if highlight_state["line"] is not None:
+            try:
+                target.canvas.after.remove(highlight_state["line"])
+            except Exception:
+                pass
+            highlight_state["line"] = None
+
+    add_highlight()
+    target.bind(pos=update_highlight, size=update_highlight)
+
     content = BoxLayout(
         orientation="vertical",
         padding=(dp(14), dp(8), dp(14), dp(8)),
     )
 
     label = Label(
-        text=STEPS[index],
+        text=message,
         font_size="17sp",
         bold=True,
         color=(1, 1, 1, 0.95),
@@ -65,10 +127,22 @@ def _show_step(screen, index):
         size_hint=(0.72, None),
         height=dp(82),
         auto_dismiss=False,
-        background_color=(0.02, 0.10, 0.17, 0.72),
+        background_color=(0.02, 0.10, 0.17, 0.30),
     )
 
     state = {"closed": False, "event": None}
+
+    def position_popup(*args):
+        try:
+            x, y = target.to_window(target.x, target.y)
+            popup.x = max(dp(8), min(x + (target.width - popup.width) / 2, Window.width - popup.width - dp(8)))
+
+            if y + target.height + dp(12) + popup.height <= Window.height:
+                popup.y = y + target.height + dp(12)
+            else:
+                popup.y = max(dp(8), y - popup.height - dp(12))
+        except Exception:
+            pass
 
     def close_popup(*args):
         if not state["closed"]:
@@ -79,6 +153,7 @@ def _show_step(screen, index):
         return True
 
     def on_open(*args):
+        position_popup()
         Window.bind(on_touch_down=on_touch)
         state["event"] = Clock.schedule_once(close_popup, 2.0)
 
@@ -91,6 +166,9 @@ def _show_step(screen, index):
 
         if state["event"] is not None:
             state["event"].cancel()
+
+        target.unbind(pos=update_highlight, size=update_highlight)
+        remove_highlight()
 
         if index + 1 < len(STEPS):
             Clock.schedule_once(lambda dt: _show_step(screen, index + 1), 0.05)
