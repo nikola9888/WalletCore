@@ -6,6 +6,7 @@ from kivy.core.window import WindowBase
 from kivy.uix.screenmanager import ScreenManager, FadeTransition
 from theme import BACKGROUND
 from screens.home import HomeScreen
+from screens.settings import SettingsScreen
 from kivy.utils import get_color_from_hex
 from kivy.storage.jsonstore import JsonStore
 from screens.history import HistoryScreen
@@ -77,6 +78,9 @@ class WalletCore(App):
         sm.add_widget(ProfileScreen(name="profile"))
 
         return sm
+
+
+install_onboarding(HomeScreen)
         
 if __name__ == "__main__":
 
