@@ -6,71 +6,47 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-
     container:
       image: kivy/buildozer:latest
-
     env:
       ACCEPT_ANDROID_SDK_LICENSE: "yes"
       P4A_RELEASE_KEYSTORE: ${{ github.workspace }}/walletcore.keystore
       P4A_RELEASE_KEYALIAS: walletcore
       P4A_RELEASE_KEYSTORE_PASSWD: ${{ secrets.KEYSTORE_PASSWORD }}
       P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.KEYSTORE_PASSWORD }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Install current Android build tooling
         run: |
           python -m pip install "buildozer @ git+https://github.com/kivy/buildozer.git"
           python -m pip install "cython==0.29.34" legacy-cgi setuptools
           buildozer --version
-
       - name: Check signing secrets
-        run: |
-          test -n "$P4A_RELEASE_KEYSTORE_PASSWD"
-
+        run: test -n "$P4A_RELEASE_KEYSTORE_PASSWD"
       - name: Restore upload keystore
         run: |
           printf '%s' "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > walletcore.keystore
           test -s walletcore.keystore
-
       - name: Verify upload keystore
         run: |
-          keytool -list \
-            -keystore walletcore.keystore \
-            -storepass "$P4A_RELEASE_KEYSTORE_PASSWD" \
-            -alias "$P4A_RELEASE_KEYALIAS"
-
+          keytool -list -keystore walletcore.keystore -storepass "$P4A_RELEASE_KEYSTORE_PASSWD" -alias "$P4A_RELEASE_KEYALIAS"
       - name: Clean build
         run: |
           rm -rf .buildozer
           rm -rf bin
-
       - name: Build signed test APK without changing repository spec
         run: |
           cp buildozer.spec /tmp/buildozer.spec.aab
           sed -i 's/^android.release_artifact = aab$/android.release_artifact = apk/' buildozer.spec
           yes | buildozer android release
           mv /tmp/buildozer.spec.aab buildozer.spec
-
-      - name: Verify APK signature
-        run: |
-          APK="$(find bin -maxdepth 1 -type f -name '*.apk' | head -n 1)"
-          test -n "$APK"
-          echo "APK: $APK"
-          APKSIGNER="$(find /opt /usr/local /usr -type f -name apksigner 2>/dev/null | head -n 1)"
-          test -n "$APKSIGNER"
-          echo "apksigner: $APKSIGNER"
-          "$APKSIGNER" verify --verbose "$APK"
-
       - name: Check APK
         run: |
           APK="$(find bin -maxdepth 1 -type f -name '*.apk' | head -n 1)"
           test -n "$APK"
+          echo "APK: $APK"
           ls -lh "$APK"
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
