@@ -113,7 +113,7 @@ class BalanceCard(ModernCard):
         self.income = Label(
             text="0.00",
             color=(0.2, 0.9, 0.5, 1),
-            font_size=dp(12)
+            font_size=dp(14)
         )
 
 
@@ -121,7 +121,7 @@ class BalanceCard(ModernCard):
         self.expense = Label(
             text="0.00",
             color=(0.9, 0.3, 0.3, 1),
-            font_size=dp(12)
+            font_size=dp(14)
         )
 
 
@@ -130,7 +130,7 @@ class BalanceCard(ModernCard):
             orientation="horizontal",
             spacing=dp(20),
             size_hint_y=None,
-            height=dp(15)
+            height=dp(18)
         )
 
         stats_row.add_widget(self.income)
