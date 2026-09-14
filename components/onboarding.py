@@ -61,7 +61,7 @@ def _show_step(screen, index):
                 size=target.size,
                 radius=[dp(14)]
             )
-            Color(0.45, 0.95, 1, 0.9)
+            Color(0.45, 0.95, 1, 0.95)
             highlight_state["line"] = Line(
                 rounded_rectangle=(
                     target.x,
@@ -70,7 +70,7 @@ def _show_step(screen, index):
                     target.height,
                     dp(14)
                 ),
-                width=1.6
+                width=2.0
             )
 
     def update_highlight(*args):
@@ -105,14 +105,14 @@ def _show_step(screen, index):
 
     content = BoxLayout(
         orientation="vertical",
-        padding=(dp(14), dp(8), dp(14), dp(8)),
+        padding=(dp(10), dp(4), dp(10), dp(4)),
     )
 
     label = Label(
         text=message,
-        font_size="17sp",
+        font_size="15sp",
         bold=True,
-        color=(1, 1, 1, 0.95),
+        color=(0, 0, 0, 1),
         halign="center",
         valign="middle",
     )
@@ -124,10 +124,10 @@ def _show_step(screen, index):
         title_size=0,
         separator_height=0,
         content=content,
-        size_hint=(0.72, None),
-        height=dp(82),
+        size_hint=(None, None),
+        size=(dp(170), dp(58)),
         auto_dismiss=False,
-        background_color=(0.02, 0.10, 0.17, 0.30),
+        background_color=(1, 1, 1, 0.94),
     )
 
     state = {"closed": False, "event": None}
@@ -135,12 +135,18 @@ def _show_step(screen, index):
     def position_popup(*args):
         try:
             x, y = target.to_window(target.x, target.y)
-            popup.x = max(dp(8), min(x + (target.width - popup.width) / 2, Window.width - popup.width - dp(8)))
+            popup.x = max(
+                dp(6),
+                min(
+                    x + (target.width - popup.width) / 2,
+                    Window.width - popup.width - dp(6)
+                )
+            )
 
-            if y + target.height + dp(12) + popup.height <= Window.height:
-                popup.y = y + target.height + dp(12)
+            if y + target.height + dp(8) + popup.height <= Window.height:
+                popup.y = y + target.height + dp(8)
             else:
-                popup.y = max(dp(8), y - popup.height - dp(12))
+                popup.y = max(dp(6), y - popup.height - dp(8))
         except Exception:
             pass
 
@@ -155,7 +161,7 @@ def _show_step(screen, index):
     def on_open(*args):
         position_popup()
         Window.bind(on_touch_down=on_touch)
-        state["event"] = Clock.schedule_once(close_popup, 2.0)
+        state["event"] = Clock.schedule_once(close_popup, 4.0)
 
     def on_dismiss(*args):
         if state["closed"]:
