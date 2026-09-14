@@ -58,8 +58,8 @@ def _show_step(screen, index):
         "popup_line": None,
     }
 
-    # Strong dark translucent overlay over the rest of the screen.
-    with screen.canvas.after:
+    # Put the dimming layer BEFORE the child widgets so the popup remains above it.
+    with screen.canvas.before:
         Color(0, 0, 0, 0.72)
         state["overlay"] = Rectangle(pos=(0, 0), size=Window.size)
 
@@ -129,7 +129,7 @@ def _show_step(screen, index):
     target.bind(pos=update_highlight, size=update_highlight)
     Window.bind(size=update_overlay)
 
-    # Fully opaque white instruction popup, unaffected by the dimming layer.
+    # Fully opaque white instruction popup above the dimming layer.
     label = Label(
         text=message,
         font_size="17.9sp",
@@ -224,7 +224,7 @@ def _show_step(screen, index):
 
         if state["overlay"] is not None:
             try:
-                screen.canvas.after.remove(state["overlay"])
+                screen.canvas.before.remove(state["overlay"])
             except Exception:
                 pass
             state["overlay"] = None
