@@ -129,38 +129,38 @@ def _show_step(screen, index):
     target.bind(pos=update_highlight, size=update_highlight)
     Window.bind(size=update_overlay)
 
-    # Instruction popup: light gray, highly rounded and almost transparent.
+    # Smaller, lighter, highly rounded instruction popup.
     label = Label(
         text=message,
-        font_size="22.4sp",
+        font_size="17.9sp",
         bold=True,
-        color=(1, 1, 1, 1),
+        color=(0, 0, 0, 1),
         halign="center",
         valign="middle",
         size_hint=(None, None),
-        size=(dp(320), dp(62)),
-        text_size=(dp(300), dp(52)),
-        padding=(dp(10), dp(5)),
+        size=(dp(280), dp(54)),
+        text_size=(dp(260), dp(46)),
+        padding=(dp(8), dp(4)),
     )
     state["label"] = label
 
     with label.canvas.before:
-        Color(0.82, 0.82, 0.82, 0.82)
+        Color(0.92, 0.92, 0.92, 0.72)
         state["popup"] = RoundedRectangle(
             pos=label.pos,
             size=label.size,
-            radius=[dp(22)],
+            radius=[dp(20)],
         )
-        Color(1, 1, 1, 0.28)
+        Color(1, 1, 1, 0.22)
         state["popup_line"] = Line(
             rounded_rectangle=(
                 label.x,
                 label.y,
                 label.width,
                 label.height,
-                dp(22),
+                dp(20),
             ),
-            width=1.2,
+            width=1.0,
         )
 
     screen.add_widget(label)
@@ -175,7 +175,7 @@ def _show_step(screen, index):
                 label.y,
                 label.width,
                 label.height,
-                dp(22),
+                dp(20),
             )
 
     label.bind(pos=update_popup, size=update_popup)
