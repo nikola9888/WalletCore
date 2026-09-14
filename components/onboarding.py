@@ -54,11 +54,13 @@ def _show_step(screen, index):
         "overlay": None,
         "highlight_rect": None,
         "highlight_line": None,
+        "popup": None,
+        "popup_line": None,
     }
 
-    # Stronger dark translucent overlay over the entire screen.
+    # Strong dark translucent overlay over the rest of the screen.
     with screen.canvas.after:
-        Color(0, 0, 0, 0.78)
+        Color(0, 0, 0, 0.72)
         state["overlay"] = Rectangle(pos=(0, 0), size=Window.size)
 
     def remove_highlight(*args):
@@ -68,6 +70,7 @@ def _show_step(screen, index):
             except Exception:
                 pass
             state["highlight_rect"] = None
+
         if state["highlight_line"] is not None:
             try:
                 target.canvas.after.remove(state["highlight_line"])
@@ -78,35 +81,43 @@ def _show_step(screen, index):
     def add_highlight(*args):
         remove_highlight()
         with target.canvas.after:
-            Color(0.25, 0.9, 1, 0.28)
+            # Bright cyan glow so the selected element remains clearly visible.
+            Color(0.25, 0.9, 1, 0.55)
             state["highlight_rect"] = RoundedRectangle(
-                pos=target.pos,
-                size=target.size,
-                radius=[dp(14)],
+                pos=(target.x - dp(3), target.y - dp(3)),
+                size=(target.width + dp(6), target.height + dp(6)),
+                radius=[dp(16)],
             )
-            Color(0.25, 0.9, 1, 1)
+            Color(0.45, 0.95, 1, 1)
             state["highlight_line"] = Line(
                 rounded_rectangle=(
-                    target.x,
-                    target.y,
-                    target.width,
-                    target.height,
-                    dp(14),
+                    target.x - dp(3),
+                    target.y - dp(3),
+                    target.width + dp(6),
+                    target.height + dp(6),
+                    dp(16),
                 ),
-                width=3.0,
+                width=4.0,
             )
 
     def update_highlight(*args):
         if state["highlight_rect"] is not None:
-            state["highlight_rect"].pos = target.pos
-            state["highlight_rect"].size = target.size
+            state["highlight_rect"].pos = (
+                target.x - dp(3),
+                target.y - dp(3),
+            )
+            state["highlight_rect"].size = (
+                target.width + dp(6),
+                target.height + dp(6),
+            )
+
         if state["highlight_line"] is not None:
             state["highlight_line"].rounded_rectangle = (
-                target.x,
-                target.y,
-                target.width,
-                target.height,
-                dp(14),
+                target.x - dp(3),
+                target.y - dp(3),
+                target.width + dp(6),
+                target.height + dp(6),
+                dp(16),
             )
 
     def update_overlay(*args):
@@ -118,7 +129,7 @@ def _show_step(screen, index):
     target.bind(pos=update_highlight, size=update_highlight)
     Window.bind(size=update_overlay)
 
-    # Clear, highly visible white instruction text, reduced by 20%.
+    # Instruction popup: light gray, highly rounded and almost transparent.
     label = Label(
         text=message,
         font_size="22.4sp",
@@ -127,11 +138,47 @@ def _show_step(screen, index):
         halign="center",
         valign="middle",
         size_hint=(None, None),
-        size=(dp(320), dp(52)),
-        text_size=(dp(320), dp(52)),
+        size=(dp(320), dp(62)),
+        text_size=(dp(300), dp(52)),
+        padding=(dp(10), dp(5)),
     )
     state["label"] = label
+
+    with label.canvas.before:
+        Color(0.82, 0.82, 0.82, 0.82)
+        state["popup"] = RoundedRectangle(
+            pos=label.pos,
+            size=label.size,
+            radius=[dp(22)],
+        )
+        Color(1, 1, 1, 0.28)
+        state["popup_line"] = Line(
+            rounded_rectangle=(
+                label.x,
+                label.y,
+                label.width,
+                label.height,
+                dp(22),
+            ),
+            width=1.2,
+        )
+
     screen.add_widget(label)
+
+    def update_popup(*args):
+        if state["popup"] is not None:
+            state["popup"].pos = label.pos
+            state["popup"].size = label.size
+        if state["popup_line"] is not None:
+            state["popup_line"].rounded_rectangle = (
+                label.x,
+                label.y,
+                label.width,
+                label.height,
+                dp(22),
+            )
+
+    label.bind(pos=update_popup, size=update_popup)
 
     def position_label(*args):
         try:
@@ -145,12 +192,10 @@ def _show_step(screen, index):
             )
 
             if target_name == "category_grid":
-                # Directly below the category section.
                 label.y = max(dp(4), y - label.height - dp(6))
             else:
-                # Directly above the input/note field when possible.
-                above = y + target.height + dp(4)
-                below = y - label.height - dp(4)
+                above = y + target.height + dp(8)
+                below = y - label.height - dp(8)
                 if above + label.height <= Window.height - dp(4):
                     label.y = above
                 else:
@@ -170,6 +215,7 @@ def _show_step(screen, index):
         Window.unbind(size=update_overlay)
         target.unbind(pos=update_highlight, size=update_highlight)
         target.unbind(pos=position_label, size=position_label)
+        label.unbind(pos=update_popup, size=update_popup)
 
         if state["event"] is not None:
             state["event"].cancel()
