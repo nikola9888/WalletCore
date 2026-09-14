@@ -3,12 +3,13 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.metrics import dp
 from kivy.uix.label import Label
+from kivy.graphics import Color, Rectangle, RoundedRectangle, Line
 
 
 STEPS = [
-    ("category_grid", "Select a category"),
-    ("amount_input", "Enter the amount"),
-    ("note_input", "Enter a note"),
+    ("category_grid", "SELECT A CATEGORY"),
+    ("amount_input", "ENTER THE AMOUNT"),
+    ("note_input", "ENTER A NOTE"),
 ]
 
 
@@ -46,47 +47,119 @@ def _show_step(screen, index):
         Clock.schedule_once(lambda dt: _show_step(screen, index + 1), 0.1)
         return
 
+    state = {
+        "finished": False,
+        "event": None,
+        "label": None,
+        "overlay": None,
+        "highlight_rect": None,
+        "highlight_line": None,
+    }
+
+    # Dim the entire screen without adding a blocking widget.
+    with screen.canvas.after:
+        Color(0, 0, 0, 0.62)
+        state["overlay"] = Rectangle(pos=(0, 0), size=Window.size)
+
+    def remove_highlight(*args):
+        if state["highlight_rect"] is not None:
+            try:
+                target.canvas.after.remove(state["highlight_rect"])
+            except Exception:
+                pass
+            state["highlight_rect"] = None
+        if state["highlight_line"] is not None:
+            try:
+                target.canvas.after.remove(state["highlight_line"])
+            except Exception:
+                pass
+            state["highlight_line"] = None
+
+    def add_highlight(*args):
+        remove_highlight()
+        with target.canvas.after:
+            Color(0.25, 0.9, 1, 0.22)
+            state["highlight_rect"] = RoundedRectangle(
+                pos=target.pos,
+                size=target.size,
+                radius=[dp(14)],
+            )
+            Color(0.25, 0.9, 1, 1)
+            state["highlight_line"] = Line(
+                rounded_rectangle=(
+                    target.x,
+                    target.y,
+                    target.width,
+                    target.height,
+                    dp(14),
+                ),
+                width=3.0,
+            )
+
+    def update_highlight(*args):
+        if state["highlight_rect"] is not None:
+            state["highlight_rect"].pos = target.pos
+            state["highlight_rect"].size = target.size
+        if state["highlight_line"] is not None:
+            state["highlight_line"].rounded_rectangle = (
+                target.x,
+                target.y,
+                target.width,
+                target.height,
+                dp(14),
+            )
+
+    def update_overlay(*args):
+        if state["overlay"] is not None:
+            state["overlay"].pos = (0, 0)
+            state["overlay"].size = Window.size
+
+    add_highlight()
+    target.bind(pos=update_highlight, size=update_highlight)
+    Window.bind(size=update_overlay)
+
+    # Large black instruction text.
     label = Label(
         text=message,
-        font_size="14sp",
+        font_size="28sp",
         bold=True,
-        color=(0.75, 0.95, 1, 1),
+        color=(0, 0, 0, 1),
         halign="center",
         valign="middle",
         size_hint=(None, None),
-        height=dp(24),
-        opacity=1,
+        size=(dp(320), dp(58)),
+        text_size=(dp(320), dp(58)),
     )
-
-    label.bind(size=lambda widget, value: setattr(widget, "text_size", widget.size))
+    state["label"] = label
     screen.add_widget(label)
 
     def position_label(*args):
         try:
             x, y = target.to_window(target.x, target.y)
-            label_width = min(target.width, Window.width - dp(20))
-            label.width = label_width
             label.x = max(
-                dp(10),
+                dp(5),
                 min(
                     x + (target.width - label.width) / 2,
-                    Window.width - label.width - dp(10)
-                )
+                    Window.width - label.width - dp(5),
+                ),
             )
 
             if target_name == "category_grid":
-                label.y = max(dp(4), y - dp(28))
-            elif target_name == "amount_input":
-                label.y = y + target.height + dp(2)
+                # Directly below the category section.
+                label.y = max(dp(4), y - label.height - dp(6))
             else:
-                label.y = max(dp(4), y - dp(28))
+                # Directly above the input/note field when possible.
+                above = y + target.height + dp(4)
+                below = y - label.height - dp(4)
+                if above + label.height <= Window.height - dp(4):
+                    label.y = above
+                else:
+                    label.y = max(dp(4), below)
         except Exception:
             pass
 
     position_label()
     target.bind(pos=position_label, size=position_label)
-
-    state = {"finished": False, "event": None}
 
     def finish_step(*args):
         if state["finished"]:
@@ -94,12 +167,28 @@ def _show_step(screen, index):
 
         state["finished"] = True
         Window.unbind(on_touch_down=on_touch)
+        Window.unbind(size=update_overlay)
+        target.unbind(pos=update_highlight, size=update_highlight)
+        target.unbind(pos=position_label, size=position_label)
 
         if state["event"] is not None:
             state["event"].cancel()
 
-        target.unbind(pos=position_label, size=position_label)
-        screen.remove_widget(label)
+        remove_highlight()
+
+        if state["overlay"] is not None:
+            try:
+                screen.canvas.after.remove(state["overlay"])
+            except Exception:
+                pass
+            state["overlay"] = None
+
+        if state["label"] is not None:
+            try:
+                screen.remove_widget(state["label"])
+            except Exception:
+                pass
+            state["label"] = None
 
         if index + 1 < len(STEPS):
             Clock.schedule_once(lambda dt: _show_step(screen, index + 1), 0.05)
