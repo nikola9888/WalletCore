@@ -129,7 +129,7 @@ def _show_step(screen, index):
     target.bind(pos=update_highlight, size=update_highlight)
     Window.bind(size=update_overlay)
 
-    # Smaller, bright white, highly rounded instruction popup.
+    # Fully opaque white instruction popup, unaffected by the dimming layer.
     label = Label(
         text=message,
         font_size="17.9sp",
@@ -145,13 +145,13 @@ def _show_step(screen, index):
     state["label"] = label
 
     with label.canvas.before:
-        Color(1, 1, 1, 0.88)
+        Color(1, 1, 1, 1)
         state["popup"] = RoundedRectangle(
             pos=label.pos,
             size=label.size,
             radius=[dp(20)],
         )
-        Color(1, 1, 1, 0.45)
+        Color(1, 1, 1, 1)
         state["popup_line"] = Line(
             rounded_rectangle=(
                 label.x,
