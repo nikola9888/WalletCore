@@ -56,9 +56,9 @@ def _show_step(screen, index):
         "highlight_line": None,
     }
 
-    # Dim the entire screen without adding a blocking widget.
+    # Stronger dark translucent overlay over the entire screen.
     with screen.canvas.after:
-        Color(0, 0, 0, 0.62)
+        Color(0, 0, 0, 0.78)
         state["overlay"] = Rectangle(pos=(0, 0), size=Window.size)
 
     def remove_highlight(*args):
@@ -78,7 +78,7 @@ def _show_step(screen, index):
     def add_highlight(*args):
         remove_highlight()
         with target.canvas.after:
-            Color(0.25, 0.9, 1, 0.22)
+            Color(0.25, 0.9, 1, 0.28)
             state["highlight_rect"] = RoundedRectangle(
                 pos=target.pos,
                 size=target.size,
@@ -118,17 +118,17 @@ def _show_step(screen, index):
     target.bind(pos=update_highlight, size=update_highlight)
     Window.bind(size=update_overlay)
 
-    # Large black instruction text.
+    # Clear, highly visible white instruction text, reduced by 20%.
     label = Label(
         text=message,
-        font_size="28sp",
+        font_size="22.4sp",
         bold=True,
-        color=(0, 0, 0, 1),
+        color=(1, 1, 1, 1),
         halign="center",
         valign="middle",
         size_hint=(None, None),
-        size=(dp(320), dp(58)),
-        text_size=(dp(320), dp(58)),
+        size=(dp(320), dp(52)),
+        text_size=(dp(320), dp(52)),
     )
     state["label"] = label
     screen.add_widget(label)
