@@ -2,16 +2,13 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.metrics import dp
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
-from kivy.uix.popup import Popup
-from kivy.graphics import Color, RoundedRectangle, Line
 
 
 STEPS = [
-    ("category_grid", "izaberite kategoriju"),
-    ("amount_input", "unesite zeljenu cifru"),
-    ("note_input", "unesite zeljeni opis"),
+    ("category_grid", "Select a category"),
+    ("amount_input", "Enter the amount"),
+    ("note_input", "Enter a note"),
 ]
 
 
@@ -49,138 +46,69 @@ def _show_step(screen, index):
         Clock.schedule_once(lambda dt: _show_step(screen, index + 1), 0.1)
         return
 
-    highlight_color = (0.25, 0.85, 1, 0.38)
-    highlight_state = {"rect": None, "line": None}
-
-    def add_highlight(*args):
-        remove_highlight()
-        with target.canvas.after:
-            Color(*highlight_color)
-            highlight_state["rect"] = RoundedRectangle(
-                pos=target.pos,
-                size=target.size,
-                radius=[dp(14)]
-            )
-            Color(0.45, 0.95, 1, 0.95)
-            highlight_state["line"] = Line(
-                rounded_rectangle=(
-                    target.x,
-                    target.y,
-                    target.width,
-                    target.height,
-                    dp(14)
-                ),
-                width=2.0
-            )
-
-    def update_highlight(*args):
-        if highlight_state["rect"] is not None:
-            highlight_state["rect"].pos = target.pos
-            highlight_state["rect"].size = target.size
-        if highlight_state["line"] is not None:
-            highlight_state["line"].rounded_rectangle = (
-                target.x,
-                target.y,
-                target.width,
-                target.height,
-                dp(14)
-            )
-
-    def remove_highlight(*args):
-        if highlight_state["rect"] is not None:
-            try:
-                target.canvas.after.remove(highlight_state["rect"])
-            except Exception:
-                pass
-            highlight_state["rect"] = None
-        if highlight_state["line"] is not None:
-            try:
-                target.canvas.after.remove(highlight_state["line"])
-            except Exception:
-                pass
-            highlight_state["line"] = None
-
-    add_highlight()
-    target.bind(pos=update_highlight, size=update_highlight)
-
-    content = BoxLayout(
-        orientation="vertical",
-        padding=(dp(10), dp(4), dp(10), dp(4)),
-    )
-
     label = Label(
         text=message,
-        font_size="15sp",
+        font_size="14sp",
         bold=True,
-        color=(0, 0, 0, 1),
+        color=(0.75, 0.95, 1, 1),
         halign="center",
         valign="middle",
-    )
-    label.bind(size=lambda widget, value: setattr(widget, "text_size", widget.size))
-    content.add_widget(label)
-
-    popup = Popup(
-        title="",
-        title_size=0,
-        separator_height=0,
-        content=content,
         size_hint=(None, None),
-        size=(dp(170), dp(58)),
-        auto_dismiss=False,
-        background_color=(1, 1, 1, 0.94),
+        height=dp(24),
+        opacity=1,
     )
 
-    state = {"closed": False, "event": None}
+    label.bind(size=lambda widget, value: setattr(widget, "text_size", widget.size))
+    screen.add_widget(label)
 
-    def position_popup(*args):
+    def position_label(*args):
         try:
             x, y = target.to_window(target.x, target.y)
-            popup.x = max(
-                dp(6),
+            label_width = min(target.width, Window.width - dp(20))
+            label.width = label_width
+            label.x = max(
+                dp(10),
                 min(
-                    x + (target.width - popup.width) / 2,
-                    Window.width - popup.width - dp(6)
+                    x + (target.width - label.width) / 2,
+                    Window.width - label.width - dp(10)
                 )
             )
 
-            if y + target.height + dp(8) + popup.height <= Window.height:
-                popup.y = y + target.height + dp(8)
+            if target_name == "category_grid":
+                label.y = max(dp(4), y - dp(28))
+            elif target_name == "amount_input":
+                label.y = y + target.height + dp(2)
             else:
-                popup.y = max(dp(6), y - popup.height - dp(8))
+                label.y = max(dp(4), y - dp(28))
         except Exception:
             pass
 
-    def close_popup(*args):
-        if not state["closed"]:
-            popup.dismiss()
+    position_label()
+    target.bind(pos=position_label, size=position_label)
 
-    def on_touch(window, touch):
-        close_popup()
-        return True
+    state = {"finished": False, "event": None}
 
-    def on_open(*args):
-        position_popup()
-        Window.bind(on_touch_down=on_touch)
-        state["event"] = Clock.schedule_once(close_popup, 4.0)
-
-    def on_dismiss(*args):
-        if state["closed"]:
+    def finish_step(*args):
+        if state["finished"]:
             return
 
-        state["closed"] = True
+        state["finished"] = True
         Window.unbind(on_touch_down=on_touch)
 
         if state["event"] is not None:
             state["event"].cancel()
 
-        target.unbind(pos=update_highlight, size=update_highlight)
-        remove_highlight()
+        target.unbind(pos=position_label, size=position_label)
+        screen.remove_widget(label)
 
         if index + 1 < len(STEPS):
             Clock.schedule_once(lambda dt: _show_step(screen, index + 1), 0.05)
         else:
             App.get_running_app().store.put("onboarding", completed=True)
 
-    popup.bind(on_open=on_open)
-    popup.bind(on_dismiss=on_dismiss)
-    popup.open()
+    def on_touch(window, touch):
+        finish_step()
+        return False
+
+    Window.bind(on_touch_down=on_touch)
+    state["event"] = Clock.schedule_once(finish_step, 4.0)
