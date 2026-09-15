@@ -9,6 +9,7 @@ from kivy.graphics import Color, Rectangle, RoundedRectangle, Line
 STEPS = [
     ("category_grid", "SELECT A CATEGORY"),
     ("amount_input", "ENTER THE AMOUNT"),
+    ("currency_btn", "SELECT YOUR DESIRED CURRENCY"),
     ("note_input", "ENTER A NOTE"),
 ]
 
@@ -18,6 +19,14 @@ def install_onboarding(HomeScreen):
 
     def new_init(self, **kwargs):
         original_init(self, **kwargs)
+
+        # Move the complete Home content down by approximately 3% of the screen.
+        try:
+            root = self.children[0]
+            root.padding = (10, dp(34), 10, 10)
+        except Exception:
+            pass
+
         Clock.schedule_once(lambda dt: _start_onboarding(self), 0.5)
 
     HomeScreen.__init__ = new_init
@@ -58,7 +67,7 @@ def _show_step(screen, index):
         "popup_line": None,
     }
 
-    # Put the dimming layer BEFORE the child widgets so the popup remains above it.
+    # Strong dark translucent overlay over the rest of the screen.
     with screen.canvas.before:
         Color(0, 0, 0, 0.72)
         state["overlay"] = Rectangle(pos=(0, 0), size=Window.size)
