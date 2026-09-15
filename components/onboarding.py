@@ -4,6 +4,7 @@ from kivy.core.window import Window
 from kivy.metrics import dp
 from kivy.uix.label import Label
 from kivy.graphics import Color, Rectangle, RoundedRectangle, Line
+from components.pdf_export import export_pdf_for_home
 
 
 STEPS = [
@@ -16,6 +17,9 @@ STEPS = [
 
 def install_onboarding(HomeScreen):
     original_init = HomeScreen.__init__
+
+    # Replace the old placeholder PDF action without changing HomeScreen layout.
+    HomeScreen.export_pdf = export_pdf_for_home
 
     def new_init(self, **kwargs):
         original_init(self, **kwargs)
