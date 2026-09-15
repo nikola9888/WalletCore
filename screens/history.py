@@ -5,6 +5,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.app import App
+from kivy.core.window import Window
 from translations import translations
 from database import Database
 from components.transaction_card import TransactionCard
@@ -24,7 +25,7 @@ class HistoryScreen(Screen):
 
         root = BoxLayout(
             orientation="vertical",
-            padding=15,
+            padding=(15, Window.height * 0.20, 15, 15),
             spacing=10
         )
 
