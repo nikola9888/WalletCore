@@ -3,6 +3,8 @@ import re
 from datetime import datetime
 
 from kivy.app import App
+from kivy.lang import Builder
+from kivy.metrics import dp
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.utils import platform
@@ -10,6 +12,25 @@ from kivy.utils import platform
 
 PAGE_WIDTH = 595
 PAGE_HEIGHT = 842
+
+
+# Apply the WalletCore rounded popup style globally.
+# Every Popup in the app uses this rule because this module is loaded at startup.
+Builder.load_string(
+    """
+#:import dp kivy.metrics.dp
+<Popup>:
+    background_color: 0, 0, 0, 0
+    border: 0, 0, 0, 0
+    canvas.before:
+        Color:
+            rgba: 0.035, 0.055, 0.10, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(20), dp(20), dp(20), dp(20)]
+"""
+)
 
 
 def _pdf_text(value):
@@ -32,10 +53,24 @@ def _escape_pdf(text):
 
 
 def _show_message(title, message):
+    label = Label(
+        text=message,
+        font_size="15sp",
+        halign="center",
+        valign="middle",
+        padding=(dp(12), dp(8)),
+    )
+
+    def update_label(*args):
+        label.text_size = (max(1, label.width - dp(24)), None)
+
+    label.bind(size=update_label)
+    update_label()
+
     Popup(
         title=title,
-        content=Label(text=message, font_size="15sp"),
-        size_hint=(0.84, 0.38),
+        content=label,
+        size_hint=(0.88, 0.42),
     ).open()
 
 
@@ -151,7 +186,7 @@ def export_pdf_for_home(screen):
                 f"{number} | {category_text} | {_format_amount(amount, currency)} | "
                 f"{type_text} | {note_text} | {date_text}"
             )
-            row_text = re.sub(r"\\s+", " ", row_text).strip()
+            row_text = re.sub(r"\s+", " ", row_text).strip()
 
             # Keep each transaction on one readable PDF line.
             if len(row_text) > 105:
