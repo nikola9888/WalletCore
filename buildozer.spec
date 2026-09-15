@@ -9,10 +9,10 @@ source.dir = .
 
 source.include_exts = py,png,jpg,jpeg,kv,json,atlas,ttf
 
-version = 1.1.3
-android.numeric_version = 102410106
+version = 1.1.4
+android.numeric_version = 102410107
 
-requirements = python3,kivy
+requirements = python3,kivy,reportlab
 
 # Python for Android
 # API 36 / Google Play builds use the current p4a development branch.
@@ -35,6 +35,9 @@ android.archs = arm64-v8a
 android.release_artifact = aab
 
 android.enable_androidx = True
+android.gradle_dependencies = androidx.core:core:1.13.1
+android.res_xml = android_res/file_paths.xml
+android.extra_manifest_application_xml = android_res/fileprovider.xml
 android.private_storage = True
 android.allow_backup = True
 
