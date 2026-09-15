@@ -1,90 +1,114 @@
 import os
+import re
 from datetime import datetime
 
 from kivy.app import App
-from kivy.metrics import dp
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.utils import platform
 
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
+
+PAGE_WIDTH = 595
+PAGE_HEIGHT = 842
 
 
-def _safe_text(value):
-    return "" if value is None else str(value)
+def _pdf_text(value):
+    """Return safe PDF text using the built-in Helvetica encoding."""
+    text = "" if value is None else str(value)
+    replacements = {
+        "č": "c", "ć": "c", "š": "s", "ž": "z", "đ": "dj",
+        "Č": "C", "Ć": "C", "Š": "S", "Ž": "Z", "Đ": "Dj",
+        "€": "EUR", "–": "-", "—": "-", "“": '"', "”": '"',
+        "’": "'", "•": "-",
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    text = text.encode("latin-1", "replace").decode("latin-1")
+    return text
 
 
-def _register_fonts():
-    regular = None
-    bold = None
-
-    candidates = [
-        ("/system/fonts/Roboto-Regular.ttf", "/system/fonts/Roboto-Bold.ttf"),
-        ("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),
-        ("/Library/Fonts/Arial Unicode.ttf", "/Library/Fonts/Arial Unicode.ttf"),
-    ]
-
-    for regular_path, bold_path in candidates:
-        if os.path.exists(regular_path):
-            regular = regular_path
-            if os.path.exists(bold_path):
-                bold = bold_path
-            break
-
-    if regular:
-        try:
-            if "WalletCore-Regular" not in pdfmetrics.getRegisteredFontNames():
-                pdfmetrics.registerFont(TTFont("WalletCore-Regular", regular))
-            if bold and "WalletCore-Bold" not in pdfmetrics.getRegisteredFontNames():
-                pdfmetrics.registerFont(TTFont("WalletCore-Bold", bold))
-            elif "WalletCore-Bold" not in pdfmetrics.getRegisteredFontNames():
-                pdfmetrics.registerFont(TTFont("WalletCore-Bold", regular))
-            return "WalletCore-Regular", "WalletCore-Bold"
-        except Exception:
-            pass
-
-    return "Helvetica", "Helvetica-Bold"
+def _escape_pdf(text):
+    return _pdf_text(text).replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
 
 
 def _show_message(title, message):
     Popup(
         title=title,
         content=Label(text=message, font_size="15sp"),
-        size_hint=(0.82, 0.35),
+        size_hint=(0.84, 0.38),
     ).open()
 
 
-def _open_pdf(path):
-    if platform != "android":
-        return
+def _save_pdf(pdf_bytes, filename):
+    if platform == "android":
+        download_dir = "/storage/emulated/0/Download"
+        try:
+            os.makedirs(download_dir, exist_ok=True)
+            path = os.path.join(download_dir, filename)
+            with open(path, "wb") as handle:
+                handle.write(pdf_bytes)
+            return path
+        except Exception as exc:
+            print("Public PDF save error:", exc)
 
+    app = App.get_running_app()
+    path = os.path.join(app.user_data_dir, filename)
+    os.makedirs(app.user_data_dir, exist_ok=True)
+    with open(path, "wb") as handle:
+        handle.write(pdf_bytes)
+    return path
+
+
+def _build_pdf(lines):
+    """Create a small valid A4 PDF without external Python dependencies."""
+    commands = []
+    y = 800
+
+    for text, size, bold in lines:
+        if y < 42:
+            break
+        font = "/F2" if bold else "/F1"
+        commands.append(f"BT {font} {size} Tf 42 {y} Td ({_escape_pdf(text)}) Tj ET")
+        y -= size + 9
+
+    stream = "\n".join(commands).encode("latin-1", "replace")
+
+    objects = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>",
+        b"<< /Length " + str(len(stream)).encode("ascii") + b" >>\nstream\n" + stream + b"\nendstream",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>",
+    ]
+
+    output = bytearray(b"%PDF-1.4\n")
+    offsets = [0]
+
+    for number, obj in enumerate(objects, start=1):
+        offsets.append(len(output))
+        output.extend(f"{number} 0 obj\n".encode("ascii"))
+        output.extend(obj)
+        output.extend(b"\nendobj\n")
+
+    xref_offset = len(output)
+    output.extend(f"xref\n0 {len(objects) + 1}\n".encode("ascii"))
+    output.extend(b"0000000000 65535 f \n")
+    for offset in offsets[1:]:
+        output.extend(f"{offset:010d} 00000 n \n".encode("ascii"))
+
+    output.extend(
+        f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref_offset}\n%%EOF".encode("ascii")
+    )
+    return bytes(output)
+
+
+def _format_amount(value, currency):
     try:
-        from jnius import autoclass
-
-        PythonActivity = autoclass("org.kivy.android.PythonActivity")
-        FileProvider = autoclass("androidx.core.content.FileProvider")
-        File = autoclass("java.io.File")
-        Intent = autoclass("android.content.Intent")
-
-        activity = PythonActivity.mActivity
-        file = File(path)
-        uri = FileProvider.getUriForFile(
-            activity,
-            "com.develop4world.walletcore.fileprovider",
-            file,
-        )
-
-        intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(uri, "application/pdf")
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-        activity.startActivity(intent)
-    except Exception as exc:
-        print("PDF open error:", exc)
+        amount = float(value)
+        return f"{amount:,.2f} {currency}".replace(",", ".")
+    except Exception:
+        return f"{value} {currency}"
 
 
 def export_pdf_for_home(screen):
@@ -92,8 +116,6 @@ def export_pdf_for_home(screen):
     t = __import__("translations").translations[app.language]
 
     try:
-        font_regular, font_bold = _register_fonts()
-
         rows = screen.db.get_all()
         currency = app.currency
 
@@ -101,118 +123,52 @@ def export_pdf_for_home(screen):
         total_expense = sum(float(row[1]) for row in rows if row[2] == "expense")
         balance = total_income - total_expense
 
-        output_dir = app.user_data_dir
-        os.makedirs(output_dir, exist_ok=True)
-        filename = "WalletCore_Report.pdf"
-        path = os.path.join(output_dir, filename)
-
-        page_width, page_height = A4
-        pdf = canvas.Canvas(path, pagesize=A4)
-        pdf.setTitle("WalletCore Report")
-        pdf.setAuthor("DEVELOP4WORLD")
-
-        left = 42
-        right = page_width - 42
-        y = page_height - 48
-
-        def draw_text(text, x, y_pos, size=10, bold=False):
-            pdf.setFont(font_bold if bold else font_regular, size)
-            pdf.drawString(x, y_pos, _safe_text(text))
-
-        def new_page_if_needed(current_y, needed=40):
-            if current_y < needed:
-                pdf.showPage()
-                return page_height - 48
-            return current_y
-
-        draw_text("WalletCore", left, y, 22, True)
-        y -= 26
-        draw_text(t.get("pdf_export", "PDF Export"), left, y, 13, True)
-        y -= 18
-        draw_text(datetime.now().strftime("%Y-%m-%d %H:%M"), left, y, 9)
-        y -= 30
-
-        draw_text(t.get("balance", "Balance"), left, y, 10, True)
-        draw_text(f"{balance:,.2f} {currency}".replace(",", "."), left + 125, y, 10)
-        y -= 18
-        draw_text(t.get("income", "Income"), left, y, 10, True)
-        draw_text(f"{total_income:,.2f} {currency}".replace(",", "."), left + 125, y, 10)
-        y -= 18
-        draw_text(t.get("expense", "Expense"), left, y, 10, True)
-        draw_text(f"{total_expense:,.2f} {currency}".replace(",", "."), left + 125, y, 10)
-        y -= 30
-
-        pdf.setLineWidth(0.7)
-        pdf.line(left, y, right, y)
-        y -= 20
-
-        headers = [
-            "#",
-            t.get("category", "Category"),
-            t.get("amount", "Amount"),
-            t.get("transaction", "Transaction"),
-            t.get("note", "Note"),
-            "Date",
+        lines = [
+            ("WalletCore", 22, True),
+            (t.get("pdf_export", "PDF Export"), 13, True),
+            (datetime.now().strftime("%Y-%m-%d %H:%M"), 9, False),
+            ("", 6, False),
+            (f"{t.get('balance', 'Balance')}: {_format_amount(balance, currency)}", 11, True),
+            (f"{t.get('income', 'Income')}: {_format_amount(total_income, currency)}", 10, False),
+            (f"{t.get('expense', 'Expense')}: {_format_amount(total_expense, currency)}", 10, False),
+            ("", 8, False),
+            ("TRANSACTIONS", 12, True),
+            ("# | Category | Amount | Type | Note | Date", 8, True),
         ]
-        x_positions = [left, left + 28, left + 145, left + 245, left + 330, left + 435]
-
-        for index, header in enumerate(headers):
-            draw_text(header, x_positions[index], y, 8.5, True)
-        y -= 15
-        pdf.line(left, y, right, y)
-        y -= 15
 
         for number, row in enumerate(rows, start=1):
             transaction_id, amount, ttype, category, note, time = row
-            category_text = screen.translate_category(category).replace("\n", " ")
+            try:
+                category_text = screen.translate_category(category)
+            except Exception:
+                category_text = category
+
             type_text = t.get(ttype, ttype)
-            amount_text = f"{float(amount):,.2f} {currency}".replace(",", ".")
-            note_text = _safe_text(note).replace("\n", " ")
-            date_text = _safe_text(time).replace(" ", "\n", 1).split("\n")[0]
+            note_text = "" if note is None else str(note).replace("\n", " ")
+            date_text = str(time).split(" ")[0]
 
-            values = [
-                number,
-                category_text,
-                amount_text,
-                type_text,
-                note_text,
-                date_text,
-            ]
+            row_text = (
+                f"{number} | {category_text} | {_format_amount(amount, currency)} | "
+                f"{type_text} | {note_text} | {date_text}"
+            )
+            row_text = re.sub(r"\\s+", " ", row_text).strip()
 
-            y = new_page_if_needed(y, 45)
-            if y == page_height - 48 and number > 1:
-                for index, header in enumerate(headers):
-                    draw_text(header, x_positions[index], y, 8.5, True)
-                y -= 15
-                pdf.line(left, y, right, y)
-                y -= 15
+            # Keep each transaction on one readable PDF line.
+            if len(row_text) > 105:
+                row_text = row_text[:102] + "..."
+            lines.append((row_text, 7.5, False))
 
-            for index, value in enumerate(values):
-                text = _safe_text(value)
-                max_chars = 20 if index in (1, 2, 3, 4) else 9
-                if len(text) > max_chars:
-                    text = text[: max_chars - 3] + "..."
-                draw_text(text, x_positions[index], y, 7.5)
+        lines.append(("", 8, False))
+        lines.append((f"{t.get('transaction', 'Transaction')} count: {len(rows)}", 9, True))
 
-            y -= 16
-
-        y = new_page_if_needed(y, 55)
-        pdf.line(left, y, right, y)
-        y -= 18
-        draw_text(
-            f"{t.get('transaction', 'Transaction')} count: {len(rows)}",
-            left,
-            y,
-            9,
-        )
-
-        pdf.save()
+        pdf_bytes = _build_pdf(lines)
+        filename = "WalletCore_Report.pdf"
+        path = _save_pdf(pdf_bytes, filename)
 
         _show_message(
             t.get("pdf_export", "PDF Export"),
-            t.get("pdf_saved", "PDF successfully saved!") + "\n" + filename,
+            "PDF successfully saved.\n\n" + path,
         )
-        _open_pdf(path)
 
     except Exception as exc:
         print("PDF export error:", exc)
