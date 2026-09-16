@@ -83,32 +83,13 @@ class HomeScreen(Screen):
         from kivy.graphics import Color, Rectangle
 
         with self.canvas.before:
-
-            # glavna pozadina
             Color(0.035, 0.055, 0.10, 1)
-
-            self.rect = Rectangle(
-                pos=self.pos,
-                size=self.size
-            )
-
-            # blagi svetliji sloj gore
+            self.rect = Rectangle(pos=self.pos, size=self.size)
             Color(0.05, 0.18, 0.32, 0.35)
+            self.glow = RoundedRectangle(pos=self.pos, size=self.size, radius=[40])
 
-            self.glow = RoundedRectangle(
-                pos=self.pos,
-                size=self.size,
-                radius=[40]
-            )
+        self.bind(pos=self.update_background, size=self.update_background)
 
-        self.bind(
-            pos=self.update_background,
-            size=self.update_background
-        )
-
-        # =====================
-        # STATE
-        # =====================
         self.income = 0
         self.expense = 0
         self.balance = 0
@@ -119,70 +100,32 @@ class HomeScreen(Screen):
         self.db = Database()
         self.current_language = App.get_running_app().language
 
-         # =====================
-        # ROOT
-        # =====================
-        root = BoxLayout(
-            orientation="vertical",
-            padding=10,
-            spacing=10,
-            size_hint=(1,1)
-        )
+        root = BoxLayout(orientation="vertical", padding=10, spacing=10, size_hint=(1,1))
 
         with root.canvas.before:
             Color(*BACKGROUND)
-            self.bg = RoundedRectangle(
-                pos=root.pos,
-                size=root.size
-            )
+            self.bg = RoundedRectangle(pos=root.pos, size=root.size)
 
-        root.bind(
-            pos=lambda x, y: setattr(self.bg, "pos", y),
-            size=lambda x, y: setattr(self.bg, "size", y)
-        )
+        root.bind(pos=lambda x, y: setattr(self.bg, "pos", y), size=lambda x, y: setattr(self.bg, "size", y))
 
-        # BALANCE
         self.balance_card = BalanceCard()
         self.balance_card.size_hint_y = None
         self.balance_card.height = dp(70)
         root.add_widget(self.balance_card)
 
-        # CATEGORY
         self.category_grid = CategoryGrid()
         root.add_widget(self.category_grid)
 
-        # HEADER
         self.header = Header()
-
         self.header.size_hint_y = None
         self.header.height = dp(30)
         self.header.padding = (15, 15, 15, 5)
 
-        root.add_widget(
-            Widget(
-                size_hint_y=None,
-                height=28
-            )
-        )
-
+        root.add_widget(Widget(size_hint_y=None, height=28))
         root.add_widget(self.header)
+        root.add_widget(Widget(size_hint_y=None, height=dp(38)))
 
-        root.add_widget(
-            Widget(
-                size_hint_y=None,
-                height=dp(38)
-            )
-        )
-        # =====================
-        # INPUT CARD
-        # =====================
-        input_card = BoxLayout(
-            orientation="vertical",
-            spacing=10,
-            padding=15,
-            size_hint=(1, None),
-            height=dp(90)
-        )
+        input_card = BoxLayout(orientation="vertical", spacing=10, padding=15, size_hint=(1, None), height=dp(90))
 
         self.amount_input = RoundedInput(
             hint_text=translations[self.current_language]["amount"],
@@ -193,12 +136,7 @@ class HomeScreen(Screen):
         )
         self.amount_input.write_tab = False
 
-        amount_row = BoxLayout(
-            orientation="horizontal",
-            spacing=10,
-            size_hint_y=None,
-            height=dp(40)
-        )
+        amount_row = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=dp(40))
 
         self.amount_input = RoundedInput(
             hint_text=translations[self.current_language]["amount"],
@@ -206,20 +144,14 @@ class HomeScreen(Screen):
             input_filter="float"
         )
 
-        self.currency_btn = ModernButton(
-            text=App.get_running_app().currency
-        )
-
+        self.currency_btn = ModernButton(text=App.get_running_app().currency)
         self.currency_btn.size_hint_x = None
         self.currency_btn.width = dp(90)
         self.currency_btn.bind(on_press=lambda x: self.show_currency_picker())
 
         amount_row.add_widget(self.amount_input)
         amount_row.add_widget(self.currency_btn)
-
         input_card.add_widget(amount_row)
-        
-        
 
         self.note_input = RoundedInput(
             hint_text=translations[self.current_language]["note"],
@@ -230,244 +162,100 @@ class HomeScreen(Screen):
         self.note_input.write_tab = False
         input_card.add_widget(self.note_input)
 
-        # =====================
-        # INCOME / EXPENSE
-        # =====================
-        row1 = BoxLayout(
-            orientation="horizontal",
-            spacing=10,
-            size_hint=(0.9, None),
-            height=dp(28)
-        )
-
-        self.income_btn = ModernButton(
-            text=translations[self.current_language]["income"],
-            icon="assets/icons/income.png"
-        )
+        row1 = BoxLayout(orientation="horizontal", spacing=10, size_hint=(0.9, None), height=dp(28))
+        self.income_btn = ModernButton(text=translations[self.current_language]["income"], icon="assets/icons/income.png")
         self.income_btn.bind(on_press=lambda x: self.add_transaction("income"))
-
-        self.expense_btn = ModernButton(
-            text=translations[self.current_language]["expense"],
-            icon="assets/icons/expense.png"
-        )
-        self.expense_btn.bind(
-            on_press=lambda x: self.add_transaction("expense")
-        )
-
+        self.expense_btn = ModernButton(text=translations[self.current_language]["expense"], icon="assets/icons/expense.png")
+        self.expense_btn.bind(on_press=lambda x: self.add_transaction("expense"))
         row1.add_widget(self.income_btn)
         row1.add_widget(self.expense_btn)
-
         input_card.add_widget(row1)
-
         root.add_widget(input_card)
 
-        # =====================
-        # STATS / CHART
-        # =====================
+        root.add_widget(Widget(size_hint_y=None, height=5))
 
-        root.add_widget(
-            Widget(size_hint_y=None, height=5)
-        )
-
-        row2 = BoxLayout(
-            orientation="horizontal",
-            spacing=30,
-            size_hint=(1, None),
-            height=dp(25)
-        )
-
-        self.stats_btn = ModernButton(
-            text=translations[self.current_language]["stats"],
-            icon="assets/icons/stats.png"
-        )
-
-        self.chart_btn = ModernButton(
-            text=translations[self.current_language]["chart"],
-            icon="assets/icons/chart.png"
-        )
-
-        self.export_btn = ModernButton(
-            text=translations[self.current_language]["export"],
-            icon="assets/icons/export.png"
-        )
-
-        self.filter_btn = ModernButton(
-            text=translations[self.current_language]["filter"],
-            icon="assets/icons/filter.png"
-        )
-
-
+        row2 = BoxLayout(orientation="horizontal", spacing=30, size_hint=(1, None), height=dp(25))
+        self.stats_btn = ModernButton(text=translations[self.current_language]["stats"], icon="assets/icons/stats.png")
+        self.chart_btn = ModernButton(text=translations[self.current_language]["chart"], icon="assets/icons/chart.png")
+        self.export_btn = ModernButton(text=translations[self.current_language]["export"], icon="assets/icons/export.png")
+        self.filter_btn = ModernButton(text=translations[self.current_language]["filter"], icon="assets/icons/filter.png")
         self.stats_btn.bind(on_press=lambda x: self.show_stats())
         self.chart_btn.bind(on_press=lambda x: self.show_chart())
-        self.export_btn.bind(
-            on_press=lambda x: self.export_pdf()
-        )
+        self.export_btn.bind(on_press=lambda x: self.export_pdf())
         self.filter_btn.bind(on_press=lambda x: self.show_filter())
-
         row2.add_widget(self.stats_btn)
         row2.add_widget(self.chart_btn)
         row2.add_widget(self.export_btn)
         row2.add_widget(self.filter_btn)
-
         root.add_widget(row2)
-        root.add_widget(
-            Widget(
-                size_hint_y=None,
-                height=dp(10)
-            )
-        )
-        # TRANSACTION LIST
-        self.scroll = ScrollView(
-            size_hint=(1 ,0.8),
-            do_scroll_x=False
-        )
+        root.add_widget(Widget(size_hint_y=None, height=dp(10)))
 
-        self.list_container = BoxLayout(
-            orientation="vertical",
-            spacing=10,
-            size_hint_y=None
-        )
-
-        self.list_container.bind(
-            minimum_height=self.list_container.setter("height")
-        )
-
+        self.scroll = ScrollView(size_hint=(1, 0.8), do_scroll_x=False)
+        self.list_container = BoxLayout(orientation="vertical", spacing=10, size_hint_y=None)
+        self.list_container.bind(minimum_height=self.list_container.setter("height"))
         self.scroll.add_widget(self.list_container)
         self.scroll.bar_width = dp(10)
         root.add_widget(self.scroll)
- 
-        self.load_transactions()
 
-        # FINAL
+        self.load_transactions()
         self.add_widget(root)
 
-
-
     def update_background(self, *args):
-
         self.rect.pos = self.pos
         self.rect.size = self.size
-
         self.glow.pos = self.pos
-        self.glow.size = self.size  
-        
+        self.glow.size = self.size
+
     def show_currency_picker(self):
-
-        layout = BoxLayout(
-            orientation="vertical",
-            spacing=2,
-            padding=3
-        )
-
-        popup = Popup(
-            title="Select currency",
-            content=layout,
-            size_hint=(0.4, 0.6)
-        )
-
-        currencies = [
-            "RSD",
-            "EUR",
-            "USD",
-            "CHF",
-            "GBP",
-            "BAM",
-            "MKD",
-            "JPY",
-            "CNY"
-        ]
-
+        layout = BoxLayout(orientation="vertical", spacing=2, padding=3)
+        popup = Popup(title="Select currency", content=layout, size_hint=(0.4, 0.6))
+        currencies = ["RSD", "EUR", "USD", "CHF", "GBP", "BAM", "MKD", "JPY", "CNY"]
         for currency in currencies:
-
-            btn = ModernButton(
-                text=currency,
-                size_hint_y=None,
-                height=dp(45)
-            )
-
-            btn.bind(
-                on_press=lambda x, c=currency: (
-                    self.set_currency(c),
-                    popup.dismiss()
-                )
-            )
-
+            btn = ModernButton(text=currency, size_hint_y=None, height=dp(45))
+            btn.bind(on_press=lambda x, c=currency: (self.set_currency(c), popup.dismiss()))
             layout.add_widget(btn)
-
         popup.open()
-        
-    def set_currency(self, currency):
 
+    def set_currency(self, currency):
         App.get_running_app().currency = currency
         self.currency_btn.text = currency
-
         self.update_ui()
 
     def get_welcome(self):
-
         t = translations[App.get_running_app().language]
-
         if os.path.exists(PROFILE_FILE):
-
             with open(PROFILE_FILE, "r", encoding="utf-8") as f:
                 profile = json.load(f)
-
             name = profile.get("name", "")
-
             if name:
                 return f"{t['welcome']}, {name}"
-
         return f"{t['welcome']}!"
 
-    # =====================
-    # ADD TRANSACTION
-    # =====================
     def add_transaction(self, ttype):
-
         if not self.amount_input.text:
             return
-
         try:
             amount = float(self.amount_input.text)
         except:
             return
-
         category = self.category_grid.selected
         note = self.note_input.text
 
-        # EDIT POSTOJEĆE TRANSAKCIJE
         if self.editing_transaction is not None:
-
-            self.db.update_transaction(
-                self.editing_transaction,
-                amount,
-                self.editing_type,
-                category,
-                note
-            )
-
+            self.db.update_transaction(self.editing_transaction, amount, self.editing_type, category, note)
             self.editing_transaction = None
             self.editing_type = None
-
         else:
-            self.db.add_transaction(
-                amount,
-                ttype,
-                category,
-                note
-            )
+            self.db.add_transaction(amount, ttype, category, note)
 
         self.amount_input.text = ""
         self.note_input.text = ""
-
         self.load_transactions()
-    # =====================
-    # LOAD FROM DB
-    # =====================
+
     def load_transactions(self):
+        saved_scroll_y = self.scroll.scroll_y if hasattr(self, "scroll") else 1
 
         rows = self.db.get_all()
-
         self.list_container.clear_widgets()
 
         self.income = 0
@@ -475,13 +263,7 @@ class HomeScreen(Screen):
         self.transactions = []
 
         for transaction_id, amount, ttype, category, note, _time in rows:
-
-            self.transactions.append({
-                "amount": amount,
-                "type": ttype,
-                "category": category,
-                "note": note
-            })
+            self.transactions.append({"amount": amount, "type": ttype, "category": category, "note": note})
 
             if ttype == "income":
                 self.income += amount
@@ -501,303 +283,96 @@ class HomeScreen(Screen):
 
         self.balance = self.income - self.expense
         self.update_ui()
-        
-        
+
+        Clock.schedule_once(lambda dt: setattr(self.scroll, "scroll_y", saved_scroll_y), 0)
+
     def translate_category(self, category):
         t = translations[App.get_running_app().language]
         return t.get(category, category)
-        
-    # =====================
-    # UI UPDATE
-    # =====================
+
     def update_ui(self):
         currency = App.get_running_app().currency
-
         self.balance_card.balance.text = f"{self.balance:,.2f} {currency}".replace(",", ".")
         self.balance_card.income.text = f" {self.income:,.2f} {currency}".replace(",", ".")
         self.balance_card.expense.text = f" {self.expense:,.2f} {currency}".replace(",", ".")
 
-    # =====================
-    # STATS
-    # =====================
     def get_stats(self):
-
         stats = {}
-
         for t in self.transactions:
             cat = t["category"]
             stats[cat] = stats.get(cat, 0) + t["amount"]
-
         return stats
 
     def show_stats(self):
         print("SHOW_STATS POZVAN")
-
         stats = self.get_stats()
-
         currency = App.get_running_app().currency
-
-        text = "\n".join(
-            [f"{self.translate_category(k)}: {v:.2f} {currency}" for k, v in stats.items()]
-        )
-
+        text = "\n".join([f"{self.translate_category(k)}: {v:.2f} {currency}" for k, v in stats.items()])
         t = translations[App.get_running_app().language]
+        Popup(title=t["stats"], content=Label(text=text, font_size="16sp"), size_hint=(0.8, 0.6)).open()
 
-        Popup(
-            title=t["stats"],
-            content=Label(
-                text=text,
-                font_size="16sp"
-            ),
-            size_hint=(0.8, 0.6)
-        ).open()
-
-    # =====================
-    # CHART
-    # =====================
     def show_chart(self):
-
         stats = self.get_stats()
-
         if not stats:
             return
-
         total = sum(stats.values()) or 1
-
-        layout = BoxLayout(
-            orientation="vertical",
-            padding=15,
-            spacing=12,
-            size_hint_y=None
-        )
-
-        layout.bind(
-            minimum_height=layout.setter("height")
-        )
-
+        layout = BoxLayout(orientation="vertical", padding=15, spacing=12, size_hint_y=None)
+        layout.bind(minimum_height=layout.setter("height"))
         t = translations[App.get_running_app().language]
-
-        title = Label(
-            text=t["statistics"],
-            size_hint_y=None,
-            height=dp(60),
-            font_size=42,
-            bold=True
-        )
-
+        title = Label(text=t["statistics"], size_hint_y=None, height=dp(60), font_size=42, bold=True)
         layout.add_widget(title)
-
-
         for cat, value in stats.items():
-
             percent = (value / total) * 100
-
-
-            row = BoxLayout(
-                orientation="horizontal",
-                size_hint_y=None,
-                height=dp(45),
-                spacing=10
-            )
-
-
-            category_label = Label(
-                text=self.translate_category(cat),
-                font_size=42,
-                bold=True
-            )
-
-
-            percent_label = Label(
-                text=f"{percent:.1f} %",
-                font_size=42,
-                bold=True
-            )
-
-
+            row = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(45), spacing=10)
+            category_label = Label(text=self.translate_category(cat), font_size=42, bold=True)
+            percent_label = Label(text=f"{percent:.1f} %", font_size=42, bold=True)
             row.add_widget(category_label)
             row.add_widget(percent_label)
-
             layout.add_widget(row)
-
-
-            bar = ProgressBar(
-                max=100,
-                value=percent,
-                size_hint_y=None,
-                height=dp(30)
-            )
-
+            bar = ProgressBar(max=100, value=percent, size_hint_y=None, height=dp(30))
             layout.add_widget(bar)
+        Popup(title=t["chart"], content=layout, size_hint=(0.95, 0.85)).open()
 
+    def show_filter(self):
+        layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
+        popup = Popup(title="Filter", content=layout, size_hint=(0.8, 0.5))
+        all_btn = ModernButton(text="All")
+        income_btn = ModernButton(text="Income")
+        expense_btn = ModernButton(text="Expense")
+        layout.add_widget(all_btn)
+        layout.add_widget(income_btn)
+        layout.add_widget(expense_btn)
+        all_btn.bind(on_press=lambda x: (setattr(self, "active_filter", "all"), popup.dismiss(), self.apply_filter()))
+        income_btn.bind(on_press=lambda x: (setattr(self, "active_filter", "income"), popup.dismiss(), self.apply_filter()))
+        expense_btn.bind(on_press=lambda x: (setattr(self, "active_filter", "expense"), popup.dismiss(), self.apply_filter()))
+        popup.open()
 
-        chart_scroll = ScrollView()
-
-        chart_scroll.add_widget(layout)
-
-        Popup(
-            title=t["statistics"],
-            content=chart_scroll,
-            size_hint=(0.9,0.9)
-        ).open()
-
-    def get_icon(self, category):
-        icons = {
-            "Food": "assets/icons/food.png",
-            "Transport": "assets/icons/transport.png",
-            "Shopping": "assets/icons/shopping.png",
-            "Bills": "assets/icons/bills.png",
-            "Health": "assets/icons/health.png",
-            "Salary": "assets/icons/salary.png",
-            "Other": "assets/icons/other.png"
-        }
-
-        return icons.get(category, "assets/icons/other.png")
+    def apply_filter(self):
+        for card in self.list_container.children:
+            card_type = getattr(card, "ttype", None)
+            if self.active_filter == "all":
+                card.opacity = 1
+                card.disabled = False
+            elif self.active_filter == card_type:
+                card.opacity = 1
+                card.disabled = False
+            else:
+                card.opacity = 0
+                card.disabled = True
 
     def delete_transaction(self, transaction_id):
-        print("Deleting:", transaction_id)
         self.db.delete_transaction(transaction_id)
         self.load_transactions()
 
-    def edit_transaction(self, transaction_id):
-
-        transaction = self.db.get_transaction(transaction_id)
-
-        if not transaction:
-            return
-
-        transaction_id, amount, ttype, category, note, time = transaction
-
-        self.amount_input.text = str(amount)
-        self.note_input.text = note if note else ""
-
-        self.category_grid.selected = category
-
+    def edit_transaction(self, transaction_id, amount, ttype, category, note):
         self.editing_transaction = transaction_id
         self.editing_type = ttype
+        self.amount_input.text = str(amount)
+        self.note_input.text = note or ""
+        self.category_grid.selected = category
 
-    def show_filter(self):
+    def on_pre_enter(self, *args):
+        self.load_transactions()
 
-        layout = BoxLayout(
-            orientation="vertical",
-            spacing=10,
-            padding=10
-        )
-
-        t = translations[App.get_running_app().language]
-
-        filters = [
-            (t["all"], "all"),
-            (t["income"], "income"),
-            (t["expense"], "expense"),
-            (t["food"], "food"),
-            (t["transport"], "transport"),
-            (t["shopping"], "shopping"),
-            (t["bills"], "bills"),
-            (t["fun"], "fun"),
-            (t["health"], "health"),
-            (t["salary"], "salary"),
-            (t["other"], "other")
-         ]
-
-        popup = Popup(
-            title=t["filter"],
-            content=layout,
-            size_hint=(0.8, 0.8)
-        )
-
-        for text, key in filters:
-
-            btn = ModernButton(
-                text=text,
-                size_hint_y=None,
-                height=dp(45)
-            )
-
-            btn.bind(
-                on_press=lambda x, k=key: (
-                    self.apply_filter(k),
-                    popup.dismiss()
-                )
-            )
-
-            layout.add_widget(btn)
-
-        popup.open()
-
-    def apply_filter(self, filter_type):
-
-        self.list_container.clear_widgets()
-
-        rows = self.db.get_all()
-
-        for transaction_id, amount, ttype, category, note, _time in rows:
-
-            if filter_type == "income" and ttype != "income":
-                continue
-
-            if filter_type == "expense" and ttype != "expense":
-                continue
-
-            if filter_type not in ["all", "income", "expense"]:
-                if category != filter_type:
-                    continue
-
-            card = TransactionCard(
-                transaction_id=transaction_id,
-                amount=amount,
-                ttype=ttype,
-                category=category,
-                note=note,
-                on_delete=self.delete_transaction,
-                on_edit=self.edit_transaction
-            )
-
-            self.list_container.add_widget(card)
-
-    def update_language(self):
-        t = translations[App.get_running_app().language]
-
-        self.amount_input.hint_text = t["amount"]
-        self.note_input.hint_text = t["note"]
-
-        # osvežavanje postojećih dugmadi
-        if hasattr(self, "settings_btn"):
-            self.settings_btn.text =  t["settings"]
-
-        if hasattr(self, "income_btn"):
-            self.income_btn.text =  t["income"]
-
-        if hasattr(self, "expense_btn"):
-            self.expense_btn.text =  t["expense"]
-
-        if hasattr(self, "stats_btn"):
-            self.stats_btn.text =  t["stats"]
-
-        if hasattr(self, "chart_btn"):
-            self.chart_btn.text = t["chart"]
-
-        if hasattr(self, "export_btn"):
-            self.export_btn.text = t["export"]
-
-        if hasattr(self, "filter_btn"):
-            self.filter_btn.text = t["filter"]
-        if hasattr(self, "header"):
-            self.header.update_language()
-        self.category_grid.update_language() 
-      
-        self.balance_card.update_language()
-
-        for card in self.list_container.children:
-            if hasattr(card, "update_language"):
-                card.update_language()
-
-    def export_pdf(self):
-        t = translations[App.get_running_app().language]
-
-        Popup(
-            title=t["info"],
-            content=Label(
-                text=t["pdf_coming_soon"]),
-            size_hint=(0.7,0.3)
-        ).open()
+    def on_leave(self, *args):
+        pass
