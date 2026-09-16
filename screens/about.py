@@ -71,7 +71,7 @@ class AboutScreen(Screen):
             f"{t['smart_finance_manager']}\n\n"
             f"{t['track_money']}\n\n"
             f"{t['version']} 1.0\n\n"
-            f"{t['developed_by']}\n\n"
+            f"{t['developed_by'].replace('DEVELOP4WORLD', 'Development4world')}\n\n"
             "E-mail: development4world@gmail.com"
         )
 
