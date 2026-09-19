@@ -296,6 +296,45 @@ class HomeScreen(Screen):
         self.balance_card.income.text = f" {self.income:,.2f} {currency}".replace(",", ".")
         self.balance_card.expense.text = f" {self.expense:,.2f} {currency}".replace(",", ".")
 
+    def update_language(self):
+        """Refresh Home screen text after the app language changes."""
+        t = translations[App.get_running_app().language]
+
+        self.current_language = App.get_running_app().language
+
+        if hasattr(self, "header"):
+            self.header.update_language()
+
+        if hasattr(self, "balance_card"):
+            self.balance_card.update_language()
+
+        if hasattr(self, "category_grid"):
+            self.category_grid.update_language()
+
+        if hasattr(self, "amount_input"):
+            self.amount_input.hint_text = t["amount"]
+
+        if hasattr(self, "note_input"):
+            self.note_input.hint_text = t["note"]
+
+        if hasattr(self, "income_btn"):
+            self.income_btn.text = t["income"]
+
+        if hasattr(self, "expense_btn"):
+            self.expense_btn.text = t["expense"]
+
+        if hasattr(self, "stats_btn"):
+            self.stats_btn.text = t["stats"]
+
+        if hasattr(self, "chart_btn"):
+            self.chart_btn.text = t["chart"]
+
+        if hasattr(self, "export_btn"):
+            self.export_btn.text = t["export"]
+
+        if hasattr(self, "filter_btn"):
+            self.filter_btn.text = t["filter"]
+
     def get_stats(self):
         stats = {}
         for t in self.transactions:
