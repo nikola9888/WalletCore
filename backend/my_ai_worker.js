@@ -4,7 +4,8 @@ export default {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
-      "Content-Type": "application/json; charset=utf-8"
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store"
     };
 
     if (request.method === "OPTIONS") {
@@ -12,42 +13,50 @@ export default {
     }
 
     if (request.method !== "POST") {
-      return json({ error: "Method not allowed" }, 405, corsHeaders);
+      return json({ error: "Method not allowed." }, 405, corsHeaders);
     }
 
-    const contentLength = Number(request.headers.get("content-length") || "0");
-    if (contentLength > 150000) {
-      return json({ error: "Poruka je prevelika." }, 413, corsHeaders);
-    }
-
-    if (!env.AI_API_KEY || !env.AI_BASE_URL || !env.AI_MODEL) {
+    if (!env.AI_API_KEY || !env.AI_MODEL) {
       return json({ error: "AI servis nije podešen na serveru." }, 503, corsHeaders);
     }
 
     try {
-      const body = await request.json();
+      const rawBody = await request.text();
+      if (new TextEncoder().encode(rawBody).length > 30000) {
+        return json({ error: "Zahtev je prevelik." }, 413, corsHeaders);
+      }
+
+      let body;
+      try {
+        body = JSON.parse(rawBody);
+      } catch (_) {
+        return json({ error: "Neispravan JSON zahtev." }, 400, corsHeaders);
+      }
+
       if (!body || !Array.isArray(body.messages) || body.messages.length < 1) {
         return json({ error: "Nedostaju poruke." }, 400, corsHeaders);
       }
 
       const messages = body.messages
-        .slice(-20)
+        .slice(-12)
         .filter((item) =>
           item &&
           (item.role === "user" || item.role === "assistant") &&
-          typeof item.content === "string"
+          typeof item.content === "string" &&
+          item.content.trim().length > 0
         )
         .map((item) => ({
           role: item.role,
-          content: item.content.slice(0, 6000)
+          content: item.content.slice(0, 4000)
         }));
 
       if (!messages.length || messages[messages.length - 1].role !== "user") {
         return json({ error: "Poslednja poruka mora biti korisnička." }, 400, corsHeaders);
       }
 
-      const endpoint = env.AI_BASE_URL.replace(/\/+$/, "") + "/chat/completions";
-      const upstream = await fetch(endpoint, {
+      const baseUrl = (env.AI_BASE_URL || "https://api.groq.com/openai/v1")
+        .replace(/\/+$/, "");
+      const upstream = await fetch(baseUrl + "/chat/completions", {
         method: "POST",
         headers: {
           "Authorization": "Bearer " + env.AI_API_KEY,
@@ -58,32 +67,25 @@ export default {
           messages: [
             {
               role: "system",
-              content: "Ti si My AI, koristan asistent u aplikaciji WalletCore. Odgovaraj jasno i na jeziku korisnika."
+              content: "Ti si My AI, koristan asistent u aplikaciji WalletCore. Odgovaraj jasno, sažeto i na jeziku korisnika. Ne tvrdi da možeš da vidiš slike, slušaš audio ili izvršavaš radnje ako ti te mogućnosti nisu dostupne u konkretnom razgovoru."
             },
             ...messages
           ],
           temperature: 0.7,
-          max_tokens: 1200
-        })
+          max_tokens: 1000
+        }),
+        signal: AbortSignal.timeout(40000)
       });
 
-      const raw = await upstream.text();
-      let data;
-      try {
-        data = JSON.parse(raw);
-      } catch (_) {
-        data = null;
-      }
-
       if (!upstream.ok) {
-        return json({
-          error: data?.error?.message || "AI servis trenutno nije dostupan."
-        }, 502, corsHeaders);
+        // Do not return provider details or secrets to the public client.
+        return json({ error: "Groq trenutno nije dostupan. Pokušaj ponovo kasnije." }, 502, corsHeaders);
       }
 
+      const data = await upstream.json();
       const answer = data?.choices?.[0]?.message?.content;
       if (typeof answer !== "string" || !answer.trim()) {
-        return json({ error: "AI servis je vratio prazan odgovor." }, 502, corsHeaders);
+        return json({ error: "AI servis nije vratio tekstualni odgovor." }, 502, corsHeaders);
       }
 
       return json({ reply: answer.trim() }, 200, corsHeaders);
