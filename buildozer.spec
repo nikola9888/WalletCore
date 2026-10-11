@@ -33,8 +33,7 @@ android.release_artifact = aab
 android.enable_androidx = True
 android.private_storage = True
 android.allow_backup = True
-
-# android.permissions = INTERNET
+android.permissions = INTERNET
 
 [buildozer]
 log_level = 2
