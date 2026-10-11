@@ -1,3 +1,3 @@
-# URL Cloudflare Worker-a koji prosleđuje zahteve AI servisu.
-# Popuni nakon postavljanja backend/my_ai_worker.js.
+# URL Cloudflare Worker-a koji prosleđuje poruke Groq AI servisu.
+# Upisuje se nakon objavljivanja Worker-a; ne stavljati Groq API ključ ovde.
 AI_API_URL = ""
