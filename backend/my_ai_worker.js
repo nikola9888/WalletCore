@@ -15,6 +15,11 @@ export default {
       return json({ error: "Method not allowed" }, 405, corsHeaders);
     }
 
+    const contentLength = Number(request.headers.get("content-length") || "0");
+    if (contentLength > 150000) {
+      return json({ error: "Poruka je prevelika." }, 413, corsHeaders);
+    }
+
     if (!env.AI_API_KEY || !env.AI_BASE_URL || !env.AI_MODEL) {
       return json({ error: "AI servis nije podešen na serveru." }, 503, corsHeaders);
     }
@@ -26,12 +31,12 @@ export default {
       }
 
       const messages = body.messages
+        .slice(-20)
         .filter((item) =>
           item &&
           (item.role === "user" || item.role === "assistant") &&
           typeof item.content === "string"
         )
-        .slice(-20)
         .map((item) => ({
           role: item.role,
           content: item.content.slice(0, 6000)
