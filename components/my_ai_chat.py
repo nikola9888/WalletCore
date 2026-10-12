@@ -59,15 +59,15 @@ class MyAIChat:
                     "income": round(values["income"], 2),
                     "expenses": round(values["expense"], 2)
                 }
-                for month, values in sorted(by_month.items())
+                for month, values in sorted(by_month.items())[-24:]
             }
             categories = [
                 {"type": key[0], "category": key[1], "total": round(total, 2)}
-                for key, total in sorted(by_category.items(), key=lambda item: item[1], reverse=True)
+                for key, total in sorted(by_category.items(), key=lambda item: item[1], reverse=True)[:30]
             ]
             current_categories = [
                 {"type": key[1], "category": key[2], "total": round(total, 2)}
-                for key, total in sorted(by_month_category.items(), key=lambda item: item[1], reverse=True)
+                for key, total in sorted(by_month_category.items(), key=lambda item: item[1], reverse=True)[:30]
                 if key[0] == current_month
             ]
             recent = []
