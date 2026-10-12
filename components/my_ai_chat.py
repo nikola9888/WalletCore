@@ -17,9 +17,96 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
 
 from components.my_ai_config import AI_API_URL
+from kivy.app import App
 
 
 class MyAIChat:
+    def _get_wallet_context(self):
+        """Build a compact, read-only snapshot from WalletCore's local database."""
+        from collections import defaultdict
+        from datetime import datetime
+        from database import Database
+
+        db = None
+        try:
+            db = Database()
+            rows = db.get_all()
+            app = App.get_running_app()
+            income = 0.0
+            expenses = 0.0
+            by_category = defaultdict(float)
+            by_month = defaultdict(lambda: {"income": 0.0, "expense": 0.0})
+            by_month_category = defaultdict(float)
+
+            for row in rows:
+                _transaction_id, amount, ttype, category, _note, time_value = row
+                amount = float(amount or 0)
+                category = str(category or "Ostalo")
+                if ttype == "income":
+                    income += amount
+                elif ttype == "expense":
+                    expenses += amount
+                if ttype in ("income", "expense"):
+                    by_category[(ttype, category)] += amount
+                    month = str(time_value or "")[:7]
+                    if len(month) == 7 and month[4] == "-":
+                        by_month[month][ttype] += amount
+                        by_month_category[(month, ttype, category)] += amount
+
+            current_month = datetime.now().strftime("%Y-%m")
+            months = {
+                month: {
+                    "income": round(values["income"], 2),
+                    "expenses": round(values["expense"], 2)
+                }
+                for month, values in sorted(by_month.items())
+            }
+            categories = [
+                {"type": key[0], "category": key[1], "total": round(total, 2)}
+                for key, total in sorted(by_category.items(), key=lambda item: item[1], reverse=True)
+            ]
+            current_categories = [
+                {"type": key[1], "category": key[2], "total": round(total, 2)}
+                for key, total in sorted(by_month_category.items(), key=lambda item: item[1], reverse=True)
+                if key[0] == current_month
+            ]
+            recent = []
+            for row in rows[:12]:
+                transaction_id, amount, ttype, category, _note, time_value = row
+                recent.append({
+                    "id": transaction_id,
+                    "amount": round(float(amount or 0), 2),
+                    "type": ttype,
+                    "category": str(category or "Ostalo"),
+                    "date": str(time_value or "")
+                })
+
+            return {
+                "currency": str(getattr(app, "currency", "RSD")),
+                "language": str(getattr(app, "language", "sr")),
+                "transaction_count": len(rows),
+                "total_income": round(income, 2),
+                "total_expenses": round(expenses, 2),
+                "balance": round(income - expenses, 2),
+                "current_month": current_month,
+                "monthly_totals": months,
+                "category_totals_all_time": categories,
+                "category_totals_current_month": current_categories,
+                "recent_transactions": recent,
+                "access": "read_only"
+            }
+        except Exception as exc:
+            return {
+                "available": False,
+                "error": "WalletCore podaci trenutno nisu dostupni: {}".format(type(exc).__name__)
+            }
+        finally:
+            if db is not None:
+                try:
+                    db.close()
+                except Exception:
+                    pass
+
     """My AI chat popup using a private server-side API proxy."""
 
     def __init__(self):
@@ -171,6 +258,7 @@ class MyAIChat:
 
             request_messages = list(self.messages)
             request_messages.append({"role": "user", "content": user_text})
+            wallet_context = self._get_wallet_context()
             generation = request_state["generation"]
             set_busy(True)
             waiting_bubble = add_message("Pripremam odgovor...", "My AI")
@@ -180,7 +268,10 @@ class MyAIChat:
                 error_text = None
                 try:
                     payload = json.dumps(
-                        {"messages": request_messages},
+                        {
+                            "messages": request_messages,
+                            "wallet_context": wallet_context
+                        },
                         ensure_ascii=False
                     ).encode("utf-8")
                     request = urllib.request.Request(
