@@ -359,6 +359,12 @@ class MyAIChat:
                         category,
                         note
                     )
+                    app = App.get_running_app()
+                    if app is not None and app.root is not None:
+                        try:
+                            app.root.get_screen("home").load_transactions()
+                        except Exception:
+                            pass
                     result = "{} od {:,.2f} {} je upisan. Kategorija: {}.".format(
                         kind_label,
                         float(amount),
