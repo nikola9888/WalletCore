@@ -1,7 +1,10 @@
 import json
+import ssl
 import threading
 import urllib.error
 import urllib.request
+
+import certifi
 
 from kivy.clock import Clock
 from kivy.metrics import dp
@@ -186,7 +189,12 @@ class MyAIChat:
                         headers={"Content-Type": "application/json"},
                         method="POST"
                     )
-                    with urllib.request.urlopen(request, timeout=45) as response:
+                    ssl_context = ssl.create_default_context(cafile=certifi.where())
+                    with urllib.request.urlopen(
+                        request,
+                        timeout=45,
+                        context=ssl_context
+                    ) as response:
                         data = json.loads(response.read().decode("utf-8"))
 
                     answer = data.get("reply")
