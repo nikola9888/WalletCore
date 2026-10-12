@@ -275,6 +275,113 @@ class MyAIChat:
             entry.disabled = busy
             send.text = "..." if busy else "Pošalji"
 
+        def confirm_wallet_action(action):
+            action_type = action.get("type")
+            amount = action.get("amount")
+            category = action.get("category")
+            note = action.get("note", "")
+
+            if (
+                action_type not in ("income", "expense")
+                or isinstance(amount, bool)
+                or not isinstance(amount, (int, float))
+                or amount <= 0
+                or amount > 1000000000
+                or not isinstance(category, str)
+                or not category.strip()
+                or len(category.strip()) > 60
+                or not isinstance(note, str)
+                or len(note) > 300
+            ):
+                add_message("Predlog nije ispravan. Ništa nije upisano.", "My AI")
+                return
+
+            currency = getattr(App.get_running_app(), "currency", "RSD")
+            kind_label = "Prihod" if action_type == "income" else "Trošak"
+            content = BoxLayout(
+                orientation="vertical",
+                spacing=dp(8),
+                padding=dp(12)
+            )
+            content.add_widget(Label(
+                text="{}: {:,.2f} {}".format(kind_label, float(amount), currency).replace(",", " "),
+                size_hint_y=None,
+                height=dp(36)
+            ))
+            content.add_widget(Label(
+                text="Kategorija: {}".format(category.strip()),
+                size_hint_y=None,
+                height=dp(32)
+            ))
+            content.add_widget(Label(
+                text="Napomena: {}".format(note.strip() or "—"),
+                size_hint_y=None,
+                height=dp(42)
+            ))
+            content.add_widget(Label(
+                text="Ništa se ne upisuje bez tvoje potvrde.",
+                size_hint_y=None,
+                height=dp(38)
+            ))
+            actions = BoxLayout(
+                orientation="horizontal",
+                spacing=dp(8),
+                size_hint_y=None,
+                height=dp(44)
+            )
+            confirm = Button(text="Potvrdi unos")
+            cancel = Button(text="Otkaži")
+            actions.add_widget(confirm)
+            actions.add_widget(cancel)
+            content.add_widget(actions)
+            dialog = Popup(
+                title="Potvrdi transakciju",
+                content=content,
+                size_hint=(0.9, None),
+                height=dp(270),
+                auto_dismiss=False
+            )
+
+            def cancel_proposal(*_):
+                dialog.dismiss()
+                add_message("Unos je otkazan. Transakcija nije upisana.", "My AI")
+
+            def save_proposal(*_):
+                confirm.disabled = True
+                cancel.disabled = True
+                db = None
+                try:
+                    from database import Database
+                    db = Database()
+                    db.add_ai_transaction(
+                        amount,
+                        action_type,
+                        category,
+                        note
+                    )
+                    result = "{} od {:,.2f} {} je upisan. Kategorija: {}.".format(
+                        kind_label,
+                        float(amount),
+                        currency,
+                        category.strip()
+                    ).replace(",", " ")
+                except Exception as exc:
+                    result = "Upis nije uspeo ({}). Proveri istoriju transakcija.".format(
+                        type(exc).__name__
+                    )
+                finally:
+                    if db is not None:
+                        try:
+                            db.close()
+                        except Exception:
+                            pass
+                dialog.dismiss()
+                add_message(result, "My AI")
+
+            confirm.bind(on_release=save_proposal)
+            cancel.bind(on_release=cancel_proposal)
+            dialog.open()
+
         def send_message(*_):
             user_text = entry.text.strip()
             if not user_text or request_state["busy"]:
@@ -391,10 +498,35 @@ class MyAIChat:
 
                     if answer:
                         self.messages.append({"role": "user", "content": user_text})
-                        self.messages.append({"role": "assistant", "content": answer})
-                        self.messages = self.messages[-100:]
-                        self._save_history()
-                        add_message(answer, "My AI")
+                        if answer.startswith("WALLET_ACTION:"):
+                            try:
+                                action = json.loads(answer[len("WALLET_ACTION:"):].strip())
+                                if (
+                                    action.get("type") not in ("income", "expense")
+                                    or isinstance(action.get("amount"), bool)
+                                    or not isinstance(action.get("amount"), (int, float))
+                                    or action.get("amount") <= 0
+                                    or not isinstance(action.get("category"), str)
+                                    or not isinstance(action.get("note", ""), str)
+                                ):
+                                    raise ValueError("invalid proposal")
+                                summary = "Predlog pripremljen. Pregledaj podatke i potvrdi unos u posebnom prozoru."
+                                self.messages.append({"role": "assistant", "content": summary})
+                                self.messages = self.messages[-100:]
+                                self._save_history()
+                                add_message(summary, "My AI")
+                                confirm_wallet_action(action)
+                            except Exception:
+                                answer = "Nisam uspeo da napravim ispravan predlog. Ništa nije upisano. Navedi tip transakcije, iznos i kategoriju."
+                                self.messages.append({"role": "assistant", "content": answer})
+                                self.messages = self.messages[-100:]
+                                self._save_history()
+                                add_message(answer, "My AI")
+                        else:
+                            self.messages.append({"role": "assistant", "content": answer})
+                            self.messages = self.messages[-100:]
+                            self._save_history()
+                            add_message(answer, "My AI")
                     else:
                         add_message(error_text or "Došlo je do greške.", "My AI")
 
