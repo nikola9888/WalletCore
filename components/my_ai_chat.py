@@ -201,13 +201,19 @@ class MyAIChat:
                     try:
                         details = exc.read().decode("utf-8")
                         data = json.loads(details)
-                        error_text = data.get("error", "HTTP greška {}".format(exc.code))
+                        error_text = data.get(
+                            "error",
+                            "AI servis je vratio HTTP grešku {}.".format(exc.code)
+                        )
                     except Exception:
-                        error_text = "AI servis je vratio HTTP grešku {}.".format(exc.code)
-                except Exception:
-                    error_text = (
-                        "Ne mogu da se povežem sa AI servisom. Proveri internet "
-                        "vezu i podešavanje backend-a."
+                        error_text = "AI servis je vratio HTTP grešku {}.".format(
+                            exc.code
+                        )
+                except Exception as exc:
+                    # Diagnostic text helps identify network/TLS/timeout issues.
+                    error_text = "Greška povezivanja ({}): {}".format(
+                        type(exc).__name__,
+                        str(exc)[:180] or "bez dodatnih detalja"
                     )
 
                 def finish_request(*_):
