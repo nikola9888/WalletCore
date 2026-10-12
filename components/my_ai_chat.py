@@ -207,15 +207,43 @@ class MyAIChat:
                         answer = answer.strip()
                 except urllib.error.HTTPError as exc:
                     try:
-                        details = exc.read().decode("utf-8")
-                        data = json.loads(details)
-                        error_text = data.get(
-                            "error",
-                            "AI servis je vratio HTTP grešku {}.".format(exc.code)
-                        )
-                    except Exception:
-                        error_text = "AI servis je vratio HTTP grešku {}.".format(
-                            exc.code
+                        details = exc.read().decode("utf-8", errors="replace").strip()
+                        try:
+                            data = json.loads(details)
+                        except Exception:
+                            data = None
+
+                        if isinstance(data, dict):
+                            api_error = data.get("error")
+                            if isinstance(api_error, dict):
+                                api_error = api_error.get("message") or str(api_error)
+                            if isinstance(api_error, str) and api_error.strip():
+                                error_text = "HTTP {}: {}".format(
+                                    exc.code,
+                                    api_error.strip()[:300]
+                                )
+                            elif details:
+                                error_text = "HTTP {}: {}".format(
+                                    exc.code,
+                                    details[:300]
+                                )
+                            else:
+                                error_text = "AI servis je vratio HTTP grešku {}.".format(
+                                    exc.code
+                                )
+                        elif details:
+                            error_text = "HTTP {}: {}".format(
+                                exc.code,
+                                details[:300]
+                            )
+                        else:
+                            error_text = "AI servis je vratio HTTP grešku {}.".format(
+                                exc.code
+                            )
+                    except Exception as detail_exc:
+                        error_text = "HTTP {} ({}).".format(
+                            exc.code,
+                            type(detail_exc).__name__
                         )
                 except Exception as exc:
                     # Diagnostic text helps identify network/TLS/timeout issues.
