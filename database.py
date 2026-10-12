@@ -45,6 +45,27 @@ class Database:
         """, (amount, ttype, category, note))
         self.conn.commit()
 
+
+    def add_ai_transaction(self, amount, ttype, category, note):
+        """Validate an AI-proposed transaction before writing it locally."""
+        if ttype not in ("income", "expense"):
+            raise ValueError("Invalid transaction type")
+        if isinstance(amount, bool) or not isinstance(amount, (int, float)):
+            raise ValueError("Invalid transaction amount")
+        if amount <= 0 or amount > 1000000000:
+            raise ValueError("Transaction amount is out of range")
+        if not isinstance(category, str) or not category.strip() or len(category.strip()) > 60:
+            raise ValueError("Invalid transaction category")
+        if not isinstance(note, str) or len(note) > 300:
+            raise ValueError("Invalid transaction note")
+
+        self.add_transaction(
+            float(amount),
+            ttype,
+            category.strip(),
+            note.strip()
+        )
+
     def get_all(self):
         self.cursor.execute("""
         SELECT * FROM transactions
