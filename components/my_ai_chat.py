@@ -1,4 +1,5 @@
 import json
+import os
 import ssl
 import threading
 import urllib.error
@@ -15,6 +16,7 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
+from kivy.storage.jsonstore import JsonStore
 
 from components.my_ai_config import AI_API_URL
 from kivy.app import App
@@ -114,8 +116,38 @@ class MyAIChat:
 
     def __init__(self):
         self.messages = []
+        self.history_store = None
+
+    def _load_history(self):
+        """Load saved chat messages from the app's private local storage."""
+        try:
+            app = App.get_running_app()
+            history_path = os.path.join(app.user_data_dir, "my_ai_history.json")
+            self.history_store = JsonStore(history_path)
+            if self.history_store.exists("conversation"):
+                saved = self.history_store.get("conversation").get("messages", [])
+                if isinstance(saved, list):
+                    self.messages = [
+                        {"role": item["role"], "content": item["content"]}
+                        for item in saved[-100:]
+                        if isinstance(item, dict)
+                        and item.get("role") in ("user", "assistant")
+                        and isinstance(item.get("content"), str)
+                    ]
+        except Exception as exc:
+            print("My AI history load error:", type(exc).__name__)
+            self.messages = []
+
+    def _save_history(self):
+        """Persist the conversation locally; no history is sent just by saving."""
+        try:
+            if self.history_store is not None:
+                self.history_store.put("conversation", messages=self.messages[-100:])
+        except Exception as exc:
+            print("My AI history save error:", type(exc).__name__)
 
     def open(self):
+        self._load_history()
         root = BoxLayout(
             orientation="vertical",
             spacing=dp(8),
@@ -259,7 +291,7 @@ class MyAIChat:
             entry.text = ""
             add_message(user_text, "Ti")
 
-            request_messages = list(self.messages)
+            request_messages = list(self.messages[-40:])
             request_messages.append({"role": "user", "content": user_text})
             wallet_context = self._get_wallet_context()
             generation = request_state["generation"]
@@ -360,6 +392,8 @@ class MyAIChat:
                     if answer:
                         self.messages.append({"role": "user", "content": user_text})
                         self.messages.append({"role": "assistant", "content": answer})
+                        self.messages = self.messages[-100:]
+                        self._save_history()
                         add_message(answer, "My AI")
                     else:
                         add_message(error_text or "Došlo je do greške.", "My AI")
@@ -372,6 +406,7 @@ class MyAIChat:
             request_state["generation"] += 1
             request_state["busy"] = False
             self.messages = []
+            self._save_history()
             chat.clear_widgets()
             set_busy(False)
             add_message("Novi razgovor. Ja sam My AI.", "My AI")
@@ -380,8 +415,13 @@ class MyAIChat:
         entry.bind(on_text_validate=send_message)
         new_chat.bind(on_release=reset_chat)
 
-        add_message(
-            "Zdravo! Ja sam My AI. Pošalji poruku da započnemo razgovor.",
-            "My AI"
-        )
+        if self.messages:
+            for saved_message in self.messages:
+                sender = "Ti" if saved_message["role"] == "user" else "My AI"
+                add_message(saved_message["content"], sender)
+        else:
+            add_message(
+                "Zdravo! Ja sam My AI. Pošalji poruku da započnemo razgovor.",
+                "My AI"
+            )
         popup.open()
