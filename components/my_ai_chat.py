@@ -186,7 +186,11 @@ class MyAIChat:
                     request = urllib.request.Request(
                         AI_API_URL.strip(),
                         data=payload,
-                        headers={"Content-Type": "application/json"},
+                        headers={
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "User-Agent": "WalletCore-MyAI/1.0",
+                        },
                         method="POST"
                     )
                     ssl_context = ssl.create_default_context(cafile=certifi.where())
