@@ -20,6 +20,7 @@ from kivy.storage.jsonstore import JsonStore
 
 from components.my_ai_config import AI_API_URL
 from kivy.app import App
+from kivy.core.window import Window
 
 
 class MyAIChat:
@@ -148,40 +149,90 @@ class MyAIChat:
 
     def open(self):
         self._load_history()
+        previous_softinput_mode = Window.softinput_mode
+        Window.softinput_mode = "below_target"
+
         root = BoxLayout(
             orientation="vertical",
-            spacing=dp(8),
-            padding=dp(10)
+            spacing=dp(10),
+            padding=[dp(12), dp(12), dp(12), dp(10)]
+        )
+        with root.canvas.before:
+            Color(0.035, 0.055, 0.085, 1)
+            root.background_shape = RoundedRectangle(
+                pos=root.pos, size=root.size, radius=[dp(22)]
+            )
+        root.bind(
+            pos=lambda widget, *_: setattr(widget.background_shape, "pos", widget.pos),
+            size=lambda widget, *_: setattr(widget.background_shape, "size", widget.size)
         )
 
         top = BoxLayout(
             orientation="horizontal",
             size_hint_y=None,
-            height=dp(42),
-            spacing=dp(8)
+            height=dp(58),
+            spacing=dp(10),
+            padding=[dp(4), dp(2), dp(2), dp(2)]
         )
+        title_stack = BoxLayout(orientation="vertical", spacing=dp(1))
         title = Label(
-            text="My AI",
+            text="[b]My AI[/b]",
+            markup=True,
             bold=True,
-            font_size="20sp",
-            halign="left"
+            font_size="21sp",
+            color=(0.96, 0.98, 1, 1),
+            halign="left",
+            valign="middle",
+            size_hint_y=0.65
         )
         title.bind(size=lambda widget, size: setattr(widget, "text_size", size))
+        subtitle = Label(
+            text="Tvoj pametni finansijski asistent",
+            font_size="11sp",
+            color=(0.55, 0.72, 0.88, 1),
+            halign="left",
+            valign="middle",
+            size_hint_y=0.35
+        )
+        subtitle.bind(size=lambda widget, size: setattr(widget, "text_size", size))
+        title_stack.add_widget(title)
+        title_stack.add_widget(subtitle)
 
         new_chat = Button(
             text="Novi razgovor",
-            size_hint_x=None,
-            width=dp(112)
+            size_hint=(None, None),
+            size=(dp(112), dp(36)),
+            background_normal="",
+            background_down="",
+            background_color=(0.12, 0.22, 0.34, 1),
+            color=(0.88, 0.94, 1, 1),
+            font_size="12sp",
+            bold=True
         )
-        top.add_widget(title)
+        with new_chat.canvas.before:
+            Color(0.12, 0.22, 0.34, 1)
+            new_chat.bg_shape = RoundedRectangle(
+                pos=new_chat.pos, size=new_chat.size, radius=[dp(12)]
+            )
+        new_chat.bind(
+            pos=lambda widget, *_: setattr(widget.bg_shape, "pos", widget.pos),
+            size=lambda widget, *_: setattr(widget.bg_shape, "size", widget.size)
+        )
+        top.add_widget(title_stack)
         top.add_widget(new_chat)
         root.add_widget(top)
 
-        scroll = ScrollView(do_scroll_x=False)
+        scroll = ScrollView(
+            do_scroll_x=False,
+            bar_width=dp(3),
+            scroll_type=["bars", "content"],
+            bar_color=(0.20, 0.55, 0.88, 0.85),
+            bar_inactive_color=(0.20, 0.55, 0.88, 0.25)
+        )
         chat = BoxLayout(
             orientation="vertical",
-            spacing=dp(8),
-            padding=dp(4),
+            spacing=dp(10),
+            padding=[dp(4), dp(8), dp(4), dp(8)],
             size_hint_y=None
         )
         chat.bind(minimum_height=chat.setter("height"))
@@ -191,89 +242,157 @@ class MyAIChat:
         entry_row = BoxLayout(
             orientation="horizontal",
             size_hint_y=None,
-            height=dp(48),
-            spacing=dp(8)
+            height=dp(56),
+            spacing=dp(9),
+            padding=[dp(2), dp(2), dp(2), dp(2)]
+        )
+        entry_surface = BoxLayout(
+            orientation="vertical",
+            padding=[dp(2), dp(2), dp(2), dp(2)]
+        )
+        with entry_surface.canvas.before:
+            Color(0.10, 0.14, 0.20, 1)
+            entry_surface.bg_shape = RoundedRectangle(
+                pos=entry_surface.pos, size=entry_surface.size, radius=[dp(16)]
+            )
+        entry_surface.bind(
+            pos=lambda widget, *_: setattr(widget.bg_shape, "pos", widget.pos),
+            size=lambda widget, *_: setattr(widget.bg_shape, "size", widget.size)
         )
         entry = TextInput(
             hint_text="Napiši poruku...",
             multiline=False,
-            size_hint_x=1,
-            padding=[dp(10), dp(12), dp(10), dp(10)]
+            size_hint=(1, 1),
+            padding=[dp(13), dp(15), dp(13), dp(10)],
+            background_normal="",
+            background_active="",
+            background_color=(0, 0, 0, 0),
+            foreground_color=(0.95, 0.97, 1, 1),
+            hint_text_color=(0.52, 0.60, 0.70, 1),
+            cursor_color=(0.25, 0.70, 1, 1),
+            selection_color=(0.13, 0.39, 0.65, 0.8),
+            font_size="15sp"
         )
+        entry_surface.add_widget(entry)
         send = Button(
             text="Pošalji",
-            size_hint_x=None,
-            width=dp(88)
+            size_hint=(None, None),
+            size=(dp(92), dp(48)),
+            background_normal="",
+            background_down="",
+            background_color=(0.10, 0.42, 0.78, 1),
+            color=(1, 1, 1, 1),
+            font_size="13sp",
+            bold=True
         )
-        entry_row.add_widget(entry)
+        with send.canvas.before:
+            Color(0.10, 0.42, 0.78, 1)
+            send.bg_shape = RoundedRectangle(
+                pos=send.pos, size=send.size, radius=[dp(15)]
+            )
+        send.bind(
+            pos=lambda widget, *_: setattr(widget.bg_shape, "pos", widget.pos),
+            size=lambda widget, *_: setattr(widget.bg_shape, "size", widget.size)
+        )
+        entry_row.add_widget(entry_surface)
         entry_row.add_widget(send)
         root.add_widget(entry_row)
 
         popup = Popup(
-            title="My AI",
+            title="",
             content=root,
-            size_hint=(0.94, 0.86),
+            size_hint=(0.96, 0.90),
+            separator_height=0,
+            background="",
+            background_color=(0.035, 0.055, 0.085, 1),
             auto_dismiss=True
         )
+        popup.bind(on_dismiss=lambda *_: setattr(Window, "softinput_mode", previous_softinput_mode))
+
+        def keep_input_visible(*_):
+            if entry.focus:
+                Window.softinput_mode = "below_target"
+                Clock.schedule_once(lambda *_: setattr(scroll, "scroll_y", 0), 0.12)
+
+        entry.bind(focus=lambda *_: keep_input_visible())
 
         request_state = {"generation": 0, "busy": False}
 
         def add_message(text, sender):
+            is_user = sender == "Ti"
+            row = BoxLayout(
+                orientation="horizontal",
+                size_hint_y=None,
+                spacing=dp(4),
+                padding=[dp(2), dp(1), dp(2), dp(1)]
+            )
             bubble = BoxLayout(
                 orientation="vertical",
-                size_hint_y=None,
-                padding=dp(10)
+                size_hint=(None, None),
+                width=dp(280),
+                padding=[dp(12), dp(10), dp(12), dp(10)]
             )
             bubble.bind(minimum_height=bubble.setter("height"))
-
             bubble_color = (
-                (0.08, 0.24, 0.40, 1)
-                if sender == "Ti"
-                else (0.10, 0.15, 0.23, 1)
+                (0.08, 0.30, 0.53, 1)
+                if is_user
+                else (0.105, 0.14, 0.20, 1)
             )
             with bubble.canvas.before:
                 Color(*bubble_color)
                 bubble.bg = RoundedRectangle(
                     pos=bubble.pos,
                     size=bubble.size,
-                    radius=[dp(12)]
+                    radius=[dp(15)]
                 )
-
             bubble.bind(
                 pos=lambda widget, *_: setattr(widget.bg, "pos", widget.pos),
                 size=lambda widget, *_: setattr(widget.bg, "size", widget.size)
             )
-
             label = Label(
-                text="{}: {}".format(sender, text),
+                text=str(text),
                 size_hint_y=None,
                 halign="left",
                 valign="middle",
-                color=(1, 1, 1, 1),
-                font_size="15sp"
+                color=(0.96, 0.98, 1, 1),
+                font_size="14sp",
+                markup=False
             )
             label.bind(
                 width=lambda widget, width: setattr(
-                    widget,
-                    "text_size",
-                    (max(width - dp(4), dp(20)), None)
+                    widget, "text_size", (max(width - dp(2), dp(20)), None)
                 ),
                 texture_size=lambda widget, size: setattr(
-                    widget,
-                    "height",
-                    size[1] + dp(6)
+                    widget, "height", size[1] + dp(2)
                 )
             )
             bubble.add_widget(label)
-            chat.add_widget(bubble)
-            Clock.schedule_once(lambda *_: setattr(scroll, "scroll_y", 0), 0.08)
-            return bubble
+            if is_user:
+                row.add_widget(Widget(size_hint_x=1))
+                row.add_widget(bubble)
+            else:
+                row.add_widget(bubble)
+                row.add_widget(Widget(size_hint_x=1))
+            row.bind(
+                width=lambda widget, width: setattr(
+                    bubble, "width", min(width * 0.88, dp(420))
+                ),
+                minimum_height=row.setter("height")
+            )
+            bubble.bind(width=lambda widget, *_: setattr(label, "width", widget.width - dp(24)))
+            chat.add_widget(row)
+            Clock.schedule_once(lambda *_: setattr(scroll, "scroll_y", 0), 0.10)
+            return row
 
         def set_busy(busy):
             request_state["busy"] = busy
             send.disabled = busy
             entry.disabled = busy
             send.text = "..." if busy else "Pošalji"
+            send.background_color = (
+                (0.16, 0.25, 0.35, 1) if busy else (0.10, 0.42, 0.78, 1)
+            )
+            entry_surface.opacity = 0.72 if busy else 1.0
 
         def confirm_wallet_action(action):
             action_type = action.get("type")
@@ -583,6 +702,7 @@ class MyAIChat:
         send.bind(on_release=send_message)
         entry.bind(on_text_validate=send_message)
         new_chat.bind(on_release=reset_chat)
+        popup.bind(on_open=lambda *_: Clock.schedule_once(lambda __: setattr(scroll, "scroll_y", 0), 0.15))
 
         if self.messages:
             for saved_message in self.messages:
@@ -590,7 +710,7 @@ class MyAIChat:
                 add_message(saved_message["content"], sender)
         else:
             add_message(
-                "Zdravo! Ja sam My AI. Pošalji poruku da započnemo razgovor.",
+                "Zdravo! Ja sam My AI, tvoj finansijski asistent. Mogu da analiziram prihode i troškove ili da pripremim unos za tvoju potvrdu.",
                 "My AI"
             )
         popup.open()
