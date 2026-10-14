@@ -22,11 +22,13 @@ export default {
 
     try {
       const rawBody = await request.text();
+
       if (new TextEncoder().encode(rawBody).length > 30000) {
         return json({ error: "Zahtev je prevelik." }, 413, corsHeaders);
       }
 
       let body;
+
       try {
         body = JSON.parse(rawBody);
       } catch (_) {
@@ -73,7 +75,8 @@ export default {
       ].join("\n");
 
       const baseUrl = (env.AI_BASE_URL || "https://api.groq.com/openai/v1")
-        .replace(/\\/+$/, "");
+        .replace(/\/+$/, "");
+
       const upstream = await fetch(baseUrl + "/chat/completions", {
         method: "POST",
         headers: {
@@ -102,6 +105,7 @@ export default {
 
       const data = await upstream.json();
       const answer = data?.choices?.[0]?.message?.content;
+
       if (typeof answer !== "string" || !answer.trim()) {
         return json({ error: "AI servis nije vratio tekstualni odgovor." }, 502, corsHeaders);
       }
