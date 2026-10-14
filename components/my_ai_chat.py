@@ -523,11 +523,11 @@ class MyAIChat:
                                 add_message(summary, "My AI")
                                 confirm_wallet_action(action)
                             except Exception:
-                                answer = "Nisam uspeo da napravim ispravan predlog. Ništa nije upisano. Navedi tip transakcije, iznos i kategoriju."
-                                self.messages.append({"role": "assistant", "content": answer})
+                                proposal_error = "Nisam uspeo da napravim ispravan predlog. Ništa nije upisano. Navedi tip transakcije, iznos i kategoriju."
+                                self.messages.append({"role": "assistant", "content": proposal_error})
                                 self.messages = self.messages[-100:]
                                 self._save_history()
-                                add_message(answer, "My AI")
+                                add_message(proposal_error, "My AI")
                         else:
                             self.messages.append({"role": "assistant", "content": answer})
                             self.messages = self.messages[-100:]
