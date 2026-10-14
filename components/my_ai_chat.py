@@ -536,7 +536,38 @@ class MyAIChat:
                     else:
                         add_message(error_text or "Došlo je do greške.", "My AI")
 
-                Clock.schedule_once(finish_request, 0)
+                def guarded_finish_request(*_):
+                    try:
+                        finish_request()
+                    except BaseException as exc:
+                        try:
+                            import traceback
+                            app = App.get_running_app()
+                            log_path = os.path.join(
+                                app.user_data_dir,
+                                "my_ai_crash.txt"
+                            )
+                            with open(log_path, "a", encoding="utf-8") as log:
+                                log.write(
+                                    "\n--- My AI UI callback error ---\n"
+                                    + traceback.format_exc()
+                                    + "\n"
+                                )
+                        except Exception:
+                            pass
+                        try:
+                            if waiting_bubble.parent is chat:
+                                chat.remove_widget(waiting_bubble)
+                            set_busy(False)
+                            add_message(
+                                "Greška pri prikazu odgovora ({}). "
+                                "Ponovo otvori My AI.".format(type(exc).__name__),
+                                "My AI"
+                            )
+                        except Exception:
+                            pass
+
+                Clock.schedule_once(guarded_finish_request, 0)
 
             threading.Thread(target=do_request, daemon=True).start()
 
