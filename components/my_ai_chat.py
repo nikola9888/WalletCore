@@ -16,6 +16,7 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
+from kivy.uix.widget import Widget
 from kivy.storage.jsonstore import JsonStore
 
 from components.my_ai_config import AI_API_URL
