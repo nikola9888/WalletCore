@@ -3,7 +3,7 @@ from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.button import Button
-from kivy.graphics import Color, RoundedRectangle
+from kivy.graphics import Color, RoundedRectangle, Line
 from kivy.uix.widget import Widget
 from kivy.metrics import dp
 from kivy.app import App
@@ -42,10 +42,35 @@ class Header(BoxLayout):
             size=(dp(66), dp(34)),
             background_normal="",
             background_down="",
-            background_color=(0.08, 0.24, 0.40, 1),
-            color=(1, 1, 1, 1),
+            background_color=(0, 0, 0, 0),
+            color=(0.04, 0.05, 0.07, 1),
             font_size="14sp",
             bold=True
+        )
+
+        # Srebrna povrsina je niza za 15%, dok donja ivica ostaje na mestu.
+        with self.menu_button.canvas.before:
+            Color(0.78, 0.80, 0.83, 1)
+            self.menu_button_bg = RoundedRectangle(
+                radius=[dp(9)],
+                pos=self.menu_button.pos,
+                size=(self.menu_button.width, self.menu_button.height * 0.85)
+            )
+            Color(0.03, 0.12, 0.25, 1)
+            self.menu_button_border = Line(
+                rounded_rectangle=(
+                    self.menu_button.x,
+                    self.menu_button.y,
+                    self.menu_button.width,
+                    self.menu_button.height * 0.85,
+                    dp(9)
+                ),
+                width=dp(1.4)
+            )
+
+        self.menu_button.bind(
+            pos=self.update_menu_button_style,
+            size=self.update_menu_button_style
         )
         self.menu_button.bind(on_release=self.open_menu)
 
@@ -76,6 +101,22 @@ class Header(BoxLayout):
     def update_bg(self, *args):
         self.bg.pos = self.pos
         self.bg.size = self.size
+
+    def update_menu_button_style(self, button, *args):
+        visible_height = button.height * 0.85
+        button_y = button.y
+        button_width = button.width
+        button_x = button.x
+
+        self.menu_button_bg.pos = (button_x, button_y)
+        self.menu_button_bg.size = (button_width, visible_height)
+        self.menu_button_border.rounded_rectangle = (
+            button_x,
+            button_y,
+            button_width,
+            visible_height,
+            dp(9)
+        )
 
     def open_settings(self, *args):
         app = App.get_running_app()
