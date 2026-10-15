@@ -1,0 +1,38 @@
+name: WalletCore My AI Worker Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/my_ai_worker.js"
+      - ".github/workflows/deploy-cloudflare-worker.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy My AI to Cloudflare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Deploy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: "1f5f4e6b3a268f9d300611ee3a467039"
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN"
+          npx --yes wrangler@4 deploy backend/my_ai_worker.js \
+            --name lucky-grass-74f5 \
+            --compatibility-date 2026-10-15 \
+            --var "AI_MODEL:openai/gpt-oss-20b" \
+            --keep-vars
