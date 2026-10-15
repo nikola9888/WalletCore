@@ -78,13 +78,14 @@ class MyAIChat:
                 )[:30]
             ]
             recent = []
-            for row in rows[:12]:
+            for row in rows[:25]:
                 transaction_id, amount, ttype, category, _note, time_value = row
                 recent.append({
                     "id": transaction_id,
                     "amount": round(float(amount or 0), 2),
                     "type": ttype,
                     "category": str(category or "Ostalo"),
+                    "note": str(_note or ""),
                     "date": str(time_value or "")
                 })
 
@@ -396,50 +397,107 @@ class MyAIChat:
             entry_surface.opacity = 0.72 if busy else 1.0
 
         def confirm_wallet_action(action):
+            action_kind = action.get("action")
+            if action_kind not in ("add", "update", "delete"):
+                if action.get("type") in ("income", "expense"):
+                    action_kind = "add"
+                else:
+                    add_message("Predlog nije prepoznat. Ništa nije promenjeno.", "My AI")
+                    return
+
             action_type = action.get("type")
             amount = action.get("amount")
             category = action.get("category")
             note = action.get("note", "")
+            transaction_id = action.get("transaction_id")
 
-            if (
-                action_type not in ("income", "expense")
-                or isinstance(amount, bool)
-                or not isinstance(amount, (int, float))
-                or amount <= 0
-                or amount > 1000000000
-                or not isinstance(category, str)
-                or not category.strip()
-                or len(category.strip()) > 60
-                or not isinstance(note, str)
-                or len(note) > 300
-            ):
-                add_message("Predlog nije ispravan. Ništa nije upisano.", "My AI")
-                return
+            if action_kind in ("add", "update"):
+                if (
+                    action_type not in ("income", "expense")
+                    or isinstance(amount, bool)
+                    or not isinstance(amount, (int, float))
+                    or amount <= 0
+                    or amount > 1000000000
+                    or not isinstance(category, str)
+                    or not category.strip()
+                    or len(category.strip()) > 60
+                    or not isinstance(note, str)
+                    or len(note) > 300
+                ):
+                    add_message("Predlog nije ispravan. Ništa nije promenjeno.", "My AI")
+                    return
+
+            if action_kind in ("update", "delete"):
+                if isinstance(transaction_id, bool) or not isinstance(transaction_id, int) or transaction_id <= 0:
+                    add_message("Nisam pouzdano identifikovao transakciju. Navedi iznos, kategoriju ili datum. Ništa nije promenjeno.", "My AI")
+                    return
+                lookup_db = None
+                try:
+                    from database import Database
+                    lookup_db = Database()
+                    existing = lookup_db.get_transaction(transaction_id)
+                except Exception:
+                    existing = None
+                finally:
+                    if lookup_db is not None:
+                        try:
+                            lookup_db.close()
+                        except Exception:
+                            pass
+                if not existing:
+                    add_message("Ta transakcija više ne postoji ili nije pronađena. Ništa nije promenjeno.", "My AI")
+                    return
+            else:
+                existing = None
 
             currency = getattr(App.get_running_app(), "currency", "RSD")
-            kind_label = "Prihod" if action_type == "income" else "Trošak"
             content = BoxLayout(
                 orientation="vertical",
-                spacing=dp(8),
+                spacing=dp(7),
                 padding=dp(12)
             )
+
+            if action_kind == "add":
+                title_text = "Potvrdi novu transakciju"
+                kind_label = "Prihod" if action_type == "income" else "Trošak"
+                details = [
+                    "{}: {:,.2f} {}".format(kind_label, float(amount), currency).replace(",", " "),
+                    "Kategorija: {}".format(category.strip()),
+                    "Napomena: {}".format(note.strip() or "—")
+                ]
+            elif action_kind == "update":
+                title_text = "Potvrdi izmenu transakcije"
+                old_kind = "Prihod" if existing[2] == "income" else "Trošak"
+                new_kind = "Prihod" if action_type == "income" else "Trošak"
+                details = [
+                    "Postojeće: #{} · {} · {:,.2f} {}".format(transaction_id, old_kind, float(existing[1] or 0), currency).replace(",", " "),
+                    "Kategorija: {}".format(str(existing[3] or "Ostalo")),
+                    "Nova vrednost: {} · {:,.2f} {}".format(new_kind, float(amount), currency).replace(",", " "),
+                    "Nova kategorija: {}".format(category.strip()),
+                    "Nova napomena: {}".format(note.strip() or "—")
+                ]
+            else:
+                title_text = "Potvrdi brisanje transakcije"
+                old_kind = "Prihod" if existing[2] == "income" else "Trošak"
+                details = [
+                    "Transakcija #{}".format(transaction_id),
+                    "{}: {:,.2f} {}".format(old_kind, float(existing[1] or 0), currency).replace(",", " "),
+                    "Kategorija: {}".format(str(existing[3] or "Ostalo")),
+                    "Napomena: {}".format(str(existing[4] or "—")),
+                    "Datum: {}".format(str(existing[5] or "nepoznat"))
+                ]
+
+            for detail in details:
+                content.add_widget(Label(
+                    text=detail,
+                    size_hint_y=None,
+                    height=dp(34),
+                    halign="left",
+                    valign="middle"
+                ))
+
             content.add_widget(Label(
-                text="{}: {:,.2f} {}".format(kind_label, float(amount), currency).replace(",", " "),
-                size_hint_y=None,
-                height=dp(36)
-            ))
-            content.add_widget(Label(
-                text="Kategorija: {}".format(category.strip()),
-                size_hint_y=None,
-                height=dp(32)
-            ))
-            content.add_widget(Label(
-                text="Napomena: {}".format(note.strip() or "—"),
-                size_hint_y=None,
-                height=dp(42)
-            ))
-            content.add_widget(Label(
-                text="Ništa se ne upisuje bez tvoje potvrde.",
+                text="Proveri podatke. Radnja se izvršava tek nakon potvrde.",
                 size_hint_y=None,
                 height=dp(38)
             ))
@@ -449,22 +507,23 @@ class MyAIChat:
                 size_hint_y=None,
                 height=dp(44)
             )
-            confirm = Button(text="Potvrdi unos")
+            confirm_label = "Potvrdi brisanje" if action_kind == "delete" else ("Sačuvaj izmenu" if action_kind == "update" else "Potvrdi unos")
+            confirm = Button(text=confirm_label)
             cancel = Button(text="Otkaži")
             actions.add_widget(confirm)
             actions.add_widget(cancel)
             content.add_widget(actions)
             dialog = Popup(
-                title="Potvrdi transakciju",
+                title=title_text,
                 content=content,
-                size_hint=(0.9, None),
-                height=dp(270),
+                size_hint=(0.92, None),
+                height=dp(min(410, 190 + 42 * len(details))),
                 auto_dismiss=False
             )
 
             def cancel_proposal(*_):
                 dialog.dismiss()
-                add_message("Unos je otkazan. Transakcija nije upisana.", "My AI")
+                add_message("Radnja je otkazana. Podaci nisu promenjeni.", "My AI")
 
             def save_proposal(*_):
                 confirm.disabled = True
@@ -473,28 +532,37 @@ class MyAIChat:
                 try:
                     from database import Database
                     db = Database()
-                    db.add_ai_transaction(
-                        amount,
-                        action_type,
-                        category,
-                        note
-                    )
+                    if action_kind == "add":
+                        db.add_ai_transaction(amount, action_type, category, note)
+                        result = "{} od {:,.2f} {} je upisan. Kategorija: {}.".format(
+                            kind_label, float(amount), currency, category.strip()
+                        ).replace(",", " ")
+                    elif action_kind == "update":
+                        current = db.get_transaction(transaction_id)
+                        if not current:
+                            raise ValueError("Transakcija više ne postoji")
+                        db.update_transaction(transaction_id, float(amount), action_type, category.strip(), note.strip())
+                        result = "Transakcija #{} je izmenjena i sačuvana.".format(transaction_id)
+                    else:
+                        current = db.get_transaction(transaction_id)
+                        if not current:
+                            raise ValueError("Transakcija više ne postoji")
+                        db.delete_transaction(transaction_id)
+                        result = "Transakcija #{} je obrisana.".format(transaction_id)
+
                     app = App.get_running_app()
                     if app is not None and app.root is not None:
                         try:
                             app.root.get_screen("home").load_transactions()
                         except Exception:
                             pass
-                    result = "{} od {:,.2f} {} je upisan. Kategorija: {}.".format(
-                        kind_label,
-                        float(amount),
-                        currency,
-                        category.strip()
-                    ).replace(",", " ")
+                        try:
+                            history = app.root.get_screen("history")
+                            history.load_history(getattr(history, "search", None).text if getattr(history, "search", None) else "")
+                        except Exception:
+                            pass
                 except Exception as exc:
-                    result = "Upis nije uspeo ({}). Proveri istoriju transakcija.".format(
-                        type(exc).__name__
-                    )
+                    result = "Radnja nije uspela ({}). Proveri istoriju transakcija.".format(type(exc).__name__)
                 finally:
                     if db is not None:
                         try:
@@ -627,16 +695,23 @@ class MyAIChat:
                         if answer.startswith("WALLET_ACTION:"):
                             try:
                                 action = json.loads(answer[len("WALLET_ACTION:"):].strip())
-                                if (
-                                    action.get("type") not in ("income", "expense")
-                                    or isinstance(action.get("amount"), bool)
-                                    or not isinstance(action.get("amount"), (int, float))
-                                    or action.get("amount") <= 0
-                                    or not isinstance(action.get("category"), str)
-                                    or not isinstance(action.get("note", ""), str)
-                                ):
+                                if not isinstance(action, dict):
                                     raise ValueError("invalid proposal")
-                                summary = "Predlog pripremljen. Pregledaj podatke i potvrdi unos u posebnom prozoru."
+                                action_kind = action.get("action")
+                                if action_kind not in ("add", "update", "delete"):
+                                    if action.get("type") in ("income", "expense"):
+                                        action_kind = "add"
+                                    else:
+                                        raise ValueError("invalid action")
+                                if action_kind == "add" and action.get("type") not in ("income", "expense"):
+                                    raise ValueError("invalid add proposal")
+                                if action_kind in ("update", "delete") and (
+                                    isinstance(action.get("transaction_id"), bool)
+                                    or not isinstance(action.get("transaction_id"), int)
+                                    or action.get("transaction_id") <= 0
+                                ):
+                                    raise ValueError("invalid transaction id")
+                                summary = "Predlog radnje je spreman. Proveri detalje i potvrdi u prozoru."
                                 self.messages.append({"role": "assistant", "content": summary})
                                 self.messages = self.messages[-100:]
                                 self._save_history()
