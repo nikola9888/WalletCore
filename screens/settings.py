@@ -242,11 +242,6 @@ class SettingsScreen(Screen):
             size_hint=(0.88, 0.82),
             auto_dismiss=True
         )
-        # Rebind callbacks after popup creation so every language button uses this popup.
-        for btn, (_, code) in zip(layout.children[::-1], languages):
-            btn.unbind(on_press=None)
-            btn.bind(on_press=lambda x, c=code: self.set_language(c, popup))
-
         popup.open()
 
     def set_language(self, language, popup):
