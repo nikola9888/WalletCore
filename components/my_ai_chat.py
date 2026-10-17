@@ -378,7 +378,7 @@ class MyAIChat:
                 display_text = display_text.replace("[", "&bl;").replace("]", "&br;")
                 for emoji, path in emoji_paths.items():
                     display_text = display_text.replace(
-                        emoji, "[img={}]".format(path)
+                        emoji, "[size=20sp][img={}][/size]".format(path)
                     )
             label = Label(
                 text=display_text,
@@ -386,7 +386,7 @@ class MyAIChat:
                 halign="left",
                 valign="middle",
                 color=(0.96, 0.98, 1, 1),
-                font_size="18sp",
+                font_size="14sp",
                 markup=not is_user
             )
             label.bind(
