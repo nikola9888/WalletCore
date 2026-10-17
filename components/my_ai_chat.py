@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import re
 import ssl
 import threading
 import urllib.error
@@ -379,6 +380,24 @@ class MyAIChat:
                 # Kivy Label markup does not support [img=...] tags. Render
                 # supported symbols as real Image widgets instead of text.
                 found_icons = []
+                # Older saved conversations may contain literal [img=...]
+                # tags from the previous broken renderer. Recover their icons
+                # from the filename, then remove the unsupported tag text.
+                icon_by_name = {
+                    os.path.basename(path): path
+                    for path in emoji_paths.values()
+                }
+                legacy_tags = re.findall(
+                    r"\[img=[^\]]*(money|chart|calendar)\.png\]",
+                    display_text
+                )
+                for icon_name in legacy_tags:
+                    filename = icon_name + ".png"
+                    if filename in icon_by_name:
+                        found_icons.append(icon_by_name[filename])
+                display_text = re.sub(
+                    r"\[img=[^\]]*\]", "", display_text
+                )
                 for emoji, path in emoji_paths.items():
                     if emoji in display_text:
                         found_icons.append(path)
