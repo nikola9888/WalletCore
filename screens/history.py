@@ -273,3 +273,5 @@ class HistoryScreen(Screen):
         self.all_btn.text = self.t["all"]
         self.income_btn.text = self.t["income"]
         self.expense_btn.text = self.t["expense"]
+
+        self.load_history(self.search.text)
