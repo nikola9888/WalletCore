@@ -144,6 +144,51 @@ class MyAIChat:
             paths[emoji] = path
         return paths
 
+    def _download_reply_emoji_assets(self, text, paths):
+        """Cache Twemoji PNGs for emoji used in replies, independent of Android fonts."""
+        import urllib.request
+
+        icon_dir = os.path.dirname(next(iter(paths.values())))
+        # Match common emoji code points, flags, joined sequences, and skin tones.
+        emoji_pattern = re.compile(
+            r"[\\U0001F1E6-\\U0001F1FF]{2}|"
+            r"[\\U0001F300-\\U0001FAFF][\\uFE0F\\u200D\\U0001F3FB-\\U0001F3FF]*"
+            r"(?:[\\u200D][\\U0001F300-\\U0001FAFF][\\uFE0F\\u200D\\U0001F3FB-\\U0001F3FF]*)*|"
+            r"[\\u2600-\\u27BF][\\uFE0F]?"
+        )
+        for emoji in set(emoji_pattern.findall(str(text))):
+            if emoji in paths:
+                continue
+            codepoints = "-".join(
+                format(ord(char), "x")
+                for char in emoji
+                if char != "\\ufe0f"
+            )
+            if not codepoints:
+                continue
+            filename = "twemoji_" + codepoints.replace("-", "_") + ".png"
+            path = os.path.join(icon_dir, filename)
+            if not os.path.exists(path):
+                url = (
+                    "https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.3/"
+                    "assets/72x72/" + codepoints + ".png"
+                )
+                try:
+                    request = urllib.request.Request(
+                        url,
+                        headers={"User-Agent": "WalletCore-MyAI/1.0"}
+                    )
+                    with urllib.request.urlopen(request, timeout=2.5) as response:
+                        image_data = response.read(256 * 1024 + 1)
+                    if not image_data or len(image_data) > 256 * 1024:
+                        continue
+                    with open(path, "wb") as image_file:
+                        image_file.write(image_data)
+                except Exception:
+                    continue
+            if os.path.exists(path):
+                paths[emoji] = path
+
     def _load_history(self):
         """Load saved chat messages from the app's private local storage."""
         try:
@@ -790,6 +835,12 @@ class MyAIChat:
                         type(exc).__name__,
                         str(exc)[:180] or "bez dodatnih detalja"
                     )
+
+                if answer:
+                    try:
+                        self._download_reply_emoji_assets(answer, emoji_paths)
+                    except Exception:
+                        pass
 
                 def finish_request(*_):
                     if generation != request_state["generation"]:
