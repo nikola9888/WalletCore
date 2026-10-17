@@ -220,6 +220,31 @@ class MyAIChat:
             if os.path.exists(path):
                 paths[emoji] = path
 
+    def _load_cached_reply_emoji_assets(self, text, paths):
+        """Reconnect cached Twemoji files to their Unicode tokens when history is reopened."""
+        if not paths:
+            return
+        icon_dir = os.path.dirname(next(iter(paths.values())))
+        emoji_pattern = re.compile(
+            r"[\\U0001F1E6-\\U0001F1FF]{2}|"
+            r"[\\U0001F300-\\U0001FAFF][\\uFE0F\\u200D\\U0001F3FB-\\U0001F3FF]*"
+            r"(?:[\\u200D][\\U0001F300-\\U0001FAFF][\\uFE0F\\u200D\\U0001F3FB-\\U0001F3FF]*)*|"
+            r"[\\u2600-\\u27BF][\\uFE0F]?"
+        )
+        for emoji in dict.fromkeys(emoji_pattern.findall(str(text))):
+            if emoji in paths:
+                continue
+            codepoints = "-".join(
+                format(ord(char), "x") for char in emoji if char != "\\ufe0f"
+            )
+            if not codepoints:
+                continue
+            path = os.path.join(
+                icon_dir, "twemoji_" + codepoints.replace("-", "_") + ".png"
+            )
+            if os.path.isfile(path):
+                paths[emoji] = path
+
     def _load_history(self):
         """Load saved chat messages from the app's private local storage."""
         try:
@@ -251,6 +276,14 @@ class MyAIChat:
     def open(self):
         self._load_history()
         emoji_paths = self._prepare_emoji_assets()
+        # Saved assistant replies must reconnect to cached PNGs on every popup open.
+        # This is local-only and never performs network requests on the UI thread.
+        cached_reply_text = "\\n".join(
+            item["content"]
+            for item in self.messages
+            if item.get("role") == "assistant"
+        )
+        self._load_cached_reply_emoji_assets(cached_reply_text, emoji_paths)
         previous_softinput_mode = Window.softinput_mode
         Window.softinput_mode = "below_target"
 
