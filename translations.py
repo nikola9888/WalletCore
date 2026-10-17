@@ -917,3 +917,50 @@ _EXTRA_LANGUAGES = {
 }
 for _code, (_label, _currency, _values) in _EXTRA_LANGUAGES.items():
     translations[_code] = {**translations["en"], **_values}
+
+
+# Additional interface strings used by the home screen and My AI.
+_UI_KEYS = (
+    "select_currency", "ai_subtitle", "new_chat", "write_message", "send",
+    "confirm_new_transaction", "confirm_edit_transaction",
+    "confirm_delete_transaction", "confirm_action_hint"
+)
+_UI_TRANSLATIONS = {
+    "en": ("Select currency", "Your smart financial assistant", "New chat", "Write a message...", "Send", "Confirm new transaction", "Confirm transaction edit", "Confirm transaction deletion", "Review the details. The action will run only after confirmation."),
+    "sr": ("Izaberi valutu", "Tvoj pametni finansijski asistent", "Novi razgovor", "Napiši poruku...", "Pošalji", "Potvrdi novu transakciju", "Potvrdi izmenu transakcije", "Potvrdi brisanje transakcije", "Proveri podatke. Radnja se izvršava tek nakon potvrde."),
+    "de": ("Währung auswählen", "Dein intelligenter Finanzassistent", "Neuer Chat", "Nachricht schreiben...", "Senden", "Neue Transaktion bestätigen", "Transaktionsänderung bestätigen", "Transaktion löschen bestätigen", "Prüfe die Angaben. Die Aktion wird erst nach Bestätigung ausgeführt."),
+    "fr": ("Choisir la devise", "Votre assistant financier intelligent", "Nouvelle discussion", "Écrivez un message...", "Envoyer", "Confirmer la nouvelle transaction", "Confirmer la modification", "Confirmer la suppression", "Vérifiez les données. L’action ne sera exécutée qu’après confirmation."),
+    "es": ("Seleccionar moneda", "Tu asistente financiero inteligente", "Nuevo chat", "Escribe un mensaje...", "Enviar", "Confirmar nueva transacción", "Confirmar edición de transacción", "Confirmar eliminación de transacción", "Revisa los datos. La acción se ejecutará solo después de confirmar."),
+    "it": ("Seleziona valuta", "Il tuo assistente finanziario intelligente", "Nuova chat", "Scrivi un messaggio...", "Invia", "Conferma nuova transazione", "Conferma modifica transazione", "Conferma eliminazione transazione", "Controlla i dati. L'azione verrà eseguita solo dopo la conferma."),
+    "ru": ("Выбрать валюту", "Твой умный финансовый помощник", "Новый чат", "Напишите сообщение...", "Отправить", "Подтвердить новую операцию", "Подтвердить изменение операции", "Подтвердить удаление операции", "Проверьте данные. Действие выполнится только после подтверждения."),
+    "pt": ("Selecionar moeda", "O seu assistente financeiro inteligente", "Nova conversa", "Escreva uma mensagem...", "Enviar", "Confirmar nova transação", "Confirmar edição da transação", "Confirmar exclusão da transação", "Verifique os dados. A ação só será executada após confirmação."),
+    "tr": ("Para birimini seç", "Akıllı finans asistanın", "Yeni sohbet", "Mesaj yaz...", "Gönder", "Yeni işlemi onayla", "İşlem düzenlemesini onayla", "İşlem silmeyi onayla", "Bilgileri kontrol et. İşlem yalnızca onaydan sonra yapılır."),
+    "pl": ("Wybierz walutę", "Twój inteligentny asystent finansowy", "Nowa rozmowa", "Napisz wiadomość...", "Wyślij", "Potwierdź nową transakcję", "Potwierdź edycję transakcji", "Potwierdź usunięcie transakcji", "Sprawdź dane. Działanie nastąpi dopiero po potwierdzeniu."),
+    "nl": ("Valuta kiezen", "Je slimme financiële assistent", "Nieuw gesprek", "Schrijf een bericht...", "Verzenden", "Nieuwe transactie bevestigen", "Transactiewijziging bevestigen", "Verwijderen van transactie bevestigen", "Controleer de gegevens. De actie wordt pas na bevestiging uitgevoerd."),
+    "uk": ("Вибрати валюту", "Твій розумний фінансовий помічник", "Нова розмова", "Напишіть повідомлення...", "Надіслати", "Підтвердити нову операцію", "Підтвердити зміну операції", "Підтвердити видалення операції", "Перевірте дані. Дія виконається лише після підтвердження."),
+    "ro": ("Selectează moneda", "Asistentul tău financiar inteligent", "Conversație nouă", "Scrie un mesaj...", "Trimite", "Confirmă tranzacția nouă", "Confirmă modificarea tranzacției", "Confirmă ștergerea tranzacției", "Verifică datele. Acțiunea se execută numai după confirmare."),
+    "bg": ("Избери валута", "Твоят интелигентен финансов асистент", "Нов разговор", "Напиши съобщение...", "Изпрати", "Потвърди нова транзакция", "Потвърди редакцията", "Потвърди изтриването", "Провери данните. Действието се изпълнява само след потвърждение."),
+    "hr": ("Odaberi valutu", "Tvoj pametni financijski asistent", "Novi razgovor", "Napiši poruku...", "Pošalji", "Potvrdi novu transakciju", "Potvrdi izmjenu transakcije", "Potvrdi brisanje transakcije", "Provjeri podatke. Radnja se izvršava tek nakon potvrde."),
+    "bs": ("Izaberi valutu", "Tvoj pametni finansijski asistent", "Novi razgovor", "Napiši poruku...", "Pošalji", "Potvrdi novu transakciju", "Potvrdi izmjenu transakcije", "Potvrdi brisanje transakcije", "Provjeri podatke. Radnja se izvršava tek nakon potvrde."),
+    "sl": ("Izberi valuto", "Tvoj pametni finančni pomočnik", "Nov pogovor", "Napiši sporočilo...", "Pošlji", "Potrdi novo transakcijo", "Potrdi spremembo transakcije", "Potrdi izbris transakcije", "Preveri podatke. Dejanje se izvede šele po potrditvi."),
+    "mk": ("Избери валута", "Твојот паметен финансиски асистент", "Нов разговор", "Напиши порака...", "Испрати", "Потврди нова трансакција", "Потврди измена на трансакција", "Потврди бришење на трансакција", "Провери ги податоците. Дејството се извршува по потврда."),
+    "sq": ("Zgjidh monedhën", "Asistenti yt inteligjent financiar", "Bisedë e re", "Shkruaj një mesazh...", "Dërgo", "Konfirmo transaksionin e ri", "Konfirmo ndryshimin e transaksionit", "Konfirmo fshirjen e transaksionit", "Kontrollo të dhënat. Veprimi kryhet vetëm pas konfirmimit."),
+    "cs": ("Vybrat měnu", "Tvůj chytrý finanční asistent", "Nový chat", "Napište zprávu...", "Odeslat", "Potvrdit novou transakci", "Potvrdit úpravu transakce", "Potvrdit smazání transakce", "Zkontrolujte údaje. Akce se provede až po potvrzení."),
+    "hu": ("Pénznem kiválasztása", "Intelligens pénzügyi asszisztensed", "Új beszélgetés", "Írj üzenetet...", "Küldés", "Új tranzakció megerősítése", "Tranzakció módosításának megerősítése", "Tranzakció törlésének megerősítése", "Ellenőrizd az adatokat. A művelet csak megerősítés után történik meg."),
+    "el": ("Επιλογή νομίσματος", "Ο έξυπνος οικονομικός βοηθός σου", "Νέα συνομιλία", "Γράψε ένα μήνυμα...", "Αποστολή", "Επιβεβαίωση νέας συναλλαγής", "Επιβεβαίωση αλλαγής συναλλαγής", "Επιβεβαίωση διαγραφής συναλλαγής", "Έλεγξε τα στοιχεία. Η ενέργεια εκτελείται μόνο μετά την επιβεβαίωση."),
+    "sv": ("Välj valuta", "Din smarta ekonomiska assistent", "Ny chatt", "Skriv ett meddelande...", "Skicka", "Bekräfta ny transaktion", "Bekräfta ändring av transaktion", "Bekräfta borttagning av transaktion", "Kontrollera uppgifterna. Åtgärden utförs först efter bekräftelse."),
+    "no": ("Velg valuta", "Din smarte økonomiassistent", "Ny samtale", "Skriv en melding...", "Send", "Bekreft ny transaksjon", "Bekreft endring av transaksjon", "Bekreft sletting av transaksjon", "Kontroller opplysningene. Handlingen utføres først etter bekreftelse."),
+    "da": ("Vælg valuta", "Din smarte økonomiassistent", "Ny samtale", "Skriv en besked...", "Send", "Bekræft ny transaktion", "Bekræft ændring af transaktion", "Bekræft sletning af transaktion", "Kontrollér oplysningerne. Handlingen udføres først efter bekræftelse."),
+    "fi": ("Valitse valuutta", "Älykäs talousavustajasi", "Uusi keskustelu", "Kirjoita viesti...", "Lähetä", "Vahvista uusi tapahtuma", "Vahvista tapahtuman muokkaus", "Vahvista tapahtuman poisto", "Tarkista tiedot. Toiminto suoritetaan vasta vahvistuksen jälkeen."),
+    "id": ("Pilih mata uang", "Asisten keuangan pintarmu", "Percakapan baru", "Tulis pesan...", "Kirim", "Konfirmasi transaksi baru", "Konfirmasi perubahan transaksi", "Konfirmasi penghapusan transaksi", "Periksa detailnya. Tindakan hanya dilakukan setelah konfirmasi."),
+    "vi": ("Chọn tiền tệ", "Trợ lý tài chính thông minh của bạn", "Cuộc trò chuyện mới", "Nhập tin nhắn...", "Gửi", "Xác nhận giao dịch mới", "Xác nhận chỉnh sửa giao dịch", "Xác nhận xóa giao dịch", "Kiểm tra thông tin. Thao tác chỉ thực hiện sau khi xác nhận."),
+    "hi": ("मुद्रा चुनें", "आपका स्मार्ट वित्तीय सहायक", "नई बातचीत", "संदेश लिखें...", "भेजें", "नया लेन-देन पुष्टि करें", "लेन-देन बदलाव की पुष्टि करें", "लेन-देन हटाने की पुष्टि करें", "विवरण जाँचें। पुष्टि के बाद ही कार्रवाई होगी।"),
+    "zh": ("选择货币", "您的智能财务助手", "新对话", "输入消息...", "发送", "确认新交易", "确认修改交易", "确认删除交易", "请检查信息。确认后才会执行操作。"),
+    "ja": ("通貨を選択", "あなたのスマートな財務アシスタント", "新しいチャット", "メッセージを入力...", "送信", "新しい取引を確認", "取引の編集を確認", "取引の削除を確認", "内容を確認してください。確認後にのみ実行されます。"),
+    "ko": ("통화 선택", "스마트 금융 도우미", "새 대화", "메시지를 입력하세요...", "보내기", "새 거래 확인", "거래 수정 확인", "거래 삭제 확인", "내용을 확인하세요. 확인 후에만 실행됩니다."),
+    "ar": ("اختر العملة", "مساعدك المالي الذكي", "محادثة جديدة", "اكتب رسالة...", "إرسال", "تأكيد المعاملة الجديدة", "تأكيد تعديل المعاملة", "تأكيد حذف المعاملة", "راجع التفاصيل. لن يتم تنفيذ الإجراء إلا بعد التأكيد."),
+    "fr-CA": ("Choisir la devise", "Votre assistant financier intelligent", "Nouvelle discussion", "Écrivez un message...", "Envoyer", "Confirmer la nouvelle transaction", "Confirmer la modification", "Confirmer la suppression", "Vérifiez les données. L’action ne sera exécutée qu’après confirmation.")
+}
+for _code, _labels in _UI_TRANSLATIONS.items():
+    if _code in translations:
+        translations[_code].update(dict(zip(_UI_KEYS, _labels)))
