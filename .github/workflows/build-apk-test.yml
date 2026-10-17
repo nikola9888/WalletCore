@@ -2,6 +2,12 @@ name: WalletCore Test APK
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'components/my_ai_chat.py'
+      - '.github/workflows/build-apk-test.yml'
 
 jobs:
   build:
