@@ -843,7 +843,7 @@ class MyAIChat:
                                     details[:300]
                                 )
                             else:
-                                error_text = "AI servis je vratio HTTP grešku {}.".format(
+                                error_text = translations[App.get_running_app().language]["ai_service_http_error"].format(
                                     exc.code
                                 )
                         elif details:
@@ -862,7 +862,7 @@ class MyAIChat:
                         )
                 except Exception as exc:
                     # Diagnostic text helps identify network/TLS/timeout issues.
-                    error_text = "Greška povezivanja ({}): {}".format(
+                    error_text = translations[App.get_running_app().language]["ai_connection_error"].format(
                         type(exc).__name__,
                         str(exc)[:180] or "bez dodatnih detalja"
                     )
