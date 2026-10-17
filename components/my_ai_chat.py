@@ -156,7 +156,8 @@ class MyAIChat:
             r"(?:[\u200D][\U0001F300-\U0001FAFF][\uFE0F\u200D\U0001F3FB-\U0001F3FF]*)*|"
             r"[\u2600-\u27BF][\uFE0F]?"
         )
-        for emoji in set(emoji_pattern.findall(str(text))):
+        detected = list(dict.fromkeys(emoji_pattern.findall(str(text))))[:20]
+        for emoji in detected:
             if emoji in paths:
                 continue
             codepoints = "-".join(
@@ -452,7 +453,7 @@ class MyAIChat:
                 display_text = display_text.replace("&bl;", "[").replace("&br;", "]")
                 for emoji, path in emoji_paths.items():
                     if emoji in display_text:
-                        found_icons.append(path)
+                        found_icons.extend([path] * display_text.count(emoji))
                         display_text = display_text.replace(emoji, "")
                 display_text = display_text.strip()
                 for icon_path in found_icons:
