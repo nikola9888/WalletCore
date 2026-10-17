@@ -2,7 +2,7 @@ translations = {
 
     "sr": {
         "double_click_change": "Dva puta kliknite za izmenu",
-        "about_description": "WalletCore je vaš pametni finansijski asistent.\n\nPratite prihode, troškove i budžete, pregledajte finansijske navike i koristite My AI za prirodnu komunikaciju i lakše evidentiranje transakcija.\n\nMy AI pruža informativne uvide i pomoć u organizaciji ličnih finansija; ne predstavlja licenciranog finansijskog savetnika i ne garantuje finansijske rezultate.\n\nVerzija 1.2.0",
+        "about_description": "WalletCore je vaš pametni finansijski asistent.\n\nPratite prihode, troškove i budžete, pregledajte finansijske navike i koristite My AI za prirodnu komunikaciju i lakše evidentiranje transakcija.\n\nMy AI pruža informativne uvide i pomoć u organizaciji ličnih finansija; ne predstavlja licenciranog finansijskog savetnika i ne garantuje finansijske rezultate.",
         "version": "Verzija",
         "developed_by": "Razvila kompanija",
         "profile": "Profil",
@@ -120,7 +120,7 @@ translations = {
 
     "en": {
         "double_click_change": "Double click to edit",
-        "about_description": "WalletCore is your intelligent personal finance assistant.\n\nTrack income, expenses and budgets, review spending habits, and use My AI to communicate naturally and record transactions more easily.\n\nMy AI provides informational insights and helps organize personal finances. It is not a licensed financial adviser and does not guarantee financial outcomes.\n\nVersion 1.2.0",
+        "about_description": "WalletCore is your intelligent personal finance assistant.\n\nTrack income, expenses and budgets, review spending habits, and use My AI to communicate naturally and record transactions more easily.\n\nMy AI provides informational insights and helps organize personal finances. It is not a licensed financial adviser and does not guarantee financial outcomes.",
         "version": "Version",
         "developed_by": "Developed by",
         "profile": "Profile",
@@ -238,7 +238,7 @@ translations = {
     
     "de": {
         "double_click_change": "Doppelklicken zum Bearbeiten",
-        "about_description": "WalletCore ist Ihr intelligenter Assistent für persönliche Finanzen.\n\nVerfolgen Sie Einnahmen, Ausgaben und Budgets, analysieren Sie Ihre Ausgabengewohnheiten und nutzen Sie My AI, um natürlich zu kommunizieren und Transaktionen einfacher zu erfassen.\n\nMy AI bietet informative Einblicke und hilft bei der Organisation persönlicher Finanzen. Es ist kein lizenzierter Finanzberater und garantiert keine finanziellen Ergebnisse.\n\nVersion 1.2.0",
+        "about_description": "WalletCore ist Ihr intelligenter Assistent für persönliche Finanzen.\n\nVerfolgen Sie Einnahmen, Ausgaben und Budgets, analysieren Sie Ihre Ausgabengewohnheiten und nutzen Sie My AI, um natürlich zu kommunizieren und Transaktionen einfacher zu erfassen.\n\nMy AI bietet informative Einblicke und hilft bei der Organisation persönlicher Finanzen. Es ist kein lizenzierter Finanzberater und garantiert keine finanziellen Ergebnisse.",
         "version": "Version",
         "developed_by": "Entwickelt von",
         "profile": "Profil",
@@ -356,7 +356,7 @@ translations = {
 
     "it": {
         "double_click_change": "Doppio clic per modificare",
-        "about_description": "WalletCore è il tuo assistente intelligente per le finanze personali.\n\nMonitora entrate, spese e budget, esamina le abitudini di spesa e usa My AI per comunicare in modo naturale e registrare le transazioni più facilmente.\n\nMy AI offre informazioni utili e aiuta a organizzare le finanze personali. Non è un consulente finanziario abilitato e non garantisce risultati finanziari.\n\nVersione 1.2.0",
+        "about_description": "WalletCore è il tuo assistente intelligente per le finanze personali.\n\nMonitora entrate, spese e budget, esamina le abitudini di spesa e usa My AI per comunicare in modo naturale e registrare le transazioni più facilmente.\n\nMy AI offre informazioni utili e aiuta a organizzare le finanze personali. Non è un consulente finanziario abilitato e non garantisce risultati finanziari.",
         "version": "Versione",
         "developed_by": "Sviluppato da",
         "profile": "Profilo",
@@ -474,7 +474,7 @@ translations = {
 
     "es": {
         "double_click_change": "Doble clic para editar",
-        "about_description": "WalletCore es tu asistente inteligente de finanzas personales.\n\nControla ingresos, gastos y presupuestos, revisa tus hábitos de gasto y utiliza My AI para comunicarte de forma natural y registrar transacciones más fácilmente.\n\nMy AI ofrece información orientativa y ayuda a organizar las finanzas personales. No es un asesor financiero autorizado ni garantiza resultados financieros.\n\nVersión 1.2.0",
+        "about_description": "WalletCore es tu asistente inteligente de finanzas personales.\n\nControla ingresos, gastos y presupuestos, revisa tus hábitos de gasto y utiliza My AI para comunicarte de forma natural y registrar transacciones más fácilmente.\n\nMy AI ofrece información orientativa y ayuda a organizar las finanzas personales. No es un asesor financiero autorizado ni garantiza resultados financieros.",
         "version": "Versión",
         "developed_by": "Desarrollado por",
         "profile": "Perfil",
@@ -592,7 +592,7 @@ translations = {
     
     "fr": {
         "double_click_change": "Double-cliquez pour modifier",
-        "about_description": "WalletCore est votre assistant intelligent de finances personnelles.\n\nSuivez vos revenus, vos dépenses et vos budgets, examinez vos habitudes de dépenses et utilisez My AI pour communiquer naturellement et enregistrer plus facilement vos transactions.\n\nMy AI fournit des informations générales et aide à organiser vos finances personnelles. Il ne remplace pas un conseiller financier agréé et ne garantit aucun résultat financier.\n\nVersion 1.2.0",
+        "about_description": "WalletCore est votre assistant intelligent de finances personnelles.\n\nSuivez vos revenus, vos dépenses et vos budgets, examinez vos habitudes de dépenses et utilisez My AI pour communiquer naturellement et enregistrer plus facilement vos transactions.\n\nMy AI fournit des informations générales et aide à organiser vos finances personnelles. Il ne remplace pas un conseiller financier agréé et ne garantit aucun résultat financier.",
         "version": "Version",
         "developed_by": "Développé par",
         "profile": "Profil",
@@ -710,7 +710,7 @@ translations = {
 
     "ru": {
         "double_click_change": "Дважды нажмите для изменения",
-        "about_description": "WalletCore — ваш интеллектуальный помощник по личным финансам.\n\nОтслеживайте доходы, расходы и бюджеты, анализируйте привычки трат и используйте My AI для общения обычным языком и более удобного учета операций.\n\nMy AI предоставляет справочную информацию и помогает организовать личные финансы. Он не является лицензированным финансовым консультантом и не гарантирует финансовых результатов.\n\nВерсия 1.2.0",
+        "about_description": "WalletCore — ваш интеллектуальный помощник по личным финансам.\n\nОтслеживайте доходы, расходы и бюджеты, анализируйте привычки трат и используйте My AI для общения обычным языком и более удобного учета операций.\n\nMy AI предоставляет справочную информацию и помогает организовать личные финансы. Он не является лицензированным финансовым консультантом и не гарантирует финансовых результатов.",
         "version": "Версия",
         "developed_by": "Разработано",
         "profile": "Профиль",
