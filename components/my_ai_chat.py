@@ -288,7 +288,7 @@ class MyAIChat:
         )
         title.bind(size=lambda widget, size: setattr(widget, "text_size", size))
         subtitle = Label(
-            text="Tvoj pametni finansijski asistent",
+            text=translations[App.get_running_app().language]["ai_subtitle"],
             font_size="13sp",
             color=(0.55, 0.72, 0.88, 1),
             halign="left",
@@ -300,7 +300,7 @@ class MyAIChat:
         title_stack.add_widget(subtitle)
 
         new_chat = Button(
-            text="Novi razgovor",
+            text=translations[App.get_running_app().language]["new_chat"],
             size_hint=(None, None),
             size=(dp(112), dp(36)),
             background_normal="",
@@ -361,7 +361,7 @@ class MyAIChat:
             size=lambda widget, *_: setattr(widget.bg_shape, "size", widget.size)
         )
         entry = TextInput(
-            hint_text="Napiši poruku...",
+            hint_text=translations[App.get_running_app().language]["write_message"],
             multiline=False,
             size_hint=(1, 1),
             padding=[dp(13), dp(15), dp(13), dp(10)],
@@ -376,7 +376,7 @@ class MyAIChat:
         )
         entry_surface.add_widget(entry)
         send = Button(
-            text="Pošalji",
+            text=translations[App.get_running_app().language]["send"],
             size_hint=(None, None),
             size=(dp(92), dp(48)),
             background_normal="",
@@ -573,7 +573,7 @@ class MyAIChat:
             request_state["busy"] = busy
             send.disabled = busy
             entry.disabled = busy
-            send.text = "..." if busy else "Pošalji"
+            send.text = "..." if busy else translations[App.get_running_app().language]["send"]
             send.background_color = (
                 (0.16, 0.25, 0.35, 1) if busy else (0.10, 0.42, 0.78, 1)
             )
@@ -641,7 +641,7 @@ class MyAIChat:
             )
 
             if action_kind == "add":
-                title_text = "Potvrdi novu transakciju"
+                title_text = translations[App.get_running_app().language]["confirm_new_transaction"]
                 kind_label = "Prihod" if action_type == "income" else "Trošak"
                 details = [
                     "{}: {:,.2f} {}".format(kind_label, float(amount), currency).replace(",", " "),
@@ -649,7 +649,7 @@ class MyAIChat:
                     "Napomena: {}".format(note.strip() or "—")
                 ]
             elif action_kind == "update":
-                title_text = "Potvrdi izmenu transakcije"
+                title_text = translations[App.get_running_app().language]["confirm_edit_transaction"]
                 old_kind = "Prihod" if existing[2] == "income" else "Trošak"
                 new_kind = "Prihod" if action_type == "income" else "Trošak"
                 details = [
@@ -660,7 +660,7 @@ class MyAIChat:
                     "Nova napomena: {}".format(note.strip() or "—")
                 ]
             else:
-                title_text = "Potvrdi brisanje transakcije"
+                title_text = translations[App.get_running_app().language]["confirm_delete_transaction"]
                 old_kind = "Prihod" if existing[2] == "income" else "Trošak"
                 details = [
                     "Transakcija #{}".format(transaction_id),
@@ -680,7 +680,7 @@ class MyAIChat:
                 ))
 
             content.add_widget(Label(
-                text="Proveri podatke. Radnja se izvršava tek nakon potvrde.",
+                text=translations[App.get_running_app().language]["confirm_action_hint"],
                 size_hint_y=None,
                 height=dp(38)
             ))
@@ -692,7 +692,7 @@ class MyAIChat:
             )
             confirm_label = "Potvrdi brisanje" if action_kind == "delete" else ("Sačuvaj izmenu" if action_kind == "update" else "Potvrdi unos")
             confirm = Button(text=confirm_label)
-            cancel = Button(text="Otkaži")
+            cancel = Button(text=translations[App.get_running_app().language]["cancel"])
             actions.add_widget(confirm)
             actions.add_widget(cancel)
             content.add_widget(actions)
