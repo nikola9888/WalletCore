@@ -226,16 +226,16 @@ class MyAIChat:
             return
         icon_dir = os.path.dirname(next(iter(paths.values())))
         emoji_pattern = re.compile(
-            r"[\\U0001F1E6-\\U0001F1FF]{2}|"
-            r"[\\U0001F300-\\U0001FAFF][\\uFE0F\\u200D\\U0001F3FB-\\U0001F3FF]*"
-            r"(?:[\\u200D][\\U0001F300-\\U0001FAFF][\\uFE0F\\u200D\\U0001F3FB-\\U0001F3FF]*)*|"
-            r"[\\u2600-\\u27BF][\\uFE0F]?"
+            r"[\U0001F1E6-\U0001F1FF]{2}|"
+            r"[\U0001F300-\U0001FAFF][\uFE0F\u200D\U0001F3FB-\U0001F3FF]*"
+            r"(?:[\u200D][\U0001F300-\U0001FAFF][\uFE0F\u200D\U0001F3FB-\U0001F3FF]*)*|"
+            r"[\u2600-\u27BF][\uFE0F]?"
         )
         for emoji in dict.fromkeys(emoji_pattern.findall(str(text))):
             if emoji in paths:
                 continue
             codepoints = "-".join(
-                format(ord(char), "x") for char in emoji if char != "\\ufe0f"
+                format(ord(char), "x") for char in emoji if char != "\ufe0f"
             )
             if not codepoints:
                 continue
