@@ -238,12 +238,18 @@ class HistoryScreen(Screen):
 
     def edit_transaction(self, transaction_id):
 
-        home = self.manager.get_screen(
-            "home"
-        )
+        transaction = self.db.get_transaction(transaction_id)
+        if not transaction:
+            self.load_history(self.search.text)
+            return
 
+        home = self.manager.get_screen("home")
         home.edit_transaction(
-            transaction_id
+            transaction[0],
+            transaction[1],
+            transaction[2],
+            transaction[3],
+            transaction[4]
         )
 
         self.manager.current = "home"
