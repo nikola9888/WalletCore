@@ -266,6 +266,9 @@ class SettingsScreen(Screen):
         if self.manager.has_screen("profile"):
             profile = self.manager.get_screen("profile")
             profile.update_language()
+        if self.manager.has_screen("about"):
+            about = self.manager.get_screen("about")
+            about.update_language()
     def update_language(self):
 
         t = translations[App.get_running_app().language]
