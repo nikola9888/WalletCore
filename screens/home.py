@@ -208,7 +208,7 @@ class HomeScreen(Screen):
 
     def show_currency_picker(self):
         layout = BoxLayout(orientation="vertical", spacing=2, padding=3)
-        popup = Popup(title="Select currency", content=layout, size_hint=(0.4, 0.6))
+        popup = Popup(title=translations[App.get_running_app().language]["select_currency"], content=layout, size_hint=(0.4, 0.6))
         currencies = ["RSD", "EUR", "USD", "CHF", "GBP", "BAM", "MKD", "JPY", "CNY"]
         for currency in currencies:
             btn = ModernButton(text=currency, size_hint_y=None, height=dp(45))
@@ -374,10 +374,11 @@ class HomeScreen(Screen):
 
     def show_filter(self):
         layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
-        popup = Popup(title="Filter", content=layout, size_hint=(0.8, 0.5))
-        all_btn = ModernButton(text="All")
-        income_btn = ModernButton(text="Income")
-        expense_btn = ModernButton(text="Expense")
+        t = translations[App.get_running_app().language]
+        popup = Popup(title=t["filter"], content=layout, size_hint=(0.8, 0.5))
+        all_btn = ModernButton(text=t["all"])
+        income_btn = ModernButton(text=t["income"])
+        expense_btn = ModernButton(text=t["expense"])
         layout.add_widget(all_btn)
         layout.add_widget(income_btn)
         layout.add_widget(expense_btn)
