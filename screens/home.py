@@ -403,12 +403,20 @@ class HomeScreen(Screen):
         self.db.delete_transaction(transaction_id)
         self.load_transactions()
 
-    def edit_transaction(self, transaction_id, amount, ttype, category, note):
-        self.editing_transaction = transaction_id
-        self.editing_type = ttype
-        self.amount_input.text = str(amount)
-        self.note_input.text = note or ""
-        self.category_grid.selected = category
+    def edit_transaction(self, transaction_id):
+        transaction = self.db.get_transaction(transaction_id)
+        if not transaction:
+            return
+
+        self.editing_transaction = transaction[0]
+        self.editing_type = transaction[2]
+        self.amount_input.text = str(transaction[1])
+        self.note_input.text = transaction[4] or ""
+
+        for button in self.category_grid.buttons:
+            if button.category_key == transaction[3]:
+                self.category_grid.select_category(button)
+                break
 
     def on_pre_enter(self, *args):
         self.load_transactions()
