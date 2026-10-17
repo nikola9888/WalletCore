@@ -25,6 +25,7 @@ from kivy.storage.jsonstore import JsonStore
 from components.my_ai_config import AI_API_URL
 from kivy.app import App
 from kivy.core.window import Window
+from translations import translations
 
 
 class MyAIChat:
