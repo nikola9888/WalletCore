@@ -18,6 +18,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
 from kivy.uix.widget import Widget
+from kivy.uix.image import Image
 from kivy.storage.jsonstore import JsonStore
 
 from components.my_ai_config import AI_API_URL
@@ -375,11 +376,30 @@ class MyAIChat:
             )
             display_text = str(text)
             if not is_user:
-                display_text = display_text.replace("[", "&bl;").replace("]", "&br;")
+                # Kivy Label markup does not support [img=...] tags. Render
+                # supported symbols as real Image widgets instead of text.
+                found_icons = []
                 for emoji, path in emoji_paths.items():
-                    display_text = display_text.replace(
-                        emoji, "[size=20sp][img={}][/size]".format(path)
+                    if emoji in display_text:
+                        found_icons.append(path)
+                        display_text = display_text.replace(emoji, "")
+                display_text = display_text.strip()
+                for icon_path in found_icons:
+                    icon_row = BoxLayout(
+                        orientation="horizontal",
+                        size_hint_y=None,
+                        height=dp(24),
+                        spacing=dp(5)
                     )
+                    icon_row.add_widget(Image(
+                        source=icon_path,
+                        size_hint=(None, None),
+                        size=(dp(22), dp(22)),
+                        allow_stretch=True,
+                        keep_ratio=True
+                    ))
+                    icon_row.add_widget(Widget())
+                    bubble.add_widget(icon_row)
             label = Label(
                 text=display_text,
                 size_hint_y=None,
@@ -387,7 +407,7 @@ class MyAIChat:
                 valign="middle",
                 color=(0.96, 0.98, 1, 1),
                 font_size="14sp",
-                markup=not is_user
+                markup=False
             )
             label.bind(
                 width=lambda widget, width: setattr(
