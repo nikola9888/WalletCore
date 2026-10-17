@@ -335,6 +335,11 @@ class HomeScreen(Screen):
         if hasattr(self, "filter_btn"):
             self.filter_btn.text = t["filter"]
 
+        if hasattr(self, "list_container"):
+            for card in self.list_container.children:
+                if hasattr(card, "update_language"):
+                    card.update_language()
+
     def get_stats(self):
         stats = {}
         for t in self.transactions:
