@@ -205,7 +205,7 @@ class MyAIChat:
             text="[b]My AI[/b]",
             markup=True,
             bold=True,
-            font_size="21sp",
+            font_size="25sp",
             color=(0.96, 0.98, 1, 1),
             halign="left",
             valign="middle",
@@ -214,7 +214,7 @@ class MyAIChat:
         title.bind(size=lambda widget, size: setattr(widget, "text_size", size))
         subtitle = Label(
             text="Tvoj pametni finansijski asistent",
-            font_size="11sp",
+            font_size="13sp",
             color=(0.55, 0.72, 0.88, 1),
             halign="left",
             valign="middle",
@@ -257,8 +257,8 @@ class MyAIChat:
         )
         chat = BoxLayout(
             orientation="vertical",
-            spacing=dp(10),
-            padding=[dp(4), dp(8), dp(4), dp(8)],
+            spacing=dp(14),
+            padding=[dp(6), dp(12), dp(6), dp(12)],
             size_hint_y=None
         )
         chat.bind(minimum_height=chat.setter("height"))
@@ -297,7 +297,7 @@ class MyAIChat:
             hint_text_color=(0.52, 0.60, 0.70, 1),
             cursor_color=(0.25, 0.70, 1, 1),
             selection_color=(0.13, 0.39, 0.65, 0.8),
-            font_size="15sp"
+            font_size="18sp"
         )
         entry_surface.add_widget(entry)
         send = Button(
@@ -308,7 +308,7 @@ class MyAIChat:
             background_down="",
             background_color=(0.10, 0.42, 0.78, 1),
             color=(1, 1, 1, 1),
-            font_size="13sp",
+            font_size="16sp",
             bold=True
         )
         with send.canvas.before:
@@ -356,7 +356,7 @@ class MyAIChat:
                 orientation="vertical",
                 size_hint=(None, None),
                 width=dp(280),
-                padding=[dp(12), dp(10), dp(12), dp(10)]
+                padding=[dp(14), dp(14), dp(14), dp(14)]
             )
             bubble.bind(minimum_height=bubble.setter("height"))
             bubble_color = (
@@ -465,7 +465,7 @@ class MyAIChat:
                 halign="left",
                 valign="middle",
                 color=(0.96, 0.98, 1, 1),
-                font_size="14sp",
+                font_size="17sp",
                 markup=label_markup
             )
             label.bind(
