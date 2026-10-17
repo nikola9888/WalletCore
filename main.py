@@ -22,6 +22,33 @@ CURRENCIES = {
     "it": "EUR",
     "es": "EUR",
     "ru": "RUB",
+    "pt": "EUR",
+    "tr": "TRY",
+    "pl": "PLN",
+    "nl": "EUR",
+    "uk": "UAH",
+    "ro": "RON",
+    "bg": "BGN",
+    "hr": "EUR",
+    "bs": "BAM",
+    "sl": "EUR",
+    "mk": "MKD",
+    "sq": "ALL",
+    "cs": "CZK",
+    "hu": "HUF",
+    "el": "EUR",
+    "sv": "SEK",
+    "no": "NOK",
+    "da": "DKK",
+    "fi": "EUR",
+    "id": "IDR",
+    "vi": "VND",
+    "hi": "INR",
+    "zh": "CNY",
+    "ja": "JPY",
+    "ko": "KRW",
+    "ar": "USD",
+    "fr-CA": "CAD",
 }
 
 class WalletCore(App):
@@ -39,7 +66,7 @@ class WalletCore(App):
                 "en"
             )
 
-            if lang in ["sr", "en", "de", "it", "es", "fr", "ru"]:
+            if lang in ["sr", "en", "de", "it", "es", "fr", "ru", "pt", "tr", "pl", "nl", "uk", "ro", "bg", "hr", "bs", "sl", "mk", "sq", "cs", "hu", "el", "sv", "no", "da", "fi", "id", "vi", "hi", "zh", "ja", "ko", "ar", "fr-CA"]:
                 self.language = lang
             else:
                 self.language = "en"
