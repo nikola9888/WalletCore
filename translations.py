@@ -964,3 +964,15 @@ _UI_TRANSLATIONS = {
 for _code, _labels in _UI_TRANSLATIONS.items():
     if _code in translations:
         translations[_code].update(dict(zip(_UI_KEYS, _labels)))
+
+_AI_ERROR_DEFAULTS = {
+    "ai_service_http_error": "The AI service returned HTTP error {}.",
+    "ai_connection_error": "Connection error ({}): {}",
+}
+_AI_ERROR_SERBIAN = {
+    "ai_service_http_error": "AI servis je vratio HTTP grešku {}.",
+    "ai_connection_error": "Greška povezivanja ({}): {}",
+}
+for _locale in translations:
+    translations[_locale].update(_AI_ERROR_DEFAULTS)
+translations["sr"].update(_AI_ERROR_SERBIAN)
