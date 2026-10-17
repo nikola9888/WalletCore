@@ -181,14 +181,41 @@ class MyAIChat:
                         url,
                         headers={"User-Agent": "WalletCore-MyAI/1.0"}
                     )
-                    with urllib.request.urlopen(request, timeout=3) as response:
+                    ssl_context = ssl.create_default_context(cafile=certifi.where())
+                    with urllib.request.urlopen(
+                        request,
+                        timeout=2,
+                        context=ssl_context
+                    ) as response:
                         image_data = response.read(256 * 1024 + 1)
                     if not image_data or len(image_data) > 256 * 1024:
                         continue
                     with open(path, "wb") as image_file:
                         image_file.write(image_data)
                 except Exception:
-                    continue
+                    # Retry the stable upstream Twemoji package if the primary CDN fails.
+                    try:
+                        fallback_url = (
+                            "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/"
+                            "assets/72x72/" + codepoints + ".png"
+                        )
+                        request = urllib.request.Request(
+                            fallback_url,
+                            headers={"User-Agent": "WalletCore-MyAI/1.0"}
+                        )
+                        ssl_context = ssl.create_default_context(cafile=certifi.where())
+                        with urllib.request.urlopen(
+                            request,
+                            timeout=2,
+                            context=ssl_context
+                        ) as response:
+                            image_data = response.read(256 * 1024 + 1)
+                        if not image_data or len(image_data) > 256 * 1024:
+                            continue
+                        with open(path, "wb") as image_file:
+                            image_file.write(image_data)
+                    except Exception:
+                        continue
             if os.path.exists(path):
                 paths[emoji] = path
 
