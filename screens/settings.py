@@ -151,22 +151,18 @@ class SettingsScreen(Screen):
 
 
     def change_language(self, instance):
+        from kivy.metrics import dp
+        from kivy.uix.scrollview import ScrollView
 
-        t = translations[App.get_running_app().language]
+        t = translations.get(App.get_running_app().language, translations["en"])
 
         layout = BoxLayout(
             orientation="vertical",
-            spacing=20,
-            padding=10
+            spacing=dp(8),
+            padding=dp(10),
+            size_hint_y=None
         )
-
-
-        popup = Popup(
-            title=t["choose_language"],
-            content=layout,
-            size_hint=(0.8,0.8)
-        )
-
+        layout.bind(minimum_height=layout.setter("height"))
 
         languages = [
             ("Srpski", "sr"),
@@ -175,69 +171,83 @@ class SettingsScreen(Screen):
             ("Italiano", "it"),
             ("Español", "es"),
             ("Français", "fr"),
-            ("Русский", "ru"),
+            ("Russian", "ru"),
             ("Português", "pt"),
             ("Türkçe", "tr"),
             ("Polski", "pl"),
             ("Nederlands", "nl"),
-            ("Українська", "uk"),
-            ("Română", "ro"),
-            ("Български", "bg"),
+            ("Ukrainian", "uk"),
+            ("Romanian", "ro"),
+            ("Bulgarian", "bg"),
             ("Hrvatski", "hr"),
             ("Bosanski", "bs"),
             ("Slovenščina", "sl"),
-            ("Македонски", "mk"),
+            ("Macedonian", "mk"),
             ("Shqip", "sq"),
             ("Čeština", "cs"),
             ("Magyar", "hu"),
-            ("Ελληνικά", "el"),
+            ("Greek", "el"),
             ("Svenska", "sv"),
             ("Norsk", "no"),
             ("Dansk", "da"),
             ("Suomi", "fi"),
-            ("Bahasa Indonesia", "id"),
-            ("Tiếng Việt", "vi"),
-            ("हिन्दी", "hi"),
-            ("简体中文", "zh"),
-            ("日本語", "ja"),
-            ("한국어", "ko"),
-            ("العربية", "ar"),
-            ("Français (Canada)", "fr-CA")
+            ("Indonesian", "id"),
+            ("Vietnamese", "vi"),
+            ("Hindi", "hi"),
+            ("Chinese (Simplified)", "zh"),
+            ("Japanese", "ja"),
+            ("Korean", "ko"),
+            ("Arabic", "ar"),
+            ("French (Canada)", "fr-CA")
         ]
 
-
         for name, code in languages:
-
             btn = ModernButton(
                 text=name,
                 size_hint_y=None,
-                height=70
+                height=dp(52),
+                size_hint_x=1
             )
-
             btn.bind(
-                on_press=lambda x, c=code:
-                self.set_language(c, popup)
+                on_press=lambda x, c=code: self.set_language(c, popup)
             )
-
             layout.add_widget(btn)
 
+        scroll = ScrollView(
+            do_scroll_x=False,
+            do_scroll_y=True,
+            bar_width=dp(5),
+            scroll_type=["bars", "content"]
+        )
+        scroll.add_widget(layout)
 
         cancel = ModernButton(
-            text=t["cancel"],
+            text=t.get("cancel", "Cancel"),
             size_hint_y=None,
-            height=70
+            height=dp(48)
         )
+        cancel.bind(on_press=lambda x: popup.dismiss())
 
-        cancel.bind(
-            on_press=lambda x: popup.dismiss()
+        popup_content = BoxLayout(
+            orientation="vertical",
+            spacing=dp(8),
+            padding=dp(8)
         )
+        popup_content.add_widget(scroll)
+        popup_content.add_widget(cancel)
 
-        layout.add_widget(cancel)
-
+        popup = Popup(
+            title=t.get("choose_language", "Choose language"),
+            content=popup_content,
+            size_hint=(0.88, 0.82),
+            auto_dismiss=True
+        )
+        # Rebind callbacks after popup creation so every language button uses this popup.
+        for btn, (_, code) in zip(layout.children[::-1], languages):
+            btn.unbind(on_press=None)
+            btn.bind(on_press=lambda x, c=code: self.set_language(c, popup))
 
         popup.open()
-
-
 
     def set_language(self, language, popup):
 
