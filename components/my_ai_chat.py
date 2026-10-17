@@ -426,14 +426,47 @@ class MyAIChat:
                     ))
                     icon_row.add_widget(Widget())
                     bubble.add_widget(icon_row)
+            # Convert a safe subset of Markdown to Kivy markup for assistant replies.
+            # Escape user/model-provided Kivy markup first, then add only our own tags.
+            label_text = display_text
+            label_markup = False
+            if not is_user:
+                label_text = (
+                    label_text
+                    .replace("&", "&amp;")
+                    .replace("[", "&bl;")
+                    .replace("]", "&br;")
+                )
+                label_text = re.sub(
+                    r"(?m)^\s{0,3}#{1,3}\s+(.+)$",
+                    r"[b]\1[/b]",
+                    label_text
+                )
+                label_text = re.sub(
+                    r"\*\*(.+?)\*\*",
+                    r"[b]\1[/b]",
+                    label_text
+                )
+                label_text = re.sub(
+                    r"(?<!\*)\*([^*\n]+)\*(?!\*)",
+                    r"[i]\1[/i]",
+                    label_text
+                )
+                label_text = re.sub(
+                    r"(?m)^\s*[-*]\s+",
+                    "• ",
+                    label_text
+                )
+                label_markup = True
+
             label = Label(
-                text=display_text,
+                text=label_text,
                 size_hint_y=None,
                 halign="left",
                 valign="middle",
                 color=(0.96, 0.98, 1, 1),
                 font_size="14sp",
-                markup=False
+                markup=label_markup
             )
             label.bind(
                 width=lambda widget, width: setattr(
