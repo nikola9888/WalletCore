@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import ssl
@@ -121,6 +122,26 @@ class MyAIChat:
         self.messages = []
         self.history_store = None
 
+
+    def _prepare_emoji_assets(self):
+        """Create small bundled PNG icons for reliable inline display on Android."""
+        app = App.get_running_app()
+        icon_dir = os.path.join(app.user_data_dir, "my_ai_icons")
+        os.makedirs(icon_dir, exist_ok=True)
+        icons = {
+            "💰": ("money.png", "iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABUUlEQVR4nO2YvQ3CMBBGL4guLRUdA7ACCzADA2QCKioqJsgAzMACrMAAdFS0qUOBDg7HcZzEPtvhnoSElJC8j/M/gCAISZPZ3ljfi9qnCCVbldZeM58iHCQfQAiNVWd51BVbB1ZZZrnR0XgxpLhKW5DWAFR+czn5cLLiut1/vutCaEehWOTV9+tahHEYDS2PmDwaATBlLPII+qhVSH4im3O/kHZKF7BWwLU8AGMFqPz6WAx6xu1QAsC7H+CQylIBF/Lqb7EzszYhnfxzl/98+j4j6CikE7YJQQkWwCTaJ0SQADaCtiGSn8gkwBAW58rJPQABK2AStJUHYA6AMymiE+2SV5/R2OH4Wk67XEoAfHdnbAEA3C3m6NaStQn5+FPY9wNjQugqOL15ANuXj83HGNBHPVoxViCWECYPbQCaMnSIroOt6R4tUmI+3BUEQRD+mxfxpoMoZu3mwAAAAABJRU5ErkJggg=="),
+            "📈": ("chart.png", "iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABnElEQVR4nO2ZPVLDMBCFXxgqCg7gNg2XoKDlOHQwlJnQ5ThpKbgEDW0OQEEbCmZjRayklbRCa+NvJjN2xh6/t/sk/whYWPjfrKQHHj6Px5ZCOIbrVVJf8oAewn1iRqIGXPF3Lx+amkS8Pq5P2yETQQMkvodwHzLCmbjgTrAkHhh1cHFmDUyJXwasVZ8IdeGyi5oI79tx4N48pYtoKkKueG6fQ9yB3Mrkcv98AJAW7GOqAyWYMPBTfeDh6+3sf0mnuw9iEk+Qif1mEJ1vogM+UvFAZwN+9YE88UBHA5z4EpqMgdSUGxKfW32gQQdKbkZAmXigQ4Q0cu+iGqHQ3VQr7xxqHQjdjNz93dXt6UfUVB9Q6ABXXd8EgDPRtK/xTFXVgVg09puhuroSijowzixrttqucNrebUuulKZ6DPh5DlXdj4vWI7naLCSJS4v3CJVZ6C+yHqLaQIuq5lAUod6iXUy+D+RQOY22ZXKfVUoQG7CUe5esCFk0Mb8I0Td4d3HBAqE1gvl3ALDXhdgKzXzXyIhJr1K6WF0nXlio5BsNJp3XYjWl4wAAAABJRU5ErkJggg=="),
+            "📅": ("calendar.png", "iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABN0lEQVR4nO2ZuRHCMBBFvxkiyDhSCGiAfqAWAiogJrb7oQECSDkiIBUJYjxmV8inJHtfBGN59T97WIwBQeg2UdEblVLqGySKnMXpFd3YF8SAa/o2i26rlSpz3RYqzjhJjH1hNFCVsDJoDZwRtoR8EJ+G0xN8D5AGfPv1NZSu4DNANoavGQB+mzn4DJAGHrt90zqsoHS1MwOAf1ng9BifxKM4BgDc1+vqFVmiNTyuL/K61VlIB/GR9vZAKFiVUJbl5vj9fNguGltHkTsD6c2o73Wt4wi+hLpnIFujXM1WvY6DPI2eLk8FALPJIFewOjl/HmTz6bBdp1EZozJGS9I9AzJGC8KNUZlCMoVK0k4DulHOxB9pF1OIa2Dgz0s+H6aRSTxg8ZZSm3AJJx6w6AHTzU3gen9B8J03WTWoUUoAbxMAAAAASUVORK5CYII="),
+        }
+        paths = {}
+        for emoji, (filename, encoded) in icons.items():
+            path = os.path.join(icon_dir, filename)
+            if not os.path.exists(path):
+                with open(path, "wb") as icon_file:
+                    icon_file.write(base64.b64decode(encoded))
+            paths[emoji] = path
+        return paths
+
     def _load_history(self):
         """Load saved chat messages from the app's private local storage."""
         try:
@@ -151,6 +172,7 @@ class MyAIChat:
 
     def open(self):
         self._load_history()
+        emoji_paths = self._prepare_emoji_assets()
         previous_softinput_mode = Window.softinput_mode
         Window.softinput_mode = "below_target"
 
@@ -351,14 +373,21 @@ class MyAIChat:
                 pos=lambda widget, *_: setattr(widget.bg, "pos", widget.pos),
                 size=lambda widget, *_: setattr(widget.bg, "size", widget.size)
             )
+            display_text = str(text)
+            if not is_user:
+                display_text = display_text.replace("[", "&bl;").replace("]", "&br;")
+                for emoji, path in emoji_paths.items():
+                    display_text = display_text.replace(
+                        emoji, "[size=20sp][img={}][/size]".format(path)
+                    )
             label = Label(
-                text=str(text),
+                text=display_text,
                 size_hint_y=None,
                 halign="left",
                 valign="middle",
                 color=(0.96, 0.98, 1, 1),
                 font_size="14sp",
-                markup=False
+                markup=not is_user
             )
             label.bind(
                 width=lambda widget, width: setattr(
