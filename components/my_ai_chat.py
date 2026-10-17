@@ -387,17 +387,24 @@ class MyAIChat:
                     os.path.basename(path): path
                     for path in emoji_paths.values()
                 }
+                # Match both literal tags and tags escaped by the older
+                # renderer (&bl; / &br;), including the absolute Android path.
                 legacy_tags = re.findall(
-                    r"\[img=[^\]]*(money|chart|calendar)\.png\]",
-                    display_text
+                    r"(?:\[|&bl;)img=.*?(money|chart|calendar)\.png(?:\]|&br;)",
+                    display_text,
+                    flags=re.IGNORECASE
                 )
                 for icon_name in legacy_tags:
-                    filename = icon_name + ".png"
+                    filename = icon_name.lower() + ".png"
                     if filename in icon_by_name:
                         found_icons.append(icon_by_name[filename])
                 display_text = re.sub(
-                    r"\[img=[^\]]*\]", "", display_text
+                    r"(?:\[|&bl;)img=.*?\.png(?:\]|&br;)",
+                    "",
+                    display_text,
+                    flags=re.IGNORECASE
                 )
+                display_text = display_text.replace("&bl;", "[").replace("&br;", "]")
                 for emoji, path in emoji_paths.items():
                     if emoji in display_text:
                         found_icons.append(path)
