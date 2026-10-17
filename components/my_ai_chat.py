@@ -151,10 +151,10 @@ class MyAIChat:
         icon_dir = os.path.dirname(next(iter(paths.values())))
         # Match common emoji code points, flags, joined sequences, and skin tones.
         emoji_pattern = re.compile(
-            r"[\\U0001F1E6-\\U0001F1FF]{2}|"
-            r"[\\U0001F300-\\U0001FAFF][\\uFE0F\\u200D\\U0001F3FB-\\U0001F3FF]*"
-            r"(?:[\\u200D][\\U0001F300-\\U0001FAFF][\\uFE0F\\u200D\\U0001F3FB-\\U0001F3FF]*)*|"
-            r"[\\u2600-\\u27BF][\\uFE0F]?"
+            r"[\U0001F1E6-\U0001F1FF]{2}|"
+            r"[\U0001F300-\U0001FAFF][\uFE0F\u200D\U0001F3FB-\U0001F3FF]*"
+            r"(?:[\u200D][\U0001F300-\U0001FAFF][\uFE0F\u200D\U0001F3FB-\U0001F3FF]*)*|"
+            r"[\u2600-\u27BF][\uFE0F]?"
         )
         for emoji in set(emoji_pattern.findall(str(text))):
             if emoji in paths:
@@ -162,7 +162,7 @@ class MyAIChat:
             codepoints = "-".join(
                 format(ord(char), "x")
                 for char in emoji
-                if char != "\\ufe0f"
+                if char != "\ufe0f"
             )
             if not codepoints:
                 continue
