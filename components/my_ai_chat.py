@@ -145,18 +145,20 @@ class MyAIChat:
         return paths
 
     def _download_reply_emoji_assets(self, text, paths):
-        """Cache Twemoji PNGs for emoji used in replies, independent of Android fonts."""
+        """Download/cache Twemoji PNGs for common emoji without relying on device fonts."""
         import urllib.request
 
+        if not paths:
+            return
         icon_dir = os.path.dirname(next(iter(paths.values())))
-        # Match common emoji code points, flags, joined sequences, and skin tones.
         emoji_pattern = re.compile(
             r"[\U0001F1E6-\U0001F1FF]{2}|"
             r"[\U0001F300-\U0001FAFF][\uFE0F\u200D\U0001F3FB-\U0001F3FF]*"
             r"(?:[\u200D][\U0001F300-\U0001FAFF][\uFE0F\u200D\U0001F3FB-\U0001F3FF]*)*|"
             r"[\u2600-\u27BF][\uFE0F]?"
         )
-        detected = list(dict.fromkeys(emoji_pattern.findall(str(text))))[:20]
+        # Avoid a long pause if a response contains a huge number of unusual symbols.
+        detected = list(dict.fromkeys(emoji_pattern.findall(str(text))))[:24]
         for emoji in detected:
             if emoji in paths:
                 continue
@@ -179,7 +181,7 @@ class MyAIChat:
                         url,
                         headers={"User-Agent": "WalletCore-MyAI/1.0"}
                     )
-                    with urllib.request.urlopen(request, timeout=2.5) as response:
+                    with urllib.request.urlopen(request, timeout=3) as response:
                         image_data = response.read(256 * 1024 + 1)
                     if not image_data or len(image_data) > 256 * 1024:
                         continue
@@ -421,29 +423,10 @@ class MyAIChat:
                 pos=lambda widget, *_: setattr(widget.bg, "pos", widget.pos),
                 size=lambda widget, *_: setattr(widget.bg, "size", widget.size)
             )
+
             display_text = str(text)
             if not is_user:
-                # Kivy Label markup does not support [img=...] tags. Render
-                # supported symbols as real Image widgets instead of text.
-                found_icons = []
-                # Older saved conversations may contain literal [img=...]
-                # tags from the previous broken renderer. Recover their icons
-                # from the filename, then remove the unsupported tag text.
-                icon_by_name = {
-                    os.path.basename(path): path
-                    for path in emoji_paths.values()
-                }
-                # Match both literal tags and tags escaped by the older
-                # renderer (&bl; / &br;), including the absolute Android path.
-                legacy_tags = re.findall(
-                    r"(?:\[|&bl;)img=.*?(money|chart|calendar)\.png(?:\]|&br;)",
-                    display_text,
-                    flags=re.IGNORECASE
-                )
-                for icon_name in legacy_tags:
-                    filename = icon_name.lower() + ".png"
-                    if filename in icon_by_name:
-                        found_icons.append(icon_by_name[filename])
+                # Recover old broken [img=...] strings from saved conversations.
                 display_text = re.sub(
                     r"(?:\[|&bl;)img=.*?\.png(?:\]|&br;)",
                     "",
@@ -451,78 +434,91 @@ class MyAIChat:
                     flags=re.IGNORECASE
                 )
                 display_text = display_text.replace("&bl;", "[").replace("&br;", "]")
-                for emoji, path in emoji_paths.items():
-                    if emoji in display_text:
-                        found_icons.extend([path] * display_text.count(emoji))
-                        display_text = display_text.replace(emoji, "")
-                display_text = display_text.strip()
-                for icon_path in found_icons:
-                    icon_row = BoxLayout(
-                        orientation="horizontal",
-                        size_hint_y=None,
-                        height=dp(24),
-                        spacing=dp(5)
-                    )
-                    icon_row.add_widget(Image(
-                        source=icon_path,
+
+            # Split the response into text and emoji pieces so images remain inline.
+            # Keep Markdown formatting on text pieces and don't strip surrounding words.
+            emoji_tokens = sorted(emoji_paths.keys(), key=len, reverse=True)
+            pieces = []
+            if not is_user and emoji_tokens:
+                token_pattern = re.compile(
+                    "|".join(re.escape(token) for token in emoji_tokens)
+                )
+                last = 0
+                for match in token_pattern.finditer(display_text):
+                    if match.start() > last:
+                        pieces.append(("text", display_text[last:match.start()]))
+                    pieces.append(("emoji", match.group(0)))
+                    last = match.end()
+                if last < len(display_text):
+                    pieces.append(("text", display_text[last:]))
+                if not pieces:
+                    pieces = [("text", display_text)]
+            else:
+                pieces = [("text", display_text)]
+
+            # Convert a safe subset of Markdown to Kivy markup in text fragments.
+            for kind, value in pieces:
+                if kind == "emoji" and value in emoji_paths:
+                    icon = Image(
+                        source=emoji_paths[value],
                         size_hint=(None, None),
-                        size=(dp(22), dp(22)),
+                        size=(dp(23), dp(23)),
                         allow_stretch=True,
                         keep_ratio=True
-                    ))
-                    icon_row.add_widget(Widget())
-                    bubble.add_widget(icon_row)
-            # Convert a safe subset of Markdown to Kivy markup for assistant replies.
-            # Escape user/model-provided Kivy markup first, then add only our own tags.
-            label_text = display_text
-            label_markup = False
-            if not is_user:
-                label_text = (
-                    label_text
-                    .replace("&", "&amp;")
-                    .replace("[", "&bl;")
-                    .replace("]", "&br;")
-                )
-                label_text = re.sub(
-                    r"(?m)^\s{0,3}#{1,3}\s+(.+)$",
-                    r"[b]\1[/b]",
-                    label_text
-                )
-                label_text = re.sub(
-                    r"\*\*(.+?)\*\*",
-                    r"[b]\1[/b]",
-                    label_text
-                )
-                label_text = re.sub(
-                    r"(?<!\*)\*([^*\n]+)\*(?!\*)",
-                    r"[i]\1[/i]",
-                    label_text
-                )
-                label_text = re.sub(
-                    r"(?m)^\s*[-*]\s+",
-                    "• ",
-                    label_text
-                )
-                label_markup = True
+                    )
+                    bubble.add_widget(icon)
+                    continue
 
-            label = Label(
-                text=label_text,
-                size_hint_y=None,
-                halign="left",
-                valign="middle",
-                color=(0.96, 0.98, 1, 1),
-                font_size="17sp",
-                markup=label_markup
-            )
-            label.bind(
-                width=lambda widget, width: setattr(
-                    widget, "text_size", (max(width - dp(2), dp(20)), None)
-                ),
-                texture_size=lambda widget, size: setattr(
-                    widget, "height", size[1] + dp(2)
+                label_text = value
+                label_markup = False
+                if not is_user:
+                    label_text = (
+                        label_text
+                        .replace("&", "&amp;")
+                        .replace("[", "&bl;")
+                        .replace("]", "&br;")
+                    )
+                    label_text = re.sub(
+                        r"(?m)^\s{0,3}#{1,3}\s+(.+)$",
+                        r"[b]\1[/b]",
+                        label_text
+                    )
+                    label_text = re.sub(
+                        r"\*\*(.+?)\*\*",
+                        r"[b]\1[/b]",
+                        label_text
+                    )
+                    label_text = re.sub(
+                        r"(?<!\*)\*([^*\n]+)\*(?!\*)",
+                        r"[i]\1[/i]",
+                        label_text
+                    )
+                    label_text = re.sub(
+                        r"(?m)^\s*[-*]\s+",
+                        "• ",
+                        label_text
+                    )
+                    label_markup = True
+
+                label = Label(
+                    text=label_text,
+                    size_hint_y=None,
+                    halign="left",
+                    valign="middle",
+                    color=(0.96, 0.98, 1, 1),
+                    font_size="17sp",
+                    markup=label_markup
                 )
-            )
-            bubble.add_widget(label)
+                label.bind(
+                    width=lambda widget, width: setattr(
+                        widget, "text_size", (max(width - dp(2), dp(20)), None)
+                    ),
+                    texture_size=lambda widget, size: setattr(
+                        widget, "height", size[1] + dp(2)
+                    )
+                )
+                bubble.add_widget(label)
+
             if is_user:
                 row.add_widget(Widget(size_hint_x=1))
                 row.add_widget(bubble)
@@ -535,7 +531,13 @@ class MyAIChat:
                 ),
                 minimum_height=row.setter("height")
             )
-            bubble.bind(width=lambda widget, *_: setattr(label, "width", widget.width - dp(24)))
+            for child in bubble.children:
+                if isinstance(child, Label):
+                    bubble.bind(
+                        width=lambda widget, *_args, target=child: setattr(
+                            target, "width", widget.width - dp(24)
+                        )
+                    )
             chat.add_widget(row)
             Clock.schedule_once(lambda *_: setattr(scroll, "scroll_y", 0), 0.10)
             return row
