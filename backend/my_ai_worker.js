@@ -129,9 +129,9 @@ export default {
       };
 
       // GPT-OSS has returned a tool-call conflict despite this endpoint exposing no tools.
-      // Use Groq's text-chat model for this configured model so WALLET_ACTION stays plain text.
+      // Use Groq's supported Qwen 3.8 model for this configured model so WALLET_ACTION stays plain text.
       const selectedModel = env.AI_MODEL === "openai/gpt-oss-20b"
-        ? "qwen/qwen3.6-27b"
+        ? "qwen/qwen3.8-27b"
         : env.AI_MODEL;
       let upstream = await sendCompletion(
         selectedModel,
@@ -154,7 +154,7 @@ export default {
         // deliberately exposes no tools. Retry this specific failure on a compatible
         // text-only model; wallet actions remain plain WALLET_ACTION JSON proposals.
         if (toolConflict && selectedModel === "openai/gpt-oss-20b") {
-          upstream = await sendCompletion("qwen/qwen3.6-27b", false);
+          upstream = await sendCompletion("qwen/qwen3.8-27b", false);
           providerError = null;
           if (!upstream.ok) {
             try {
