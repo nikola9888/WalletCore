@@ -680,7 +680,7 @@ class MyAIChat:
             )
 
             if action_kind == "add":
-                title_text = localized(translations[App.get_running_app().language]["confirm_new_transaction"], "Confirm new transaction")
+                title_text = localized(translations.get(App.get_running_app().language, {}).get("confirm_new_transaction", "Confirm new transaction"), "Confirm new transaction")
                 kind_label = localized("Prihod", "Income") if action_type == "income" else localized("Trošak", "Expense")
                 details = [
                     "{}: {:,.2f} {}".format(kind_label, float(amount), currency).replace(",", " "),
@@ -688,7 +688,7 @@ class MyAIChat:
                     localized("Napomena: {}", "Note: {}").format(note.strip() or "—")
                 ]
             elif action_kind == "update":
-                title_text = localized(translations[App.get_running_app().language]["confirm_edit_transaction"], "Edit transaction")
+                title_text = localized(translations.get(App.get_running_app().language, {}).get("confirm_edit_transaction", "Edit transaction"), "Edit transaction")
                 old_kind = "Prihod" if existing[2] == "income" else "Trošak"
                 new_kind = "Prihod" if action_type == "income" else "Trošak"
                 details = [
@@ -699,7 +699,7 @@ class MyAIChat:
                     "Nova napomena: {}".format(note.strip() or "—")
                 ]
             else:
-                title_text = localized(translations[App.get_running_app().language]["confirm_delete_transaction"], "Delete transaction")
+                title_text = localized(translations.get(App.get_running_app().language, {}).get("confirm_delete_transaction", "Delete transaction"), "Delete transaction")
                 old_kind = "Prihod" if existing[2] == "income" else "Trošak"
                 details = [
                     "Transakcija #{}".format(transaction_id),
@@ -719,7 +719,7 @@ class MyAIChat:
                 ))
 
             content.add_widget(Label(
-                text=translations[App.get_running_app().language]["confirm_action_hint"],
+                text=translations.get(App.get_running_app().language, {}).get("confirm_action_hint", "Review the details and confirm before saving."),
                 size_hint_y=None,
                 height=dp(38)
             ))
@@ -731,7 +731,7 @@ class MyAIChat:
             )
             confirm_label = localized("Potvrdi brisanje", "Confirm deletion") if action_kind == "delete" else (localized("Sačuvaj izmenu", "Save changes") if action_kind == "update" else localized("Potvrdi unos", "Confirm entry"))
             confirm = Button(text=confirm_label)
-            cancel = Button(text=translations[App.get_running_app().language]["cancel"])
+            cancel = Button(text=translations.get(App.get_running_app().language, {}).get("cancel", "Cancel"))
             actions.add_widget(confirm)
             actions.add_widget(cancel)
             content.add_widget(actions)
