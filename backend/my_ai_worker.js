@@ -128,7 +128,15 @@ export default {
         });
       };
 
-      let upstream = await sendCompletion(env.AI_MODEL, env.AI_MODEL === "openai/gpt-oss-20b");
+      // GPT-OSS has returned a tool-call conflict despite this endpoint exposing no tools.
+      // Use Groq's text-chat model for this configured model so WALLET_ACTION stays plain text.
+      const selectedModel = env.AI_MODEL === "openai/gpt-oss-20b"
+        ? "llama-3.3-70b-versatile"
+        : env.AI_MODEL;
+      let upstream = await sendCompletion(
+        selectedModel,
+        selectedModel === "openai/gpt-oss-20b"
+      );
       let providerError = null;
 
       if (!upstream.ok) {
@@ -145,7 +153,7 @@ export default {
         // GPT-OSS can occasionally emit a tool-call marker even though this endpoint
         // deliberately exposes no tools. Retry this specific failure on a compatible
         // text-only model; wallet actions remain plain WALLET_ACTION JSON proposals.
-        if (toolConflict && env.AI_MODEL === "openai/gpt-oss-20b") {
+        if (toolConflict && selectedModel === "openai/gpt-oss-20b") {
           upstream = await sendCompletion("llama-3.3-70b-versatile", false);
           providerError = null;
           if (!upstream.ok) {
