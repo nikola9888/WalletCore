@@ -111,16 +111,27 @@ export default {
             },
             ...messages
           ],
-          temperature: 0.7,
-          max_tokens: 1000
+          reasoning_effort: "low",
+          max_completion_tokens: 1000
         }),
         signal: AbortSignal.timeout(40000)
       });
 
       if (!upstream.ok) {
-        // Expose only the HTTP status, never provider response bodies or secrets.
+        // Return a short provider diagnostic without exposing request headers or secrets.
+        let providerMessage = "";
+        try {
+          const providerError = await upstream.json();
+          const detail = providerError?.error?.message || providerError?.message;
+          if (typeof detail === "string") {
+            providerMessage = detail.slice(0, 240);
+          }
+        } catch (_) {
+          // Keep the upstream status if the response is not JSON.
+        }
         return json({
-          error: "Groq zahtev nije uspeo (HTTP " + upstream.status + "). Ovo je greška odgovora servisa, ne formulacije poruke; proveri model, kvotu ili API status."
+          error: "Groq zahtev nije uspeo (HTTP " + upstream.status + ")" +
+            (providerMessage ? ": " + providerMessage : ".") 
         }, 502, corsHeaders);
       }
 
