@@ -96,42 +96,74 @@ export default {
       const baseUrl = (env.AI_BASE_URL || "https://api.groq.com/openai/v1")
         .replace(/\/+$/, "");
 
-      const upstream = await fetch(baseUrl + "/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer " + env.AI_API_KEY,
-          "Content-Type": "application/json"
+      const requestMessages = [
+        {
+          role: "system",
+          content: systemPrompt
         },
-        body: JSON.stringify({
-          model: env.AI_MODEL,
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt
-            },
-            ...messages
-          ],
-          reasoning_effort: "low",
+        ...messages
+      ];
+
+      const sendCompletion = async (model, useGptOssParameters) => {
+        const completionBody = {
+          model,
+          messages: requestMessages,
           max_completion_tokens: 1000
-        }),
-        signal: AbortSignal.timeout(40000)
-      });
+        };
+        if (useGptOssParameters) {
+          completionBody.reasoning_effort = "low";
+        } else {
+          delete completionBody.max_completion_tokens;
+          completionBody.max_tokens = 1000;
+        }
+
+        return fetch(baseUrl + "/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + env.AI_API_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(completionBody),
+          signal: AbortSignal.timeout(40000)
+        });
+      };
+
+      let upstream = await sendCompletion(env.AI_MODEL, env.AI_MODEL === "openai/gpt-oss-20b");
+      let providerError = null;
 
       if (!upstream.ok) {
-        // Return a short provider diagnostic without exposing request headers or secrets.
-        let providerMessage = "";
         try {
-          const providerError = await upstream.json();
-          const detail = providerError?.error?.message || providerError?.message;
-          if (typeof detail === "string") {
-            providerMessage = detail.slice(0, 240);
-          }
+          providerError = await upstream.json();
         } catch (_) {
-          // Keep the upstream status if the response is not JSON.
+          providerError = null;
         }
+
+        const detail = providerError?.error?.message || providerError?.message || "";
+        const toolConflict = typeof detail === "string" &&
+          /tool_choice is none,? but model called tool/i.test(detail);
+
+        // GPT-OSS can occasionally emit a tool-call marker even though this endpoint
+        // deliberately exposes no tools. Retry this specific failure on a compatible
+        // text-only model; wallet actions remain plain WALLET_ACTION JSON proposals.
+        if (toolConflict && env.AI_MODEL === "openai/gpt-oss-20b") {
+          upstream = await sendCompletion("llama-3.3-70b-versatile", false);
+          providerError = null;
+          if (!upstream.ok) {
+            try {
+              providerError = await upstream.json();
+            } catch (_) {
+              providerError = null;
+            }
+          }
+        }
+      }
+
+      if (!upstream.ok) {
+        const detail = providerError?.error?.message || providerError?.message;
+        const providerMessage = typeof detail === "string" ? detail.slice(0, 240) : "";
         return json({
           error: "Groq zahtev nije uspeo (HTTP " + upstream.status + ")" +
-            (providerMessage ? ": " + providerMessage : ".") 
+            (providerMessage ? ": " + providerMessage : ".")
         }, 502, corsHeaders);
       }
 
