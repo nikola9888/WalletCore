@@ -614,6 +614,11 @@ class MyAIChat:
             entry_surface.opacity = 0.72 if busy else 1.0
 
         def confirm_wallet_action(action):
+            latest_text = str(user_text if "user_text" in locals() else "")
+            english_reply = bool(re.search(r"\b(english|answer|reply|speak|in english|income|expense|earned|spent|paid|bought|fuel|groceries|lunch|today|yesterday|please|thanks|hello|hi|how much|what is|show me|add|update|delete)\b", latest_text.lower()))
+            def localized(sr, en):
+                return en if english_reply else sr
+
             action_kind = action.get("action")
             if action_kind not in ("add", "update", "delete"):
                 if action.get("type") in ("income", "expense"):
@@ -675,15 +680,15 @@ class MyAIChat:
             )
 
             if action_kind == "add":
-                title_text = translations[App.get_running_app().language]["confirm_new_transaction"]
-                kind_label = "Prihod" if action_type == "income" else "Trošak"
+                title_text = localized(translations[App.get_running_app().language]["confirm_new_transaction"], "Confirm new transaction")
+                kind_label = localized("Prihod", "Income") if action_type == "income" else localized("Trošak", "Expense")
                 details = [
                     "{}: {:,.2f} {}".format(kind_label, float(amount), currency).replace(",", " "),
-                    "Kategorija: {}".format(category.strip()),
-                    "Napomena: {}".format(note.strip() or "—")
+                    localized("Kategorija: {}", "Category: {}").format(category.strip()),
+                    localized("Napomena: {}", "Note: {}").format(note.strip() or "—")
                 ]
             elif action_kind == "update":
-                title_text = translations[App.get_running_app().language]["confirm_edit_transaction"]
+                title_text = localized(translations[App.get_running_app().language]["confirm_edit_transaction"], "Edit transaction")
                 old_kind = "Prihod" if existing[2] == "income" else "Trošak"
                 new_kind = "Prihod" if action_type == "income" else "Trošak"
                 details = [
@@ -694,7 +699,7 @@ class MyAIChat:
                     "Nova napomena: {}".format(note.strip() or "—")
                 ]
             else:
-                title_text = translations[App.get_running_app().language]["confirm_delete_transaction"]
+                title_text = localized(translations[App.get_running_app().language]["confirm_delete_transaction"], "Delete transaction")
                 old_kind = "Prihod" if existing[2] == "income" else "Trošak"
                 details = [
                     "Transakcija #{}".format(transaction_id),
@@ -724,7 +729,7 @@ class MyAIChat:
                 size_hint_y=None,
                 height=dp(44)
             )
-            confirm_label = "Potvrdi brisanje" if action_kind == "delete" else ("Sačuvaj izmenu" if action_kind == "update" else "Potvrdi unos")
+            confirm_label = localized("Potvrdi brisanje", "Confirm deletion") if action_kind == "delete" else (localized("Sačuvaj izmenu", "Save changes") if action_kind == "update" else localized("Potvrdi unos", "Confirm entry"))
             confirm = Button(text=confirm_label)
             cancel = Button(text=translations[App.get_running_app().language]["cancel"])
             actions.add_widget(confirm)
@@ -740,7 +745,7 @@ class MyAIChat:
 
             def cancel_proposal(*_):
                 dialog.dismiss()
-                add_message("Radnja je otkazana. Podaci nisu promenjeni.", "My AI")
+                add_message(localized("Radnja je otkazana. Podaci nisu promenjeni.", "Action cancelled. No data was changed."), "My AI")
 
             def save_proposal(*_):
                 confirm.disabled = True
@@ -751,7 +756,7 @@ class MyAIChat:
                     db = Database()
                     if action_kind == "add":
                         db.add_ai_transaction(amount, action_type, category, note)
-                        result = "{} od {:,.2f} {} je upisan. Kategorija: {}.".format(
+                        result = localized("{} od {:,.2f} {} je upisan. Kategorija: {}.", "{} of {:,.2f} {} was saved. Category: {}.").format(
                             kind_label, float(amount), currency, category.strip()
                         ).replace(",", " ")
                     elif action_kind == "update":
@@ -759,13 +764,13 @@ class MyAIChat:
                         if not current:
                             raise ValueError("Transakcija više ne postoji")
                         db.update_transaction(transaction_id, float(amount), action_type, category.strip(), note.strip())
-                        result = "Transakcija #{} je izmenjena i sačuvana.".format(transaction_id)
+                        result = localized("Transakcija #{} je izmenjena i sačuvana.", "Transaction #{} was updated and saved.").format(transaction_id)
                     else:
                         current = db.get_transaction(transaction_id)
                         if not current:
                             raise ValueError("Transakcija više ne postoji")
                         db.delete_transaction(transaction_id)
-                        result = "Transakcija #{} je obrisana.".format(transaction_id)
+                        result = localized("Transakcija #{} je obrisana.", "Transaction #{} was deleted.").format(transaction_id)
 
                     app = App.get_running_app()
                     if app is not None and app.root is not None:
@@ -779,7 +784,7 @@ class MyAIChat:
                         except Exception:
                             pass
                 except Exception as exc:
-                    result = "Radnja nije uspela ({}). Proveri istoriju transakcija.".format(type(exc).__name__)
+                    result = localized("Radnja nije uspela ({}). Proveri istoriju transakcija.", "The action failed ({}). Check transaction history.").format(type(exc).__name__)
                 finally:
                     if db is not None:
                         try:
@@ -934,14 +939,14 @@ class MyAIChat:
                                     or action.get("transaction_id") <= 0
                                 ):
                                     raise ValueError("invalid transaction id")
-                                summary = "Predlog radnje je spreman. Proveri detalje i potvrdi u prozoru."
+                                summary = localized("Predlog radnje je spreman. Proveri detalje i potvrdi u prozoru.", "The action proposal is ready. Review the details and confirm in the dialog.")
                                 self.messages.append({"role": "assistant", "content": summary})
                                 self.messages = self.messages[-100:]
                                 self._save_history()
                                 add_message(summary, "My AI")
                                 confirm_wallet_action(action)
                             except Exception:
-                                proposal_error = "Nisam uspeo da napravim ispravan predlog. Ništa nije upisano. Navedi tip transakcije, iznos i kategoriju."
+                                proposal_error = localized("Nisam uspeo da napravim ispravan predlog. Ništa nije upisano. Navedi tip transakcije, iznos i kategoriju.", "I couldn’t create a valid proposal. Nothing was saved. Specify the transaction type, amount, and category.")
                                 self.messages.append({"role": "assistant", "content": proposal_error})
                                 self.messages = self.messages[-100:]
                                 self._save_history()
