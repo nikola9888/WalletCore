@@ -614,7 +614,7 @@ class MyAIChat:
             entry_surface.opacity = 0.72 if busy else 1.0
 
         def confirm_wallet_action(action):
-            latest_text = str(user_text if "user_text" in locals() else "")
+            latest_text = str(user_text or "")
             english_reply = bool(re.search(r"\b(english|answer|reply|speak|in english|income|expense|earned|spent|paid|bought|fuel|groceries|lunch|today|yesterday|please|thanks|hello|hi|how much|what is|show me|add|update|delete)\b", latest_text.lower()))
             def localized(sr, en):
                 return en if english_reply else sr
