@@ -607,7 +607,7 @@ class MyAIChat:
             request_state["busy"] = busy
             send.disabled = busy
             entry.disabled = busy
-            send.text = "..." if busy else translations[App.get_running_app().language]["send"]
+            send.text = "..." if busy else translations.get(App.get_running_app().language, {}).get("send", "Send")
             send.background_color = (
                 (0.16, 0.25, 0.35, 1) if busy else (0.10, 0.42, 0.78, 1)
             )
@@ -983,8 +983,8 @@ class MyAIChat:
                                 chat.remove_widget(waiting_bubble)
                             set_busy(False)
                             add_message(
-                                "Greška pri prikazu odgovora ({}). "
-                                "Ponovo otvori My AI.".format(type(exc).__name__),
+                                "Greška pri prikazu odgovora ({}): {}. "
+                                "Ponovo otvori My AI.".format(type(exc).__name__, str(exc).strip()[:180] or "bez dodatnih detalja"),
                                 "My AI"
                             )
                         except Exception:
