@@ -817,6 +817,12 @@ class MyAIChat:
             request_messages = list(self.messages[-40:])
             request_messages.append({"role": "user", "content": user_text})
             wallet_context = self._get_wallet_context()
+            latest_text = str(user_text or "")
+            english_reply = bool(re.search(r"\\b(english|answer|reply|speak|in english|income|expense|earned|spent|paid|bought|fuel|groceries|lunch|today|yesterday|please|thanks|hello|hi|how much|what is|show me|add|update|delete)\\b", latest_text.lower()))
+
+            def localized(sr, en):
+                return en if english_reply else sr
+
             generation = request_state["generation"]
             set_busy(True)
             waiting_bubble = add_message("Pripremam odgovor...", "My AI")
