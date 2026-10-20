@@ -932,6 +932,21 @@ class MyAIChat:
                                 action = json.loads(answer[len("WALLET_ACTION:"):].strip())
                                 if not isinstance(action, dict):
                                     raise ValueError("invalid proposal")
+                                # Normalize common model output variations before strict validation.
+                                action["action"] = str(action.get("action", "")).strip().lower()
+                                action["type"] = str(action.get("type", "")).strip().lower()
+                                raw_amount = action.get("amount")
+                                if isinstance(raw_amount, str):
+                                    cleaned_amount = raw_amount.strip().replace(" ", "").replace(",", ".")
+                                    action["amount"] = float(cleaned_amount) if cleaned_amount else None
+                                if action.get("category") is None or not str(action.get("category", "")).strip():
+                                    action["category"] = "Ostalo"
+                                else:
+                                    action["category"] = str(action["category"]).strip()[:60]
+                                if action.get("note") is None:
+                                    action["note"] = ""
+                                elif not isinstance(action.get("note"), str):
+                                    action["note"] = str(action["note"])[:300]
                                 action_kind = action.get("action")
                                 if action_kind not in ("add", "update", "delete"):
                                     if action.get("type") in ("income", "expense"):
@@ -952,8 +967,11 @@ class MyAIChat:
                                 self._save_history()
                                 add_message(summary, "My AI")
                                 confirm_wallet_action(action)
-                            except Exception:
-                                proposal_error = localized("Nisam uspeo da napravim ispravan predlog. Ništa nije upisano. Navedi tip transakcije, iznos i kategoriju.", "I couldn’t create a valid proposal. Nothing was saved. Specify the transaction type, amount, and category.")
+                            except Exception as proposal_exc:
+                                proposal_error = localized(
+                                    "Predlog nije mogao da se obradi ({}: {}). Ništa nije upisano.",
+                                    "The proposal could not be processed ({}: {}). Nothing was saved."
+                                ).format(type(proposal_exc).__name__, str(proposal_exc).strip()[:120] or "no details")
                                 self.messages.append({"role": "assistant", "content": proposal_error})
                                 self.messages = self.messages[-100:]
                                 self._save_history()
