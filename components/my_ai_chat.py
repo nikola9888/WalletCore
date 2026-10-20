@@ -818,7 +818,7 @@ class MyAIChat:
             request_messages.append({"role": "user", "content": user_text})
             wallet_context = self._get_wallet_context()
             latest_text = str(user_text or "")
-            english_reply = bool(re.search(r"\\b(english|answer|reply|speak|in english|income|expense|earned|spent|paid|bought|fuel|groceries|lunch|today|yesterday|please|thanks|hello|hi|how much|what is|show me|add|update|delete)\\b", latest_text.lower()))
+            english_reply = bool(re.search(r"\b(english|answer|reply|speak|in english|income|expense|earned|spent|paid|bought|fuel|groceries|lunch|today|yesterday|please|thanks|hello|hi|how much|what is|show me|add|update|delete)\b", latest_text.lower()))
 
             def localized(sr, en):
                 return en if english_reply else sr
@@ -834,7 +834,8 @@ class MyAIChat:
                     payload = json.dumps(
                         {
                             "messages": request_messages,
-                            "wallet_context": wallet_context
+                            "wallet_context": wallet_context,
+                            "response_language": "English" if english_reply else "Serbian"
                         },
                         ensure_ascii=False
                     ).encode("utf-8")
