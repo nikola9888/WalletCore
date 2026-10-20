@@ -105,7 +105,7 @@ class MyAIChat:
                 "category_totals_all_time": categories,
                 "category_totals_current_month": current_categories,
                 "recent_transactions": recent,
-                "access": "read_only"
+                "access": "proposal_allowed_with_confirmation"
             }
         except Exception as exc:
             return {
