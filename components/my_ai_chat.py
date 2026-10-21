@@ -1058,8 +1058,16 @@ class MyAIChat:
                 sender = "Ti" if saved_message["role"] == "user" else "My AI"
                 add_message(saved_message["content"], sender)
         else:
-            add_message(
-                "Zdravo! Ja sam My AI, tvoj finansijski asistent. Mogu da analiziram prihode i troškove ili da pripremim unos za tvoju potvrdu.",
-                "My AI"
-            )
+            app_language = str(getattr(App.get_running_app(), "language", "en") or "en").lower()
+            if app_language.startswith("en"):
+                welcome_message = (
+                    "Hello! I'm My AI, your personal financial assistant. "
+                    "I can analyze your income and expenses or prepare a transaction for your confirmation."
+                )
+            else:
+                welcome_message = (
+                    "Zdravo! Ja sam My AI, tvoj finansijski asistent. "
+                    "Mogu da analiziram prihode i troškove ili da pripremim unos za tvoju potvrdu."
+                )
+            add_message(welcome_message, "My AI")
         popup.open()
