@@ -1,4 +1,6 @@
+import os
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.graphics import Color, RoundedRectangle, Line
 from kivy.uix.popup import Popup
@@ -36,20 +38,28 @@ class TransactionCard(BoxLayout):
         accent = (0.2, 0.9, 0.5, 1) if ttype == "income" else (0.9, 0.3, 0.3, 1)
         sign = "+" if ttype == "income" else "-"
 
-        icons = {
-            "food": "🍔",
-            "transport": "🚗",
-            "shopping": "🛍️",
-            "bills": "📄",
-            "health": "💊",
-            "salary": "💰",
-            "fun": "🎮",
-            "gift": "🎁",
-            "other": "📦"
+        icon_files = {
+            "food": "food.png",
+            "transport": "transport.png",
+            "shopping": "shopping.png",
+            "bills": "bills.png",
+            "health": "health.png",
+            "salary": "salary.png",
+            "fun": "fun.png",
+            "gift": "other.png",
+            "other": "other.png",
+            "work": "salary.png",
+            "groceries": "food.png",
+            "fuel": "transport.png",
+            "rent": "bills.png",
         }
 
         self.category = category
-        self.icon = icons.get(category, "📌")
+        category_key = str(category or "other").strip().lower()
+        icon_name = icon_files.get(category_key, "other.png")
+        self.category_icon_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "assets", "icons", icon_name
+        )
 
         with self.canvas.before:
 
@@ -86,18 +96,31 @@ class TransactionCard(BoxLayout):
             size_hint_x=0.42
         )
 
+        category_title = BoxLayout(
+            orientation="horizontal",
+            spacing=8,
+            size_hint_y=1
+        )
+        self.category_icon = Image(
+            source=self.category_icon_path,
+            size_hint=(None, None),
+            size=(32, 32),
+            allow_stretch=True,
+            keep_ratio=True
+        )
         self.title_label = Label(
-            text=f"{self.icon}  {t.get(category, category)}",
+            text=t.get(category, category),
             bold=True,
             halign="left",
             valign="middle",
             font_size="17sp",
             color=(1, 1, 1, 1)
         )
-
         self.title_label.bind(
             size=lambda i, v: setattr(i, "text_size", i.size)
         )
+        category_title.add_widget(self.category_icon)
+        category_title.add_widget(self.title_label)
 
         self.hint_label = Label(
             text=t["double_click_change"],
@@ -111,7 +134,7 @@ class TransactionCard(BoxLayout):
             size=lambda i, v: setattr(i, "text_size", i.size)
         )
 
-        left.add_widget(self.title_label)
+        left.add_widget(category_title)
         left.add_widget(self.hint_label)
 
         # SREDINA: NOTE
