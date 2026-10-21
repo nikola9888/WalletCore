@@ -613,9 +613,7 @@ class MyAIChat:
             )
             entry_surface.opacity = 0.72 if busy else 1.0
 
-        def confirm_wallet_action(action):
-            latest_text = str(user_text or "")
-            english_reply = bool(re.search(r"\b(english|answer|reply|speak|in english|income|expense|earned|spent|paid|bought|fuel|groceries|lunch|today|yesterday|please|thanks|hello|hi|how much|what is|show me|add|update|delete)\b", latest_text.lower()))
+        def confirm_wallet_action(action, english_reply=False):
             def localized(sr, en):
                 return en if english_reply else sr
 
@@ -966,7 +964,7 @@ class MyAIChat:
                                 self.messages = self.messages[-100:]
                                 self._save_history()
                                 add_message(summary, "My AI")
-                                confirm_wallet_action(action)
+                                confirm_wallet_action(action, english_reply)
                             except Exception as proposal_exc:
                                 proposal_error = localized(
                                     "Predlog nije mogao da se obradi ({}: {}). Ništa nije upisano.",
