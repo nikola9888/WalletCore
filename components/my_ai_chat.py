@@ -834,7 +834,7 @@ class MyAIChat:
                 "sacuvaj", "molim", "hvala", "zdravo", "ćao", "cao"
             )
             has_english = any(
-                re.search(r"\\b" + re.escape(marker) + r"\\b", normalized_text)
+                re.search(r"\b" + re.escape(marker) + r"\b", normalized_text)
                 for marker in english_markers
             )
             has_serbian = any(marker in normalized_text for marker in serbian_markers)
@@ -960,7 +960,7 @@ class MyAIChat:
                                     cleaned_amount = raw_amount.strip().replace(" ", "").replace(",", ".")
                                     action["amount"] = float(cleaned_amount) if cleaned_amount else None
                                 if action.get("category") is None or not str(action.get("category", "")).strip():
-                                    action["category"] = "Ostalo"
+                                    action["category"] = "Other" if english_reply else "Ostalo"
                                 else:
                                     action["category"] = str(action["category"]).strip()[:60]
                                 if action.get("note") is None:
