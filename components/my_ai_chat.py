@@ -305,7 +305,7 @@ class MyAIChat:
         top = BoxLayout(
             orientation="horizontal",
             size_hint_y=None,
-            height=dp(58),
+            height=dp(67),
             spacing=dp(10),
             padding=[dp(4), dp(2), dp(2), dp(2)]
         )
