@@ -816,7 +816,29 @@ class MyAIChat:
             request_messages.append({"role": "user", "content": user_text})
             wallet_context = self._get_wallet_context()
             latest_text = str(user_text or "")
-            english_reply = bool(re.search(r"\b(english|answer|reply|speak|in english|income|expense|earned|spent|paid|bought|fuel|groceries|lunch|today|yesterday|please|thanks|hello|hi|how much|what is|show me|add|update|delete)\b", latest_text.lower()))
+            normalized_text = latest_text.lower().strip()
+            english_markers = (
+                "english", "answer", "reply", "speak", "in english", "income",
+                "expense", "earned", "spent", "paid", "bought", "fuel",
+                "groceries", "lunch", "today", "yesterday", "please", "thanks",
+                "hello", "hi", "how much", "what is", "show me", "add", "update",
+                "delete", "full report", "report", "balance", "wallet", "show",
+                "money", "work", "salary", "rent", "food", "save", "spent",
+                "give me", "tell me", "my transactions", "this month"
+            )
+            serbian_markers = (
+                "ć", "č", "š", "ž", "đ", "daj", "prihod", "trošak", "troškovi",
+                "stanje", "novčanik", "plata", "zaradio", "zaradila", "potrošio",
+                "potrošila", "danas", "juče", "mesec", "izveštaj", "izvestaj",
+                "koliko", "dodaj", "obriši", "obrisi", "izmeni", "sačuvaj",
+                "sacuvaj", "molim", "hvala", "zdravo", "ćao", "cao"
+            )
+            has_english = any(
+                re.search(r"\\b" + re.escape(marker) + r"\\b", normalized_text)
+                for marker in english_markers
+            )
+            has_serbian = any(marker in normalized_text for marker in serbian_markers)
+            english_reply = has_english and not has_serbian
 
             def localized(sr, en):
                 return en if english_reply else sr
