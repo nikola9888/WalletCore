@@ -959,10 +959,30 @@ class MyAIChat:
                                 if isinstance(raw_amount, str):
                                     cleaned_amount = raw_amount.strip().replace(" ", "").replace(",", ".")
                                     action["amount"] = float(cleaned_amount) if cleaned_amount else None
-                                if action.get("category") is None or not str(action.get("category", "")).strip():
-                                    action["category"] = "Other" if english_reply else "Ostalo"
-                                else:
-                                    action["category"] = str(action["category"]).strip()[:60]
+                                raw_category = str(action.get("category") or "").strip()
+                                if english_reply:
+                                    category_key = raw_category.casefold()
+                                    if category_key in ("", "ostalo", "other", "miscellaneous", "uncategorized"):
+                                        message_text = latest_text.casefold()
+                                        if any(word in message_text for word in ("work", "job", "salary", "wage", "paycheck")):
+                                            raw_category = "Work"
+                                        elif any(word in message_text for word in ("food", "groceries", "supermarket")):
+                                            raw_category = "Groceries"
+                                        elif any(word in message_text for word in ("fuel", "gas", "petrol", "diesel")):
+                                            raw_category = "Fuel"
+                                        elif any(word in message_text for word in ("rent", "apartment")):
+                                            raw_category = "Rent"
+                                        else:
+                                            raw_category = "Other"
+                                    elif category_key == "posao":
+                                        raw_category = "Work"
+                                    elif category_key == "hrana":
+                                        raw_category = "Food"
+                                    elif category_key in ("gorivo",):
+                                        raw_category = "Fuel"
+                                elif not raw_category:
+                                    raw_category = "Ostalo"
+                                action["category"] = raw_category[:60]
                                 if action.get("note") is None:
                                     action["note"] = ""
                                 elif not isinstance(action.get("note"), str):
