@@ -845,7 +845,7 @@ class MyAIChat:
 
             generation = request_state["generation"]
             set_busy(True)
-            waiting_bubble = add_message(localized("Pripremam odgovor...", "Preparing response..."), "My AI")
+            waiting_bubble = add_message(translations.get(App.get_running_app().language, translations["en"]).get("ai_preparing_response", "Preparing response..."), "My AI")
 
             def do_request():
                 answer = None
