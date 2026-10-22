@@ -245,35 +245,73 @@ class SettingsScreen(Screen):
         popup.open()
 
     def set_language(self, language, popup):
+        """Change locale without allowing a screen refresh error to crash the app."""
+        import traceback
 
         app = App.get_running_app()
-
         from main import CURRENCIES
+
+        # Reject unknown locale codes before changing the saved setting.
+        if language not in translations:
+            print("LANGUAGE CHANGE: unsupported locale:", language)
+            return
 
         app.language = language
         app.currency = CURRENCIES.get(language, "RSD")
-
         app.save_language()
- 
-        popup.dismiss()
 
-        self.update_language()
+        try:
+            popup.dismiss()
+        except Exception:
+            pass
 
-        home = self.manager.get_screen("home")
-        home.update_language()
-        home.update_ui()
+        # Refresh each screen independently. One stale/missing translation key
+        # must not terminate the application during a language change.
+        refreshes = [
+            ("settings", self, "update_language"),
+        ]
+        manager = self.manager
+        if manager is not None:
+            for screen_name, method_name in (
+                ("home", "update_language"),
+                ("history", "update_language"),
+                ("profile", "update_language"),
+                ("about", "update_language"),
+            ):
+                try:
+                    if manager.has_screen(screen_name):
+                        refreshes.append(
+                            (screen_name, manager.get_screen(screen_name), method_name)
+                        )
+                except Exception:
+                    traceback.print_exc()
 
+        for screen_name, screen, method_name in refreshes:
+            try:
+                getattr(screen, method_name)()
+            except Exception as exc:
+                print(
+                    "LANGUAGE REFRESH ERROR [{}]: {}: {}".format(
+                        screen_name, type(exc).__name__, exc
+                    )
+                )
+                traceback.print_exc()
 
-        if self.manager.has_screen("history"):
-            history = self.manager.get_screen("history")
-            history.update_language()
-        self.manager.current = "home"
-        if self.manager.has_screen("profile"):
-            profile = self.manager.get_screen("profile")
-            profile.update_language()
-        if self.manager.has_screen("about"):
-            about = self.manager.get_screen("about")
-            about.update_language()
+        # Refresh currency-dependent totals separately from translated labels.
+        try:
+            if manager is not None and manager.has_screen("home"):
+                manager.get_screen("home").update_ui()
+        except Exception as exc:
+            print("LANGUAGE HOME UI ERROR: {}: {}".format(type(exc).__name__, exc))
+            traceback.print_exc()
+
+        # Always leave the settings dialog/screen in a usable state.
+        try:
+            if manager is not None and manager.has_screen("home"):
+                manager.current = "home"
+        except Exception:
+            traceback.print_exc()
+
     def update_language(self):
 
         t = translations[App.get_running_app().language]
