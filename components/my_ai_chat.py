@@ -857,23 +857,61 @@ class MyAIChat:
                 "hi": "Hindi", "zh": "Chinese", "ja": "Japanese", "ko": "Korean",
                 "ar": "Arabic", "fr-ca": "Canadian French"
             }
+            # Default to the selected app language, but detect the language
+            # of a clear message so English requests still work in a Serbian UI.
             response_language = response_languages.get(app_language, "Serbian")
+            language_markers = (
+                ("English", ("hello", "please", "thanks", "earned", "income", "expense", "spent", "paid", "bought", "show me", "how much", "my balance", "from work", "today", "yesterday")),
+                ("German", ("hallo", "bitte", "danke", "einnahmen", "ausgaben", "verdient", "bezahlt", "ich habe", "zeige mir")),
+                ("Spanish", ("hola", "por favor", "gracias", "ingresos", "gastos", "gané", "gane", "gasté", "gaste", "pagué", "pague", "muéstrame", "muestrame")),
+                ("French", ("bonjour", "merci", "revenu", "dépense", "depense", "j'ai gagné", "j’ai gagné", "j'ai payé", "j’ai payé", "montre-moi")),
+                ("Italian", ("ciao", "grazie", "entrate", "spese", "ho guadagnato", "ho pagato", "mostrami")),
+                ("Portuguese", ("olá", "ola", "obrigado", "obrigada", "receita", "despesa", "ganhei", "gastei", "paguei", "mostre")),
+                ("Turkish", ("merhaba", "teşekkür", "gelir", "gider", "kazandım", "harcadım", "ödedim")),
+                ("Polish", ("cześć", "czesc", "dziękuję", "dziekuje", "przychód", "przychod", "wydatek", "zarobiłem", "zarobiłam")),
+                ("Dutch", ("hallo", "bedankt", "inkomsten", "uitgaven", "verdiend", "betaald", "laat zien")),
+                ("Romanian", ("salut", "mulțumesc", "multumesc", "venit", "cheltuieli", "am câștigat", "am castigat", "am plătit", "am platit")),
+                ("Indonesian", ("halo", "terima kasih", "pemasukan", "pengeluaran", "saya mendapat", "saya membayar")),
+                ("Vietnamese", ("xin chào", "xin chao", "cảm ơn", "cam on", "thu nhập", "chi phí", "tôi đã")),
+                ("Serbian", ("ć", "č", "š", "ž", "đ", "prihod", "trošak", "troškovi", "zaradio", "zaradila", "potrošio", "potrošila", "danas", "juče", "koliko", "dodaj", "izveštaj", "izvestaj", "plata", "novčanik", "novcanik")),
+            )
+            detected_language = None
+            for language_name, markers in language_markers:
+                if any(marker in normalized_text for marker in markers):
+                    detected_language = language_name
+                    break
+            if re.search(r"[\\u0600-\\u06FF]", latest_text):
+                detected_language = "Arabic"
+            elif re.search(r"[\\u0900-\\u097F]", latest_text):
+                detected_language = "Hindi"
+            elif re.search(r"[\\u3040-\\u30FF]", latest_text):
+                detected_language = "Japanese"
+            elif re.search(r"[\\uAC00-\\uD7AF]", latest_text):
+                detected_language = "Korean"
+            elif re.search(r"[\\u4E00-\\u9FFF]", latest_text):
+                detected_language = "Chinese"
+            elif re.search(r"[\\u0400-\\u052F]", latest_text):
+                detected_language = "Ukrainian" if any(marker in normalized_text for marker in ("дякую", "будь ласка", "зарплат", "витрат", "дохід", "покажи")) else "Russian"
+            if detected_language:
+                response_language = detected_language
+
             explicit_language_requests = (
-                (r"\b(in english|speak english|reply in english|answer in english)\b", "English"),
-                (r"\b(na srpskom|govori srpski|odgovori na srpskom)\b", "Serbian"),
-                (r"\b(en français|en francais|réponds en français)\b", "French"),
-                (r"\b(auf deutsch|antworte auf deutsch)\b", "German"),
-                (r"\b(en español|responde en español)\b", "Spanish"),
-                (r"\b(in italiano|rispondi in italiano)\b", "Italian"),
-                (r"\b(em português|em portugues)\b", "Portuguese"),
-                (r"\b(po polsku|odpowiedz po polsku)\b", "Polish"),
-                (r"\b(по-русски|на русском)\b", "Russian"),
-                (r"\b(türkçe cevap ver|türkçe konuş)\b", "Turkish"),
+                (r"\\b(in english|speak english|reply in english|answer in english)\\b", "English"),
+                (r"\\b(na srpskom|govori srpski|odgovori na srpskom)\\b", "Serbian"),
+                (r"\\b(en français|en francais|réponds en français)\\b", "French"),
+                (r"\\b(auf deutsch|antworte auf deutsch)\\b", "German"),
+                (r"\\b(en español|responde en español)\\b", "Spanish"),
+                (r"\\b(in italiano|rispondi in italiano)\\b", "Italian"),
+                (r"\\b(em português|em portugues)\\b", "Portuguese"),
+                (r"\\b(po polsku|odpowiedz po polsku)\\b", "Polish"),
+                (r"\\b(по-русски|на русском)\\b", "Russian"),
+                (r"\\b(türkçe cevap ver|türkçe konuş)\\b", "Turkish"),
             )
             for pattern, requested_language in explicit_language_requests:
                 if re.search(pattern, normalized_text, re.IGNORECASE):
                     response_language = requested_language
                     break
+            english_reply = response_language == "English"
 
             generation = request_state["generation"]
             set_busy(True)
