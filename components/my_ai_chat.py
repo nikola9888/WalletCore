@@ -843,6 +843,38 @@ class MyAIChat:
             def localized(sr, en):
                 return en if english_reply else sr
 
+            # Prefer the selected app language for My AI, but respect an explicit
+            # language request in the latest message.
+            app_language = str(getattr(App.get_running_app(), "language", "sr") or "sr").lower()
+            response_languages = {
+                "sr": "Serbian", "en": "English", "de": "German", "it": "Italian",
+                "es": "Spanish", "fr": "French", "ru": "Russian", "pt": "Portuguese",
+                "tr": "Turkish", "pl": "Polish", "nl": "Dutch", "uk": "Ukrainian",
+                "ro": "Romanian", "bg": "Bulgarian", "hr": "Croatian", "bs": "Bosnian",
+                "sl": "Slovenian", "mk": "Macedonian", "sq": "Albanian", "cs": "Czech",
+                "hu": "Hungarian", "el": "Greek", "sv": "Swedish", "no": "Norwegian",
+                "da": "Danish", "fi": "Finnish", "id": "Indonesian", "vi": "Vietnamese",
+                "hi": "Hindi", "zh": "Chinese", "ja": "Japanese", "ko": "Korean",
+                "ar": "Arabic", "fr-ca": "Canadian French"
+            }
+            response_language = response_languages.get(app_language, "Serbian")
+            explicit_language_requests = (
+                (r"\b(in english|speak english|reply in english|answer in english)\b", "English"),
+                (r"\b(na srpskom|govori srpski|odgovori na srpskom)\b", "Serbian"),
+                (r"\b(en français|en francais|réponds en français)\b", "French"),
+                (r"\b(auf deutsch|antworte auf deutsch)\b", "German"),
+                (r"\b(en español|responde en español)\b", "Spanish"),
+                (r"\b(in italiano|rispondi in italiano)\b", "Italian"),
+                (r"\b(em português|em portugues)\b", "Portuguese"),
+                (r"\b(po polsku|odpowiedz po polsku)\b", "Polish"),
+                (r"\b(по-русски|на русском)\b", "Russian"),
+                (r"\b(türkçe cevap ver|türkçe konuş)\b", "Turkish"),
+            )
+            for pattern, requested_language in explicit_language_requests:
+                if re.search(pattern, normalized_text, re.IGNORECASE):
+                    response_language = requested_language
+                    break
+
             generation = request_state["generation"]
             set_busy(True)
             waiting_bubble = add_message(translations.get(App.get_running_app().language, translations["en"]).get("ai_preparing_response", "Preparing response..."), "My AI")
@@ -855,7 +887,7 @@ class MyAIChat:
                         {
                             "messages": request_messages,
                             "wallet_context": wallet_context,
-                            "response_language": "English" if english_reply else "Serbian"
+                            "response_language": response_language
                         },
                         ensure_ascii=False
                     ).encode("utf-8")
