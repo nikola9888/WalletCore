@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - 'components/my_ai_chat.py'
+      - 'screens/settings.py'
       - '.github/workflows/build-apk-test.yml'
 
 jobs:
