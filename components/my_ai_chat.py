@@ -880,32 +880,32 @@ class MyAIChat:
                 if any(marker in normalized_text for marker in markers):
                     detected_language = language_name
                     break
-            if re.search(r"[\\u0600-\\u06FF]", latest_text):
+            if re.search(r"[\u0600-\\u06FF]", latest_text):
                 detected_language = "Arabic"
-            elif re.search(r"[\\u0900-\\u097F]", latest_text):
+            elif re.search(r"[\u0900-\\u097F]", latest_text):
                 detected_language = "Hindi"
-            elif re.search(r"[\\u3040-\\u30FF]", latest_text):
+            elif re.search(r"[\u3040-\\u30FF]", latest_text):
                 detected_language = "Japanese"
-            elif re.search(r"[\\uAC00-\\uD7AF]", latest_text):
+            elif re.search(r"[\uAC00-\\uD7AF]", latest_text):
                 detected_language = "Korean"
-            elif re.search(r"[\\u4E00-\\u9FFF]", latest_text):
+            elif re.search(r"[\u4E00-\\u9FFF]", latest_text):
                 detected_language = "Chinese"
-            elif re.search(r"[\\u0400-\\u052F]", latest_text):
+            elif re.search(r"[\u0400-\\u052F]", latest_text):
                 detected_language = "Ukrainian" if any(marker in normalized_text for marker in ("дякую", "будь ласка", "зарплат", "витрат", "дохід", "покажи")) else "Russian"
             if detected_language:
                 response_language = detected_language
 
             explicit_language_requests = (
-                (r"\\b(in english|speak english|reply in english|answer in english)\\b", "English"),
-                (r"\\b(na srpskom|govori srpski|odgovori na srpskom)\\b", "Serbian"),
-                (r"\\b(en français|en francais|réponds en français)\\b", "French"),
-                (r"\\b(auf deutsch|antworte auf deutsch)\\b", "German"),
-                (r"\\b(en español|responde en español)\\b", "Spanish"),
-                (r"\\b(in italiano|rispondi in italiano)\\b", "Italian"),
-                (r"\\b(em português|em portugues)\\b", "Portuguese"),
-                (r"\\b(po polsku|odpowiedz po polsku)\\b", "Polish"),
-                (r"\\b(по-русски|на русском)\\b", "Russian"),
-                (r"\\b(türkçe cevap ver|türkçe konuş)\\b", "Turkish"),
+                (r"\b(in english|speak english|reply in english|answer in english)\\b", "English"),
+                (r"\b(na srpskom|govori srpski|odgovori na srpskom)\\b", "Serbian"),
+                (r"\b(en français|en francais|réponds en français)\\b", "French"),
+                (r"\b(auf deutsch|antworte auf deutsch)\\b", "German"),
+                (r"\b(en español|responde en español)\\b", "Spanish"),
+                (r"\b(in italiano|rispondi in italiano)\\b", "Italian"),
+                (r"\b(em português|em portugues)\\b", "Portuguese"),
+                (r"\b(po polsku|odpowiedz po polsku)\\b", "Polish"),
+                (r"\b(по-русски|на русском)\\b", "Russian"),
+                (r"\b(türkçe cevap ver|türkçe konuş)\\b", "Turkish"),
             )
             for pattern, requested_language in explicit_language_requests:
                 if re.search(pattern, normalized_text, re.IGNORECASE):
