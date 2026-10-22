@@ -965,6 +965,46 @@ for _code, _labels in _UI_TRANSLATIONS.items():
     if _code in translations:
         translations[_code].update(dict(zip(_UI_KEYS, _labels)))
 
+_AI_WAITING_TRANSLATIONS = {
+    "sr": "Pripremam odgovor...",
+    "en": "Preparing response...",
+    "de": "Antwort wird vorbereitet...",
+    "it": "Preparazione della risposta...",
+    "es": "Preparando la respuesta...",
+    "fr": "Préparation de la réponse...",
+    "ru": "Подготавливаю ответ...",
+    "pt": "Preparando a resposta...",
+    "tr": "Yanıt hazırlanıyor...",
+    "pl": "Przygotowuję odpowiedź...",
+    "nl": "Antwoord voorbereiden...",
+    "uk": "Готую відповідь...",
+    "ro": "Pregătesc răspunsul...",
+    "bg": "Подготвям отговор...",
+    "hr": "Pripremam odgovor...",
+    "bs": "Pripremam odgovor...",
+    "sl": "Pripravljam odgovor...",
+    "mk": "Го подготвувам одговорот...",
+    "sq": "Po përgatis përgjigjen...",
+    "cs": "Připravuji odpověď...",
+    "hu": "Válasz előkészítése...",
+    "el": "Προετοιμασία απάντησης...",
+    "sv": "Förbereder svar...",
+    "no": "Forbereder svar...",
+    "da": "Forbereder svar...",
+    "fi": "Valmistellaan vastausta...",
+    "id": "Menyiapkan jawaban...",
+    "vi": "Đang chuẩn bị câu trả lời...",
+    "hi": "जवाब तैयार किया जा रहा है...",
+    "zh": "正在准备回复...",
+    "ja": "回答を準備しています...",
+    "ko": "답변을 준비하고 있습니다...",
+    "ar": "جارٍ إعداد الرد...",
+    "fr-CA": "Préparation de la réponse..."
+}
+for _locale, _waiting_text in _AI_WAITING_TRANSLATIONS.items():
+    if _locale in translations:
+        translations[_locale]["ai_preparing_response"] = _waiting_text
+
 _AI_ERROR_DEFAULTS = {
     "ai_service_http_error": "The AI service returned HTTP error {}.",
     "ai_connection_error": "Connection error ({}): {}",
